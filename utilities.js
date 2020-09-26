@@ -79,29 +79,34 @@ function readCodeFilesFromServer(fileDescriptors, callback){
     }
 }
 
-
+/**
+ *
+ * @param {Array.<string>}filesToCheck
+ * @returns {[Map<string, CodeFile>,Array.<Element>]}
+ */
 function getCheckedFileCode(filesToCheck) {
-	var fileDictionary = new Map();
-	var trCodeLines = [];
-	var iLine = 0;
+	let fileDictionary = new Map();
+	let trCodeLines = [];
+	let iLine = 0;
 	$.each(
 		filesToCheck, 
 		function(fileIndex, filename){
-			var trCodeLinesForFile = getTrCodesForCodeFile(filename);
-			var fileCodeLines = [];
+			const trCodeLinesForFile = getTrCodesForCodeFile(filename);
+			let fileCodeLines = [];
 			const iStartLine = iLine;
 			$.each(
 				trCodeLinesForFile,
 				function(trCodeLineIndex,trCodeLine){
-					var codeText = $($(trCodeLine).find("div.gwt-Label")[0]).text();
+					const codeText = $($(trCodeLine).find("div.gwt-Label")[0]).text();
 					fileCodeLines.push(codeText)
 					iLine++;
 				}
 			);
 			const iEndLine = iLine;
-			fileCode = fileCodeLines.join("\n");
+			const fileCode = fileCodeLines.join("\n");
 			const [abstractSyntaxTree, parseError] = parseJava(fileCode);
-			fileDictionary.set(filename, new CodeFile(fileCode, trCodeLinesForFile, abstractSyntaxTree, iStartLine, iEndLine));
+
+			fileDictionary.set(filename, new CodeFile(fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
 			trCodeLines.push(...trCodeLinesForFile);
 		}
 	);

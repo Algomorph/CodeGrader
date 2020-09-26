@@ -135,14 +135,16 @@ let namingModule = {};
         let typeNames = [];
 
         for (const [filename, codeFile] of fileDictionary.entries()) {
-            const syntaxTree = codeFile.abstractSyntaxTree;
-            //iterate over classes / enums / etc.
-            for (const type of syntaxTree.types) {
-                const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
+            if(codeFile.abstractSyntaxTree !== null){
+                const syntaxTree = codeFile.abstractSyntaxTree;
+                //iterate over classes / enums / etc.
+                for (const type of syntaxTree.types) {
+                    const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
 
-                methodAndVariableNames.push(...typeMethodsAndVariables);
-                constantNames.push(...typeConstants);
-                typeNames.push(...typeTypeNames);
+                    methodAndVariableNames.push(...typeMethodsAndVariables);
+                    constantNames.push(...typeConstants);
+                    typeNames.push(...typeTypeNames);
+                }
             }
         }
         methodAndVariableNames = uniqueNames(methodAndVariableNames);
