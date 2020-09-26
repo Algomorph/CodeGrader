@@ -28,7 +28,7 @@ function cs131project7(UIpanel) {
 				var namesList = varNames.split(",");
 				$.each(namesList, function(ni,name) {
 					var varName = $.trim(name.replace(/=.*$/ig,""));
-					$(UIpanel).append(makeLableWithClickToScroll(varName,tr));
+					$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
 					addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","orange");
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
@@ -54,7 +54,7 @@ function cs131project7(UIpanel) {
 		var wordsFoundInCodeText = codeText.match(regexToFind);
 		if(wordsFoundInCodeText) {
 			addButtonComment(tr,"Named Constant","You have to use Named constants instead of integers.","lightgreen");
-			$(UIpanel).append(makeLableWithClickToScroll(codeText.replace(/\s/ig,""),tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
 		}
 	});
 	$(UIpanel).append("<p>-2 for ROCK and WATER.  -1 for DIRECTIONS</p>");
@@ -74,7 +74,7 @@ function cs131project7(UIpanel) {
 			var codeText = $($(tr).find("div.gwt-Label")[0]).text();
 			if(codeText.match(/else if/)) {
 				addButtonComment(tr,"Needless else if","[else if] is unnecessary. Regular else would work.","lightblue");
-				$(UIpanel).append(makeLableWithClickToScroll(codeText.replace(/\s/ig,""),tr));
+				$(UIpanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
 			}
 		});
 	});
@@ -127,7 +127,7 @@ function cs131project7(UIpanel) {
 			// var matchingFunction = _.filter(givenMethods, function(w) { return functionName.indexOf(w)!=-1; });
 			if(givenMethods.indexOf(functionName)==-1) {
 				addButtonComment(tr,"Helper method with no comments","User-generated helper methods require block comments.","pink");
-				$(UIpanel).append(makeLableWithClickToScroll(functionName,tr));
+				$(UIpanel).append(makeLabelWithClickToScroll(functionName,tr));
 			}
 		}
 	});	
@@ -186,7 +186,7 @@ function cs131project6(UIpanel) {
 		if(codeText.match(/\/\//i)) return;
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
-			$(UIpanel).append(makeLableWithClickToScroll(w,tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 	});
 	// check "for","while" loop used in Mensagerie or PetStore
@@ -205,7 +205,7 @@ function cs131project6(UIpanel) {
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
 			var labelText = codeText.replace(/^\s+/,"").replace(/\s+$/,"");
-			$(UIpanel).append(makeLableWithClickToScroll(labelText,tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(labelText,tr));
 			forloopUsed.push(labelText);
 			addButtonComment(tr,"Loops Used","Loops are not allowed to use in Menagerie and PetStore.","yellow");
 		});
@@ -226,7 +226,7 @@ function cs131project6(UIpanel) {
 			var functionName = decl.match(/[a-zA-Z0-9]+\(/gi)[0].replace("(");
 			var functionNotGiven = _.filter(givenMethods, function(w) { return codeText.indexOf(functionName)!=-1; });
 			_.each(functionNotGiven, function(f) {
-				$(UIpanel).append(makeLableWithClickToScroll(f,tr));
+				$(UIpanel).append(makeLabelWithClickToScroll(f,tr));
 			});
 		}
 	});	
@@ -245,7 +245,7 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/add\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLableWithClickToScroll("add:SortedList",trCodeLines_targetMethod[0]));
+	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("add:SortedList",trCodeLines_targetMethod[0]));
 	// checking remove list not reusing remove single item
 	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public void remove\(Sorte/,/\/\*/);
 	isRedundant = true;
@@ -253,7 +253,7 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/remove\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLableWithClickToScroll("remove:SortedList",trCodeLines_targetMethod[0]));
+	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("remove:SortedList",trCodeLines_targetMethod[0]));
 	// checking checkAvailability list not reusing single item version
 	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public boolean checkAvailability\(SortedListOfImmutables/,  /\/\*/);
 	isRedundant = true;
@@ -261,7 +261,7 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/checkAvailability\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLableWithClickToScroll("checkAvailability:SortedList",trCodeLines_targetMethod[0]));
+	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("checkAvailability:SortedList",trCodeLines_targetMethod[0]));
 	$(UIpanel).append("<p>add:2pts,  remove:2pts, checkAvail.:1pts.</p>");
 	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='5'/></p>");
 
@@ -286,7 +286,7 @@ function cs131project6(UIpanel) {
 					var varName = $.trim(name.replace(/=.*$/ig,""));
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
-						$(UIpanel).append(makeLableWithClickToScroll(varName,tr));	
+						$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
 						addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","yellow");
 					}
 				}); // end of namesList
@@ -351,7 +351,7 @@ function cs131project5(UIpanel) {
 		if(codeText.match(/\/\//i)) return;
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
-			$(UIpanel).append(makeLableWithClickToScroll(w,tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
 			addButtonComment(tr,"ArrayList&LinkedList"," ","blue");
 		});
 	});
@@ -367,7 +367,7 @@ function cs131project5(UIpanel) {
 		// actual test of the code string
 		var methodsFound= _.filter(helperMethods, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(methodsFound, function(w) {
-			$(UIpanel).append(makeLableWithClickToScroll(w,tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 	});
 	$(UIpanel).append("<p>if no helper methods used, -2 style points</p>");
@@ -397,7 +397,7 @@ function cs131project5(UIpanel) {
 					// }
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
-						$(UIpanel).append(makeLableWithClickToScroll(varName,tr));	
+						$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
 						addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","yellow");
 					}
 				}); // end of namesList
@@ -530,7 +530,7 @@ function cs131project4(UIpanel) {
 					var varName = $.trim(name.replace(/=.*$/ig,""));
 					if(varName.length<2 && whitelist.indexOf(varName.toLowerCase())==-1) {
 						addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","yellow");
-						$(shortVarsDiv).append(makeLableWithClickToScroll(varName,tr))
+						$(shortVarsDiv).append(makeLabelWithClickToScroll(varName,tr))
 						shortVars.push(varName);
 					}
 					generalVars.push(varName);
@@ -558,7 +558,7 @@ function cs131project4(UIpanel) {
 			count++;
 			if(codeText.indexOf("public static MyDouble zero")===-1) {
 				addButtonComment(tr,"MyDouble.zero","Use MyDouble.zero instead of creating your own static one","blue");
-				$(UIpanel).append(makeLableWithClickToScroll("MyDouble(0)",tr));
+				$(UIpanel).append(makeLabelWithClickToScroll("MyDouble(0)",tr));
 			}
 		}
 	});
@@ -582,7 +582,7 @@ function cs131project4(UIpanel) {
 			var helperMethodsFound = _.filter(givenMethods, function(m) { return codeText.match(m)!==null; });
 			if(helperMethodsFound.length===0) {
 				addButtonComment(tr, "public helper","A helper method should be private not public","red");
-				$(UIpanel).append(makeLableWithClickToScroll(codeText,tr));
+				$(UIpanel).append(makeLabelWithClickToScroll(codeText,tr));
 			}
 		}
 	});
@@ -602,7 +602,7 @@ function cs131project4(UIpanel) {
 		var codeDiv = $(tr).find("div.gwt-Label")[0];
 		var codeText = $(codeDiv).text();
 		if(codeText.indexOf("int[")!==-1 || codeText.indexOf("String[")!==-1) {
-			$(UIpanel).append(makeLableWithClickToScroll("codeText",tr));
+			$(UIpanel).append(makeLabelWithClickToScroll("codeText",tr));
 		}
 	});
 	$(UIpanel).append("<p>deduct harsh!!!</p>");
@@ -1048,7 +1048,7 @@ function cs433project(UIpanel) {
 		// option 1. adding comment button
 		_.each(wordsFoundInCodeText, function(w) {
 			//addButtonComment(tr,"button title",wordsFoundInCodeText[0]+" not allowed.","yellow");
-			$(UIpanel).append(makeLableWithClickToScroll(w,tr));
+			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 		// option 2. simply adding comment
 		//addCommentOnly(tr,"comment message","green");

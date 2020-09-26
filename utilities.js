@@ -6,7 +6,7 @@ function restoreOptions(callback) {
 	const currentMonth = currentDate.getMonth();
 	const currentYear = currentDate.getFullYear().toString();
 	// const studentDistributionFilesDefault = [];
-	var currentSeason = null;
+	let currentSeason = null;
 
 	if(currentMonth > 0 && currentMonth < 4){
 		currentSeason = "spring";
@@ -43,8 +43,8 @@ class CodeFile {
 }
 
 function parseJava(fileCode) {
-	var abstractSyntaxTree = null;
-	var parseError = null;
+	let abstractSyntaxTree = null;
+	let parseError = null;
 	try {
 		// relies on https://github.com/mazko/jsjavaparser
         abstractSyntaxTree = JavaParser.parse(fileCode);
@@ -56,18 +56,18 @@ function parseJava(fileCode) {
 
 function readCodeFilesFromServer(fileDescriptors, callback){
 	const fileCount = fileDescriptors.length;
-	var processedCount = 0;
-	var codeFiles = new Map();
+	let processedCount = 0;
+	let codeFiles = new Map();
 
 	for (const descriptor of fileDescriptors) {
         $.get(
         	descriptor.url, 
         	function(data) {
-	        	currentDescriptor = fileDescriptors[processedCount];
+	        	const currentDescriptor = fileDescriptors[processedCount];
 	        	const [abstractSyntaxTree, parseError] = parseJava(data);
 	        	codeFiles.set(currentDescriptor.name, new CodeFile(data, null, abstractSyntaxTree, parseError, 0, 0));
 	        	processedCount ++;
-	        	if(processedCount == fileCount){
+	        	if(processedCount === fileCount){
 					callback(codeFiles);
 				}
         	}

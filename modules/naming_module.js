@@ -1,4 +1,6 @@
 let namingModule = {};
+//__DEBUG
+var __debug = null;
 
 (function() {
 
@@ -63,7 +65,7 @@ function getTrCodeLineForName (name, nameType, codeFile, usedCodeLines){
 										if(usedCodeLines.has(lineIndex)){
 											usedCodeLines.get(lineIndex).add(iStatement);
 										} else {
-											statementSet = new Set();
+											let statementSet = new Set();
 											statementSet.add(iStatement);
 											usedCodeLines.set(lineIndex, statementSet);
 										}
@@ -179,7 +181,7 @@ function processNameArray(uiPanel, codeNames, color){
 		let lineTop = codeName.trCodeLine.offsetTop;
 		let fileTop = codeName.trCodeLine.parentElement.parentElement.offsetTop;
 
-		$(uiPanel).append(makeLableWithClickToScroll(codeName.name, codeName.trCodeLine, lineTop + fileTop ));
+		$(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine, lineTop + fileTop ));
 
 		addButtonComment(
 			codeName.trCodeLine, nameTypeToString(codeName.type) + " Used: " + codeName.name, 
@@ -197,10 +199,15 @@ this.initialize = function(uiPanel, fileDictionary, trCodeLines, allowedSpecialW
 	let methodAndVariableNames = [];
 	let constantNames = [];
 	let typeNames = [];
+
 	for (const [filename, codeFile] of fileDictionary.entries()) {
-		const syntax_tree = codeFile.abstractSyntaxTree;
+		const syntaxTree = codeFile.abstractSyntaxTree;
+		if(syntaxTree){
+			__debug = syntaxTree;
+		}
+		console.log(__debug);
 		//iterate over classes / enums / etc.
-		for (const type of syntax_tree.types){
+		for (const type of syntaxTree.types){
 			let usedCodeLines = new Map();
 			const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile, usedCodeLines);
 

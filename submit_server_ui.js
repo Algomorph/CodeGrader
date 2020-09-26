@@ -36,12 +36,10 @@ function getAllCheckedTrCodeLines(filesToCheck) {
 function makeLabels(strList) {
 	return _.map(strList, function(s) { return "<span class='label'>"+ s +"</span>"; });
 }
-function makeLableWithClickToScroll(label, targetElement, position) {
-	
-	var labelEl = $("<span class='label'>"+label+"</span>").click(function() {
+function makeLabelWithClickToScroll(label, targetElement, position) {
+	return $("<span class='label'>" + label + "</span>").click(function () {
 		paneToScroll.scrollTop(position - 50);
 	});
-	return labelEl;
 }
 function makeLabelsWithClick(list) {
 	return _.map(list, function(d) {
