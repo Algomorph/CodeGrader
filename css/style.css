@@ -1,0 +1,76 @@
+.label,
+.badge {
+	-webkit-border-radius: 3px;
+  border-radius: 3px;	
+  display: inline-block;
+  padding: 2px 4px;
+  margin:1px;
+  font-size: 11.844px;
+  font-weight: bold;
+  line-height: 14px;
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  vertical-align: baseline;
+  background-color: #999999;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.UIpanel h3 {
+	background-color:rgba(0,0,0,0.5);
+	padding:3px;
+}
+.UIpanel h4 {
+	background-color:rgba(0,0,0,0.4);
+	padding:3px;
+}
+.UIpanel p {
+	margin:3px;
+}
+.UIpanel {
+	position:absolute;
+	z-index:10000; 
+	opacity:1.0; 
+	overflow:scroll; 
+	padding:5px; 
+	height:100%; 
+	word-wrap:break-word; 
+	width:250px; 
+	right:0px; 
+	top:0px; 
+	background-color:rgba(0,0,0,0.2);
+}
+
+.msg {
+	position:absolute;
+	z-index:5000;
+	display:block;
+	top:10px;
+	left:10px;
+	border-radius:4px;
+	background-color: rgba(255,255,255,0.7);
+	border: 1px solid white;
+	font-size: 12px;
+	font-weight: normal;
+	color:black;
+}
+
+.defaultComment {
+	width:100%;
+}
+
+.tip {
+	font-size:10px; 
+	color:black;
+	cursor:pointer;
+	border-radius:2px;
+}
+.comment {
+	font-size:10px;
+	color:black; 
+	border-radius:5px;
+}
+
+
+a:visited {
+	color:#666 !important ;
+}
