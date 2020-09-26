@@ -26,7 +26,6 @@ function main(optionItems) {
         uiPanel.setAttribute('class', 'UIpanel');
         document.body.appendChild(uiPanel);
 
-        //TODO: make configurable
         const projectName = optionItems.submitServerProjectName;
 
         // check if it's the right course & project
@@ -50,6 +49,7 @@ function main(optionItems) {
 
 
 function constructReviewPanel(uiPanel, optionItems) {
+    //TODO: get rid of this global entirely, use getScrollableSourceFilePane() instead
     paneToScroll = $(".GMYHEHOCJK");
     makeCodeFeedArrow();
 
@@ -61,20 +61,19 @@ function constructReviewPanel(uiPanel, optionItems) {
         $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
     } else {
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
-        let enableStaticAnalysisModules = true;
+
         for(const [fileName, fileCode] of codeFileDictionary.entries()){
             if(fileCode.parseError !== null){
-                enableStaticAnalysisModules = false;
                 $(uiPanel).append(makeWarning("Note: parse error in file '" + fileName +
-                    "'. Please check developer console for details. Disabling modules that depend on static code analysis."));
+                    "'. Please check developer console for details. Disabling modules that depend on static code analysis for this file."));
                 console.log(fileCode.parseError);
             }
         }
-        keywordModule.initialize(uiPanel, trCodeLines, ["ArrayList", "LinkedList"]);
-        if(enableStaticAnalysisModules){
-            namingModule.initialize(uiPanel, codeFileDictionary, ["min", "max"]);
-        }
 
+        keywordModule.initialize(uiPanel, trCodeLines, ["ArrayList", "LinkedList"]);
+        //TODO: make setting for uniqueNamesOnly
+        //TODO: make setting for allowedSpecialWords
+        namingModule.initialize(uiPanel, codeFileDictionary, ["min", "max"], optionItems.ignoredNames, true);
     }
 
 

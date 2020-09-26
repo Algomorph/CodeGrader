@@ -6,6 +6,10 @@ function getSourceFileContainer(filename) {
     return $("div.GMYHEHOCNK:contains('" + filename + "')").parent();
 }
 
+function getScrollableSourceFilePane(){
+    return $(".GMYHEHOCJK");
+}
+
 function getTrCodesForCodeFile(filename) {
     return $.makeArray(getSourceFileContainer(filename).find("tr"));
 }
@@ -16,7 +20,7 @@ function getCodeFromTrCodeLine(trCodeLine) {
 
 function getAllCheckedTrCodeLines(filesToCheck) {
     // flatten to get <tr> for each line of code
-    let trCodeLines = _.reduce(
+    return _.reduce(
         filesToCheck,
         function (memo, filename) {
             var trCodeLinesForFile = getTrCodesForCodeFile(filename);
@@ -24,7 +28,6 @@ function getAllCheckedTrCodeLines(filesToCheck) {
         },
         []
     );
-    return trCodeLines;
 }
 
 function makeWarning(text){
@@ -32,8 +35,8 @@ function makeWarning(text){
 }
 
 function makeCodeFeedArrow() {
-    paneToScroll.parent().append(
-        $("<span class='code-feed-arrow'>.........&#8594;............................................................................................................................................................................................................................................................................................................................................................................................................................................................</span>"));
+    getScrollableSourceFilePane().parent().append(
+        $("<span class='code-feed-arrow'>......&#8594;............................................................................................................................................................................................................................................................................................................................................................................................................................................................</span>"));
 }
 
 function makeLabels(strList) {
@@ -44,14 +47,14 @@ function makeLabels(strList) {
 
 function makeLabelWithClickToScroll(label, targetElement) {
     return $("<span class='label'>" + label + "</span>").click(function () {
-        paneToScroll.scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
+        getScrollableSourceFilePane().scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
     });
 }
 
 function makeLabelsWithClick(list) {
     return _.map(list, function (d) {
         return $("<span class='label'>" + d.message + "</span>").click(function () {
-            paneToScroll.scrollTop($(d.scrollTo).position().top);
+            getScrollableSourceFilePane().scrollTop($(d.scrollTo).position().top);
         })[0];
     });
 }

@@ -17,6 +17,41 @@ let namingModule = {};
     }
 
 
+    /**
+     * Check if the given name follows proper camelCase notation.
+     * @param {string} name some string
+     * @return {boolean} return true if name is in camelCase, false otherwise.
+     */
+    function isCamelCase(name) {
+        return /^[a-z]+(?:(?:A)|(?:[A-Z][a-z]+))*[A-Z]?$/.test(name);
+    }
+
+    /**
+     * Check if the given name follows proper PascalCase notation.
+     * @param {string} name some string
+     * @return {boolean} return true if name is in PascalCase, false otherwise.
+     */
+    function isPascalCase(name) {
+        return /^(?:(?:A)|(?:[A-Z][a-z]+))*[A-Z]?$/.test(name);
+    }
+
+    /**
+     * Check if the given name follows proper ALL_CAPS_SNAKE_CASE notation.
+     * @param {string} name some string
+     * @return {boolean} return true if name is in ALL_CAPS_SNAKE_CASE, false otherwise.
+     */
+    function isAllCapsSnakeCase(name) {
+        return /^[A-Z]+(?:_[A-Z]+)*$/.test(name);
+    }
+
+    const CheckNameType = {
+        'method': isCamelCase,
+        'variable': isCamelCase,
+        'type': isPascalCase,
+        'constant': isAllCapsSnakeCase,
+    }
+
+
     class CodeName {
         constructor(name, trCodeLine, type, astNode) {
             this.name = name;
@@ -27,14 +62,25 @@ let namingModule = {};
     }
 
 
-	/**
-	 * Parses provided declaration as a constant, method, or variable name and stores the generated CodeName object
-	 * in the corresponding array.
-	 * @param {Object} declaration AST of a declaration
-	 * @param {Array.<CodeName>} constantNames array with constant names
-	 * @param {Array.<CodeName>} methodAndVariableNames array with method and/or variable names
-	 * @param {CodeFile} codeFile code file descriptor (used to associate the result with an html element)
-	 */
+    /**
+     * Splits a name into "words" (or attempts to).
+     * Assumes camelCase, PascalCase, or ALL_CAPS_SNAKE_CASE.
+     * @param {string} name some string
+     * @return {*|string[]}
+     */
+    function splitCodeNameIntoWords(name) {
+        return name.split(/(?=[A-Z])|_/);
+    }
+
+
+    /**
+     * Parses provided declaration as a constant, method, or variable name and stores the generated CodeName object
+     * in the corresponding array.
+     * @param {Object} declaration AST of a declaration
+     * @param {Array.<CodeName>} constantNames array with constant names
+     * @param {Array.<CodeName>} methodAndVariableNames array with method and/or variable names
+     * @param {CodeFile} codeFile code file descriptor (used to associate the result with an html element)
+     */
     function handleFieldOrVariableDeclaration(declaration, constantNames, methodAndVariableNames, codeFile) {
         let is_constant = false;
         const trCodeLine = codeFile.trCodeLines[declaration.location.start.line - 1];
@@ -46,9 +92,9 @@ let namingModule = {};
         for (const fragment of declaration.fragments) {
             const name = fragment.name.identifier;
             if (is_constant) {
-                constantNames.push(new CodeName(name, trCodeLine, NameType.CONSTANT));
+                constantNames.push(new CodeName(name, trCodeLine, NameType.CONSTANT, fragment));
             } else {
-                methodAndVariableNames.push(new CodeName(name, trCodeLine, NameType.VARIABLE));
+                methodAndVariableNames.push(new CodeName(name, trCodeLine, NameType.VARIABLE, fragment));
             }
         }
     }
@@ -63,6 +109,20 @@ let namingModule = {};
             }
         );
         return [...uniqueNamesMap.values()];
+    }
+
+    function handleBlockOfStatements(statements, constantNames, methodAndVariableNames, codeFile) {
+        for (const statement of statements) {
+            if (statement.node === "VariableDeclarationStatement" || statement.node === "VariableDeclarationExpression") {
+                handleFieldOrVariableDeclaration(statement, constantNames, methodAndVariableNames, codeFile);
+            } else if (statement.node === "ForStatement") {
+                handleBlockOfStatements(statement.initializers, constantNames, methodAndVariableNames, codeFile);
+                handleBlockOfStatements(statement.body.statements, constantNames, methodAndVariableNames, codeFile);
+            } else if (statement.node === "EnhancedForStatement") {
+                methodAndVariableNames.push(new CodeName(statement.parameter.name.identifier,
+                    codeFile.trCodeLines[statement.parameter.location.start.line - 1], NameType.VARIABLE, statement.parameter));
+            }
+        }
     }
 
     /**
@@ -93,12 +153,7 @@ let namingModule = {};
                             const name = parameter.name.identifier;
                             methodAndVariableNames.push(new CodeName(name, codeFile.trCodeLines[declaration.location.start.line - 1], NameType.VARIABLE));
                         }
-
-                        for (const statement of declaration.body.statements) {
-                            if (statement.node === "VariableDeclarationStatement") {
-                                handleFieldOrVariableDeclaration(statement, constantNames, methodAndVariableNames, codeFile);
-                            }
-                        }
+                        handleBlockOfStatements(declaration.body.statements, constantNames, methodAndVariableNames, codeFile);
                     }
                     break;
                 case "TypeDeclaration": // inner class
@@ -114,7 +169,8 @@ let namingModule = {};
         return [methodAndVariableNames, constantNames, typeNames];
     }
 
-    function processNameArray(uiPanel, codeNames, color) {
+    function processNameArray(uiPanel, codeNames, color, sectionTitle) {
+        $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
         for (const codeName of codeNames) {
             $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine));
 
@@ -126,7 +182,7 @@ let namingModule = {};
         }
     }
 
-    this.initialize = function (uiPanel, fileDictionary, allowedSpecialWords) {
+    this.initialize = function (uiPanel, fileDictionary, allowedSpecialWords, ignoredNames, uniqueNamesOnly) {
 
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 
@@ -135,8 +191,10 @@ let namingModule = {};
         let typeNames = [];
 
         for (const [filename, codeFile] of fileDictionary.entries()) {
-            if(codeFile.abstractSyntaxTree !== null){
+            if (codeFile.abstractSyntaxTree !== null) {
                 const syntaxTree = codeFile.abstractSyntaxTree;
+                //__DEBUG
+                console.log(syntaxTree);
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
                     const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
@@ -147,21 +205,16 @@ let namingModule = {};
                 }
             }
         }
-        methodAndVariableNames = uniqueNames(methodAndVariableNames);
-        constantNames = uniqueNames(constantNames);
-        typeNames = uniqueNames(typeNames);
 
-        let color = "#4fa16b";
-        $(uiPanel).append("<h4 style='color:" + color + "'>Variables &amp; Methods</h4>");
-        processNameArray(uiPanel, methodAndVariableNames, color);
+        if (uniqueNamesOnly) {
+            methodAndVariableNames = uniqueNames(methodAndVariableNames);
+            constantNames = uniqueNames(constantNames);
+            typeNames = uniqueNames(typeNames);
+        }
 
-        color = "#4f72e3";
-        $(uiPanel).append("<h4 style='color:" + color + "'>Constants</h4>");
-        processNameArray(uiPanel, constantNames, color);
-
-        color = "orange";
-        $(uiPanel).append("<h4 style='color:" + color + "'>Classes &amp; Enums</h4>");
-        processNameArray(uiPanel, typeNames, color);
+        processNameArray(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
+        processNameArray(uiPanel, constantNames, "#4f72e3", "Constants");
+        processNameArray(uiPanel, typeNames, "orange", "Classes &amp; Enums");
 
     }
 

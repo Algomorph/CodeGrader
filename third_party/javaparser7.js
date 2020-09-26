@@ -399,7 +399,8 @@ function peg$parse(input, options) {
       peg$c42 = function(last) { return [last]; },
       peg$c43 = function(id, dims) { 
             return { 
-              node:           'SingleVariableDeclaration', 
+              node:           'SingleVariableDeclaration',
+              location:        location(),
               name:            id, 
               extraDimensions: dims.length 
             }; 
@@ -426,7 +427,8 @@ function peg$parse(input, options) {
           },
       peg$c47 = function(expr, then, alt) { 
             return { 
-              node:         'IfStatement', 
+              node:         'IfStatement',
+              location:      location(),
               elseStatement: extractOptional(alt, 1), 
               thenStatement: then,
               expression:    expr.expression,   
@@ -435,6 +437,7 @@ function peg$parse(input, options) {
       peg$c48 = function(init, expr, up, body) { 
             return {
               node:        'ForStatement',
+              location:     location(),
               initializers: optionalList(init),
               expression:   expr,
               updaters:     optionalList(up),
@@ -444,6 +447,7 @@ function peg$parse(input, options) {
       peg$c49 = function(param, expr, statement) {       
             return {
               node:      'EnhancedForStatement',
+              location:     location(),
               parameter:  param,
               expression: expr,
               body:       statement
@@ -451,7 +455,8 @@ function peg$parse(input, options) {
           },
       peg$c50 = function(expr, body) { 
             return { 
-              node:      'WhileStatement', 
+              node:      'WhileStatement',
+              location:     location(),
               expression: expr.expression, 
               body:       body 
             };
@@ -466,6 +471,7 @@ function peg$parse(input, options) {
       peg$c52 = function(first, rest, body, cat, fin) { 
             return mergeProps(makeCatchFinally(cat, fin), {
               node:        'TryStatement',
+              location:     location(),
               body:         body,
               resources:    buildList(first, rest, 1)
             });
@@ -475,6 +481,7 @@ function peg$parse(input, options) {
       peg$c55 = function(body, rest) { 
             return mergeProps(rest, {
               node:        'TryStatement',
+              location:     location(),
               body:         body,
               resources:    []
             });
@@ -493,6 +500,7 @@ function peg$parse(input, options) {
             fragment.node = 'VariableDeclarationFragment';
             return {
               node:     'VariableDeclarationExpression',
+              location:     location(),
               modifiers: modifiers,
               type:      type,
               fragments: [fragment]
@@ -520,6 +528,7 @@ function peg$parse(input, options) {
       peg$c71 = function(modifiers, type, decls) { 
             return [{
               node:     'VariableDeclarationExpression',
+              location:  location(),
               modifiers: modifiers,
               fragments: decls,
               type:      type
