@@ -1,4 +1,4 @@
-var namingModule = {};
+let namingModule = {};
 
 (function() {
 
@@ -19,42 +19,42 @@ class CodeName{
 }
 
 function getTrCodeLineForName (name, nameType, codeFile, usedCodeLines){
-	var associatedTrCodeLine = null;
-	var nameRegex = new RegExp( "(?<!\\w)" + name + "(?!\\w)");
+	let associatedTrCodeLine = null;
+	const nameRegex = new RegExp("(?<!\\w)" + name + "(?!\\w)");
 
 	codeFile.trCodeLines.forEach(
 		(trCodeLine, lineIndex) => {
 			if(associatedTrCodeLine == null){
 				const trCodeText = getCodeFromTrCodeLine(trCodeLine);
 				if(nameRegex.test(trCodeText)){
-					const statements = trCodeText.split(/;|,/);
-					var iStatement = 0;
+					const statements = trCodeText.split(/[;,]/);
+					let iStatement = 0;
 					for(const statement of statements){
 						if(associatedTrCodeLine == null && !(usedCodeLines.has(lineIndex) && usedCodeLines.get(lineIndex).has(iStatement))){
 							const match = nameRegex.exec(statement);
 							if(match){
 								const nameIndex = match.index;
-								if(nameIndex != -1){
+								if(nameIndex !== -1){
 									const stringBefore = statement.substring(0, nameIndex);
 
 									if(stringBefore.includes("class") || stringBefore.includes("enum")){
-										if(nameType == NameType.TYPE){
+										if(nameType === NameType.TYPE){
 											associatedTrCodeLine = trCodeLine;
 										}
 									} else if (stringBefore.includes("final")) {
 										const stringWithAndAfter = statement.substring(nameIndex);
 										const regex = RegExp(name + "\\s\\(");
 										if(regex.test(stringWithAndAfter)){
-											if(nameType == NameType.METHOD){
+											if(nameType === NameType.METHOD){
 												associatedTrCodeLine = trCodeLine;
 											}
 										} else {
-											if(nameType == NameType.CONSTANT){
+											if(nameType === NameType.CONSTANT){
 												associatedTrCodeLine = trCodeLine;
 											} 	
 										}
 									} else {
-										if(nameType == NameType.VARIABLE || nameType == NameType.METHOD){
+										if(nameType === NameType.VARIABLE || nameType === NameType.METHOD){
 											associatedTrCodeLine = trCodeLine;
 										}
 									}
@@ -97,9 +97,9 @@ function nameTypeToString(nameType){
 
 
 function handleFieldOrVariableDeclaration(declaration, constantNames, methodAndVariableNames, codeFile, usedCodeLines){
-	var is_constant = false;
+	let is_constant = false;
 	for(const modifier of declaration.modifiers){
-		if(modifier.keyword == "final"){
+		if(modifier.keyword === "final"){
 			is_constant = true;
 		}
 	}
@@ -116,7 +116,7 @@ function handleFieldOrVariableDeclaration(declaration, constantNames, methodAndV
 }
 
 function uniqueNames(namesArray){
-	var uniqueNamesMap = new Map();
+	let uniqueNamesMap = new Map();
 	namesArray.forEach(
 		(codeName) => {
 			if (!uniqueNamesMap.has(codeName.name)){
@@ -128,9 +128,9 @@ function uniqueNames(namesArray){
 }
 
 function getTypeNames(type, codeFile, usedCodeLines){
-	var methodAndVariableNames = [];
-	var constantNames = [];
-	var typeNames = [];
+	let methodAndVariableNames = [];
+	let constantNames = [];
+	let typeNames = [];
 
 	const name = type.name.identifier;
 	const trCodeLine = getTrCodeLineForName(name, NameType.TYPE, codeFile, usedCodeLines);
@@ -155,7 +155,7 @@ function getTypeNames(type, codeFile, usedCodeLines){
 					}
 
 					for(const statement of declaration.body.statements){
-						if(statement.node == "VariableDeclarationStatement"){
+						if(statement.node === "VariableDeclarationStatement"){
 							handleFieldOrVariableDeclaration(statement, constantNames, methodAndVariableNames, codeFile, usedCodeLines);
 						}
 					}
@@ -174,12 +174,12 @@ function getTypeNames(type, codeFile, usedCodeLines){
 	return [methodAndVariableNames, constantNames, typeNames];
 }
 
-function processNameArray(UIpanel, codeNames, color){
+function processNameArray(uiPanel, codeNames, color){
 	for(const codeName of codeNames){
-		lineTop = codeName.trCodeLine.offsetTop;
-		fileTop = codeName.trCodeLine.parentElement.parentElement.offsetTop;
+		let lineTop = codeName.trCodeLine.offsetTop;
+		let fileTop = codeName.trCodeLine.parentElement.parentElement.offsetTop;
 
-		$(UIpanel).append(makeLableWithClickToScroll(codeName.name, codeName.trCodeLine, lineTop + fileTop ));
+		$(uiPanel).append(makeLableWithClickToScroll(codeName.name, codeName.trCodeLine, lineTop + fileTop ));
 
 		addButtonComment(
 			codeName.trCodeLine, nameTypeToString(codeName.type) + " Used: " + codeName.name, 
@@ -189,20 +189,19 @@ function processNameArray(UIpanel, codeNames, color){
 	}
 }
 
-this.initialize = function(UIpanel, fileDictionary, trCodeLines, allowedSpecialWords){
+this.initialize = function(uiPanel, fileDictionary, trCodeLines, allowedSpecialWords){
 
-	$(UIpanel).append("<h3 style='color:orange'>Naming</h3>");
+	$(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 	//str = JSON.stringify(fileDictionary["Blackjack.java"].abstractSyntaxTree, null, 4);
 	//console.log(str)
-	var methodAndVariableNames = [];
-	var constantNames = []
-	var typeNames = [];
-
+	let methodAndVariableNames = [];
+	let constantNames = [];
+	let typeNames = [];
 	for (const [filename, codeFile] of fileDictionary.entries()) {
-		syntax_tree = codeFile.abstractSyntaxTree;
+		const syntax_tree = codeFile.abstractSyntaxTree;
 		//iterate over classes / enums / etc.
 		for (const type of syntax_tree.types){
-			var usedCodeLines = new Map();
+			let usedCodeLines = new Map();
 			const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile, usedCodeLines);
 
 			methodAndVariableNames.push(...typeMethodsAndVariables);
@@ -214,15 +213,17 @@ this.initialize = function(UIpanel, fileDictionary, trCodeLines, allowedSpecialW
 	constantNames = uniqueNames(constantNames);
 	typeNames = uniqueNames(typeNames);
 
-	color = "#4fa16b";
-	$(UIpanel).append("<h4 style='color:" + color + ">Variables & Methods</h4>");
-	processNameArray(UIpanel, methodAndVariableNames, color);
+	let color = "#4fa16b";
+	$(uiPanel).append("<h4 style='color:" + color + "'>Variables &amp; Methods</h4>");
+	processNameArray(uiPanel, methodAndVariableNames, color);
+	
 	color = "#4f72e3";
-	$(UIpanel).append("<h4 style='color:" + color + "'>Constants</h4>");
-	processNameArray(UIpanel, constantNames, color);
+	$(uiPanel).append("<h4 style='color:" + color + "'>Constants</h4>");
+	processNameArray(uiPanel, constantNames, color);
+
 	color = "orange";
-	$(UIpanel).append("<h4 style='color:" + color + "'>Classes & Enums</h4>");
-	processNameArray(UIpanel, typeNames, color);
+	$(uiPanel).append("<h4 style='color:" + color + "'>Classes &amp; Enums</h4>");
+	processNameArray(uiPanel, typeNames, color);
 	
 }
 

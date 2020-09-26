@@ -19,28 +19,28 @@ function main(optionItems) {
 	const semesterString = optionItems.semesterSeason + optionItems.year.toString();
 
 
-	// confition: URL contains 'condeReview' and the semester matches the semester selected in options.
+	// condition: URL contains 'condeReview' and the semester matches the semester selected in options.
 	if (location.href.indexOf('codeReview')>-1 && location.href.indexOf(semesterString)>-1) {
 		// first, create summary UIPanel
-		var UIpanel = document.createElement('div');
-		UIpanel.setAttribute('class','UIpanel');
-		document.body.appendChild(UIpanel);
+		let uiPanel = document.createElement('div');
+		uiPanel.setAttribute('class','UIpanel');
+		document.body.appendChild(uiPanel);
 
 		//TODO: make configurable
 		const projectName = optionItems.submitServerProjectName;
 		
 		// check if it's the right course & project
 		if($("h1").text().match(projectName)){
-			constructReviewPanel(UIpanel, optionItems);
+			constructReviewPanel(uiPanel, optionItems);
 		}
 	}
 	// assign click event to predefined comment buttons
 	$(".tip").click(function() {
 		eventFire($(this).parent()[0],'dblclick');
-		var self =this;
+		let self = this;
 		setTimeout(function() {
 			$(self).parent().parent().find("input[type='checkbox']").prop("checked",false);
-			var textBox = $(self).parent().parent().find("textarea[aria-hidden='false']");
+			let textBox = $(self).parent().parent().find("textarea[aria-hidden='false']");
 			$(textBox).val($(self).attr('msg'));
 			//$(self).parent().parent().find("textarea[aria-hidden='false']").focus().select();
 			eventFire($(textBox).parent().find("a:contains('Save')")[0],'click');
