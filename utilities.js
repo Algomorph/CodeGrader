@@ -46,7 +46,7 @@ function parseJava(fileCode) {
 	let abstractSyntaxTree = null;
 	let parseError = null;
 	try {
-		// relies on https://github.com/mazko/jsjavaparser
+		// relies on https://github.com/Algomorph/jsjavaparser
         abstractSyntaxTree = JavaParser.parse(fileCode);
     } catch (err) {
         parseError = err;

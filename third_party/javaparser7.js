@@ -170,6 +170,7 @@ function peg$parse(input, options) {
       peg$c5 = function(id, gen, ext, impl, body) {
             return {
               node:               'TypeDeclaration',
+              location:            location(),
               name:                id,
               superInterfaceTypes: extractOptionalList(impl, 1),
               superclassType:      extractOptional(ext, 1),
@@ -190,12 +191,14 @@ function peg$parse(input, options) {
       peg$c9 = function(params, rest) { 
             return mergeProps(rest, {
               node:          'MethodDeclaration',
+              location:       location(),
               typeParameters: params
             });
           },
       peg$c10 = function(type, id, rest) {
             return mergeProps(rest, {
               node:          'MethodDeclaration',
+              location:       location(),
               returnType2:    type,
               name:           id,
               typeParameters: []
@@ -204,6 +207,7 @@ function peg$parse(input, options) {
       peg$c11 = function(type, decls) {
             return {
               node:     'FieldDeclaration',
+              location:  location(),
               fragments: decls,
               type:      type
             };
@@ -211,6 +215,7 @@ function peg$parse(input, options) {
       peg$c12 = function(id, rest) {
             return mergeProps(rest, {
               node:       'MethodDeclaration',
+              location:    location(),
               returnType2: makePrimitive('void'),
               name:        id,
               constructor: false
@@ -219,6 +224,7 @@ function peg$parse(input, options) {
       peg$c13 = function(id, rest) { 
             return mergeProps(rest, {
               node:           'MethodDeclaration',
+              location:        location(),
               name:            id,
               typeParameters:  []
             });
@@ -264,6 +270,7 @@ function peg$parse(input, options) {
       peg$c22 = function(id, gen, ext, body) {
             return {
                 node:               'TypeDeclaration',
+                location:            location(),
                 name:                id,
                 superInterfaceTypes: extractOptionalList(ext, 1),
                 superclassType:      null,
@@ -284,10 +291,11 @@ function peg$parse(input, options) {
               });
             }
           },
-      peg$c24 = function(rest) { return { node: 'FieldDeclaration', fragments: rest }; },
+      peg$c24 = function(rest) { return { node: 'FieldDeclaration', location:  location(), fragments: rest }; },
       peg$c25 = function(params, dims, throws) {
             return {
               node:            'MethodDeclaration',
+              location:         location(),
               parameters:       params,
               thrownExceptions: extractThrowsClassType(extractOptionalList(throws, 1)),
               extraDimensions:  dims.length,
@@ -306,6 +314,7 @@ function peg$parse(input, options) {
       peg$c28 = function(params, throws) {
             return {
               node:            'MethodDeclaration',
+              location:         location(),
               parameters:       params,
               thrownExceptions: extractThrowsClassType(extractOptionalList(throws, 1)),
               returnType2:      makePrimitive('void'),
@@ -326,6 +335,7 @@ function peg$parse(input, options) {
       peg$c31 = function(name, impl, eb) {
             return mergeProps(eb, {
               node:               'EnumDeclaration',
+              location:            location(),
               name:                name,
               superInterfaceTypes: extractOptionalList(impl, 1)
             });
@@ -339,6 +349,7 @@ function peg$parse(input, options) {
       peg$c33 = function(annot, name, args, cls) {
             return {
               node:                     'EnumConstantDeclaration',
+              location:                  location(),
               anonymousClassDeclaration: cls === null ? null : {
                 node:             'AnonymousClassDeclaration',
                 bodyDeclarations:  cls
@@ -353,6 +364,7 @@ function peg$parse(input, options) {
       peg$c36 = function(modifiers, type, decls) {
             return {
               node:        'VariableDeclarationStatement',
+              location:     location(),
               fragments:    decls,
               modifiers:    modifiers,
               type:         type
@@ -400,7 +412,8 @@ function peg$parse(input, options) {
           },
       peg$c45 = function(modifiers, decl) { 
             return { 
-              node:       'TypeDeclarationStatement', 
+              node:       'TypeDeclarationStatement',
+              location:    location(),
               declaration: mergeProps(decl,  { modifiers: modifiers }) 
             }; 
           },
@@ -798,7 +811,7 @@ function peg$parse(input, options) {
               default: def 
             }; 
           },
-      peg$c174 = function(fragments) { return { node: 'FieldDeclaration', fragments: fragments }; },
+      peg$c174 = function(fragments) { return { node: 'FieldDeclaration', location:  location(),  fragments: fragments }; },
       peg$c175 = function(val) { return val; },
       peg$c176 = function(id, pairs) { 
             return { 
