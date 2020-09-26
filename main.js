@@ -51,6 +51,7 @@ function main(optionItems) {
 
 function constructReviewPanel(UIpanel, optionItems) {
 	paneToScroll = $(".GMYHEHOCJK");
+	makeCodeFeedArrow();
 
 	const filesToCheck = optionItems.filesToCheck;
 
@@ -59,7 +60,7 @@ function constructReviewPanel(UIpanel, optionItems) {
 	scrollToFirstFile(filesToCheck[0]);
 
 	keywordModule.initialize(UIpanel, trCodeLines, ["ArrayList", "LinkedList"]);
-	namingModule.initialize(UIpanel, codeFileDictionary, trCodeLines, ["min", "max"]);
+	namingModule.initialize(UIpanel, codeFileDictionary, ["min", "max"]);
 	gradeServerModule.initialize(UIpanel);
 }
 

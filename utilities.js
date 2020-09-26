@@ -1,11 +1,16 @@
 // UTILITY FUNCTIONS & CLASSES
 
+class Options {
+	constructor(semesterSeason, year, submitServer) {
+
+	}
+}
+
 // Restores options based on values stored in chrome.storage.
 function restoreOptions(callback) {
 	const currentDate = new Date();
 	const currentMonth = currentDate.getMonth();
 	const currentYear = currentDate.getFullYear().toString();
-	// const studentDistributionFilesDefault = [];
 	let currentSeason = null;
 
 	if(currentMonth > 0 && currentMonth < 4){
@@ -23,7 +28,6 @@ function restoreOptions(callback) {
 	chrome.storage.sync.get({
 		semesterSeason: currentSeason,
 		year: currentYear,
-		// studentDistributionFiles: studentDistributionFilesDefault,
 		submitServerProjectName: submitServerProjectNameDefault,
 		filesToCheck:filesToCheckDefault,
 		ignoredNames:ignoredNamesDefault
@@ -159,13 +163,7 @@ function addCommentOnly(tr,title,color) {
 	var code = $(tr).find(".gwt-Label");
 	$(code).append($("<span class='comment' style='border:1px solid "+color+"; color:"+color+"'>&larr;"+title+"</span>"));
 }
-function addButtonComment(tr,title,msg,color) {
-	var codeNumber = $(tr).find("td.line-number");
-	$(codeNumber).css("border-left","3px solid "+color);
-	var code = $(tr).find(".gwt-Label");
-	//$(code).html($(code).html().replace(/$/ig,"<span class='tip' style='background-color:"+color+"'>"+title+"</span>"));
-	$(code).append($("<span class='tip' style='background-color:"+color+"' msg='"+msg+"'>"+title+"</span>"));
-}
+
 function highlightLine(tr,msg,color) {
 	var codeNumber = $(tr).find("td.line-number");
 	$(codeNumber).css("border-left","3px solid "+color);

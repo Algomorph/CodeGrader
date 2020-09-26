@@ -70,6 +70,15 @@
 	border-radius:5px;
 }
 
+.code-feed-arrow {
+	position: absolute;
+	top: 52px;
+	left: 0px;
+	font-size: medium;
+	overflow: hidden;
+	color: rgba(107,65,16,0.7);
+}
+
 
 a:visited {
 	color:#666 !important ;

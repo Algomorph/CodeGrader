@@ -116,10 +116,7 @@ let namingModule = {};
 
     function processNameArray(uiPanel, codeNames, color) {
         for (const codeName of codeNames) {
-            let lineTop = codeName.trCodeLine.offsetTop;
-            let fileTop = codeName.trCodeLine.parentElement.parentElement.offsetTop;
-
-            $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine, lineTop + fileTop));
+            $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine));
 
             addButtonComment(
                 codeName.trCodeLine, CapitalizedNameType[codeName.type] + " Used: " + codeName.name,
@@ -129,7 +126,7 @@ let namingModule = {};
         }
     }
 
-    this.initialize = function (uiPanel, fileDictionary, trCodeLines, allowedSpecialWords) {
+    this.initialize = function (uiPanel, fileDictionary, allowedSpecialWords) {
 
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 
