@@ -16,9 +16,16 @@ let namingModule = {};
         'constant': 'Constant',
     }
 
+    const NameTypeConvention = {
+        'method': 'camelCase',
+        'variable': 'camelCase',
+        'type': 'PascalCase',
+        'constant': 'ALL_CAPS_SNAKE_CASE',
+    }
+
 
     /**
-     * Check if the given name follows proper camelCase notation.
+     * Check if the given name follows proper camelCase convention.
      * @param {string} name some string
      * @return {boolean} return true if name is in camelCase, false otherwise.
      */
@@ -27,7 +34,7 @@ let namingModule = {};
     }
 
     /**
-     * Check if the given name follows proper PascalCase notation.
+     * Check if the given name follows proper PascalCase convention.
      * @param {string} name some string
      * @return {boolean} return true if name is in PascalCase, false otherwise.
      */
@@ -36,7 +43,7 @@ let namingModule = {};
     }
 
     /**
-     * Check if the given name follows proper ALL_CAPS_SNAKE_CASE notation.
+     * Check if the given name follows proper ALL_CAPS_SNAKE_CASE convention.
      * @param {string} name some string
      * @return {boolean} return true if name is in ALL_CAPS_SNAKE_CASE, false otherwise.
      */
@@ -44,23 +51,12 @@ let namingModule = {};
         return /^[A-Z]+(?:_[A-Z]+)*$/.test(name);
     }
 
-    const CheckNameType = {
+    const NameTypeConventionCheck = {
         'method': isCamelCase,
         'variable': isCamelCase,
         'type': isPascalCase,
         'constant': isAllCapsSnakeCase,
     }
-
-
-    class CodeName {
-        constructor(name, trCodeLine, type, astNode) {
-            this.name = name;
-            this.trCodeLine = trCodeLine;
-            this.type = type;
-            this.astNode = astNode;
-        }
-    }
-
 
     /**
      * Splits a name into "words" (or attempts to).
@@ -70,6 +66,64 @@ let namingModule = {};
      */
     function splitCodeNameIntoWords(name) {
         return name.split(/(?=[A-Z])|_/);
+    }
+
+    /**
+     * Represents an occurrence of a name within some chunk of Java code.
+     * These include (but are not limited to): member/local/parameter variable names, class names, enum names, and method names.
+     */
+    class CodeName {
+        constructor(name, trCodeLine, type, astNode) {
+            this.name = name;
+            this.trCodeLine = trCodeLine;
+            this.type = type;
+            this.astNode = astNode;
+        }
+    }
+
+    const NameCheckProblemType = {
+        NAMING_CONVENTION_PROBLEM : 1,
+        NON_DICTIONARY_WORD : 2
+    }
+
+    const NameCheckProblemTypeExplanation = {
+        1 : "Naming convention problem detected.",
+        2 : "Non-descriptive variable name: includes a non-dictionary word, abbreviation, or uncommon acronym."
+    }
+
+    /**
+     * Represents a potential problem detected with a name in Java code.
+     */
+    class NameCheckProblem {
+        /**
+         * @param {number} type
+         * @param {string} explanation
+         */
+        constructor(type, explanation) {
+            this.type = type;
+            this.explanation = explanation;
+        }
+    }
+
+    /**
+     * @param {CodeName} codeName
+     */
+    function checkName(codeName){
+        let potentialProblems = []
+        if(!NameTypeConventionCheck[codeName.type](codeName.name)){
+            potentialProblems.push( new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION_PROBLEM,
+                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION_PROBLEM] + " "
+                + CapitalizedNameType[codeName.type] + " \"" + codeName.name + "\" doesn't seem to follow the "
+                + NameTypeConvention[codeName.type] + " convention."));
+        }
+        let words = splitCodeNameIntoWords(codeName.name)
+        //TODO
+        for (const word of words){
+            if(!usEnglishWordList.has(word)){
+
+            }
+        }
+        return potentialProblems;
     }
 
 
@@ -99,6 +153,11 @@ let namingModule = {};
         }
     }
 
+    /**
+     * Compiles an array containing only the CodeName objects with unique "name" field
+     * @param {Array.<CodeName>} namesArray
+     * @return {Array.<CodeName>}
+     */
     function uniqueNames(namesArray) {
         let uniqueNamesMap = new Map();
         namesArray.forEach(
@@ -111,6 +170,13 @@ let namingModule = {};
         return [...uniqueNamesMap.values()];
     }
 
+    /**
+     * Parses names of variables / constants from a set of AST statements
+     * @param {Array.<Object>} statements array of AST statement nodes
+     * @param {Array.<CodeName>} constantNames any constants that are found are stored as CodeName objects here
+     * @param {Array.<CodeName>} methodAndVariableNames any variables that are found are stored as CodeName objects here
+     * @param {CodeFile} codeFile the code file descriptor with the AST from which the statements came
+     */
     function handleBlockOfStatements(statements, constantNames, methodAndVariableNames, codeFile) {
         for (const statement of statements) {
             if (statement.node === "VariableDeclarationStatement" || statement.node === "VariableDeclarationExpression") {
@@ -169,7 +235,7 @@ let namingModule = {};
         return [methodAndVariableNames, constantNames, typeNames];
     }
 
-    function processNameArray(uiPanel, codeNames, color, sectionTitle) {
+    function processCodeNameArrayAndAddSection(uiPanel, codeNames, color, sectionTitle) {
         $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
         for (const codeName of codeNames) {
             $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine));
@@ -212,9 +278,9 @@ let namingModule = {};
             typeNames = uniqueNames(typeNames);
         }
 
-        processNameArray(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
-        processNameArray(uiPanel, constantNames, "#4f72e3", "Constants");
-        processNameArray(uiPanel, typeNames, "orange", "Classes &amp; Enums");
+        processCodeNameArrayAndAddSection(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
+        processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants");
+        processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes &amp; Enums");
 
     }
 

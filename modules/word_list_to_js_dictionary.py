@@ -24,7 +24,7 @@ def main():
 	words = input_file.readlines()
 
 	output_file = open(output_file, 'w')
-	output_file.write("let us_englisth_word_list = new Set([")
+	output_file.write("let usEnglishWordList = new Set([")
 	unfit_characters_pattern = re.compile(r"[A-Z]|[']|[`]|[+]|[=]")
 	output_string = ""
 	for word in words:
