@@ -3,26 +3,51 @@ let methodCallModule = {};
 (function () {
 
     const MethodCallType = {
-        METHOD:"method",
-        CONSTRUCTOR:"constructor",
-        SUPER_METHOD:"super method",
-        SUPER_CONSTRUCTOR:"super constructor",
+        METHOD: "method",
+        INSTANCE_METHOD: "static method",
+        STATIC_METHOD: "static method",
+        CONSTRUCTOR: "constructor",
+        SUPER_METHOD: "super method",
+        SUPER_CONSTRUCTOR: "super constructor",
     }
 
     class MethodCall {
-        constructor(name, trCodeLine, astNode, type) {
+        constructor(name, trCodeLine, astNode, callType) {
             this.name = name;
+            this.possiblyIgnored = false;
             this.trCodeLine = trCodeLine;
             this.astNode = astNode;
-            this.type = type;
+            this.callType = callType;
         }
     }
 
-    const possibleExpressions = new Set(["InfixExpression", "PrefixExpression"]);
+    const javaDotLangPackageClasses = new Set(["Boolean", "Byte", "Character", "Character.Subset",
+        "Character.UnicodeBlock", "ClassLoader", "Compiler", "Double", "Float", "Integer", "Long", "Math", "Number",
+        "Object", "Package", "Process", "ProcessBuilder", "ProcessBuilder.Redirect", "Runtime", "RuntimePermission",
+        "SecurityManager", "Short", "StackTraceElement", "StrictMath", "String", "StringBuffer", "StringBuilder",
+        "System", "Thread", "ThreadGroup", "Throwable", "Void"]);
 
+    //TODO
+    function determineMethodCallExpressionType(astTree, methodCall) {
+        if (methodCall.expression.node === "SimpleName") {
+            if (javaDotLangPackageClasses.has(methodCall.expression.identifier)) {
+                return methodCall.expression.identifier;
+            } else {
+
+            }
+        }
+    }
+
+    /**
+     * Recursively traverse Abstract Syntax Tree node in search for method calls, append results to provided
+     * methodCalls array.
+     * @param {object} node node to search
+     * @param {Array.<MethodCall>} methodCalls
+     * @param {CodeFile} codeFile
+     */
     function getMethodCallsFromNode(node, methodCalls, codeFile) {
         let children = [];
-        switch (node.node){
+        switch (node.node) {
             case "TypeDeclaration":
                 children = node.bodyDeclarations;
                 break;
@@ -34,7 +59,7 @@ let methodCallModule = {};
                 break;
             case "IfStatement":
                 children = [node.expression, node.thenStatement];
-                if(node.elseStatement !== null){
+                if (node.elseStatement !== null) {
                     children.push(node.elseStatement);
                 }
                 break;
@@ -60,10 +85,10 @@ let methodCallModule = {};
                 break;
             case "TryStatement":
                 children = [...node.body.statements];
-                if(node.catchClauses !== null){
+                if (node.catchClauses !== null) {
                     children.push(...node.catchClauses);
                 }
-                if(node.finally !== null){
+                if (node.finally !== null) {
                     children.push(...node.finally.statements);
                 }
                 break;
@@ -90,7 +115,17 @@ let methodCallModule = {};
                 children = node.arguments;
                 break;
             case "MethodInvocation":
-                methodCalls.push(new MethodCall(node.name.identifier, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.METHOD));
+                let name = node.name.identifier;
+                if (node.hasOwnProperty("expression") && node.expression != null) {
+                    if (node.expression.node === "SimpleName") {
+                        name = node.expression.identifier + "." + node.name.identifier;
+                    } else {
+                        const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset - node.location.start.offset);
+                        const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
+                        name = callExpressionSourceCode + "." + node.name.identifier;
+                    }
+                }
+                methodCalls.push(new MethodCall(name, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.METHOD));
                 children = node.arguments;
                 break;
             case "VariableDeclarationStatement":
@@ -99,7 +134,7 @@ let methodCallModule = {};
                 children = node.fragments;
                 break;
             case "VariableDeclarationFragment":
-                if(node.initializer !== null){
+                if (node.initializer !== null) {
                     children = [node.initializer];
                 }
                 break;
@@ -127,30 +162,42 @@ let methodCallModule = {};
 
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
-                    const ignoredMethodsForType = new Set([...globallyIgnoredMethods]);
+                    let ignoredMethodsForType = [...globallyIgnoredMethods];
                     if (ignoredMethods.hasOwnProperty(type.name.identifier)) {
                         ignoredMethodsForType.push(...ignoredMethods[type.name.identifier]);
                     }
+                    ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
                     getMethodCallsFromNode(type, methodCallsForType, codeFile);
+                    console.log(methodCallsForType);
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
+                    })
+                    methodCallsForType.forEach((methodCall) => {
+                        if (methodCall.astNode.hasOwnProperty("name") &&
+                            ignoredMethodsForType.has(methodCall.astNode.name.identifier)) {
+                            methodCall.possiblyIgnored = true;
+                        }
                     })
                     methodCalls.push(...methodCallsForType);
                 }
             }
         }
 
-        if(uniqueCallsOnly){
+        if (uniqueCallsOnly) {
             methodCalls = uniqueNames(methodCalls);
         }
 
 
-
         for (const methodCall of methodCalls) {
-            $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine));
+            if (methodCall.possiblyIgnored) {
+                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "possibly-ignored-method-call"));
+            } else {
+                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine));
+            }
+
             addButtonComment(
-                methodCall.trCodeLine, capitalize(methodCall.type) + " call: " + methodCall.name, "", "#b3769f"
+                methodCall.trCodeLine, capitalize(methodCall.callType) + " call: " + methodCall.name, "", "#b3769f"
             );
         }
     }

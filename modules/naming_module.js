@@ -305,7 +305,6 @@ let namingModule = {};
             return !ignoredNamesSet.has(codeName.name);
         })
 
-
         processCodeNameArrayAndAddSection(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
         processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants");
         processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes &amp; Enums");
