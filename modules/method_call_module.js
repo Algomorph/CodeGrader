@@ -169,7 +169,6 @@ let methodCallModule = {};
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
                     getMethodCallsFromNode(type, methodCallsForType, codeFile);
-                    console.log(methodCallsForType);
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
