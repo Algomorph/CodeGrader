@@ -9,13 +9,6 @@ let namingModule = {};
         CONSTANT: 'constant',
     }
 
-    const CapitalizedNameType = {
-        'method': 'Method',
-        'variable': 'Variable',
-        'type': 'Type',
-        'constant': 'Constant',
-    }
-
     const NameTypeConvention = {
         'method': 'camelCase',
         'variable': 'camelCase',
@@ -61,11 +54,15 @@ let namingModule = {};
     /**
      * Splits a name into "words" (or attempts to).
      * Assumes camelCase, PascalCase, or ALL_CAPS_SNAKE_CASE.
-     * @param {string} name some string
+     * @param {CodeName} codeName some string
      * @return {*|string[]}
      */
-    function splitCodeNameIntoWords(name) {
-        return name.split(/(?=[A-Z])|_/);
+    function splitCodeNameIntoWords(codeName) {
+        if (codeName.type === NameType.CONSTANT) {
+            return codeName.name.split('_').map(word => word.toLowerCase());
+        } else {
+            return codeName.name.split(/(?=[A-Z])/).map(word => word.toLowerCase());
+        }
     }
 
     /**
@@ -82,13 +79,18 @@ let namingModule = {};
     }
 
     const NameCheckProblemType = {
-        NAMING_CONVENTION_PROBLEM : 1,
-        NON_DICTIONARY_WORD : 2
+        NAMING_CONVENTION: 1,
+        NON_DICTIONARY_WORD: 2
     }
 
     const NameCheckProblemTypeExplanation = {
-        1 : "Naming convention problem detected.",
-        2 : "Non-descriptive variable name: includes a non-dictionary word, abbreviation, or uncommon acronym."
+        1: "Naming convention problem detected.",
+        2: "Non-descriptive variable name detected: the name includes a non-dictionary word, abbreviation, or uncommon acronym."
+    }
+
+    const NameCheckProblemStyleClass = {
+        1: "naming-convention-problem",
+        2: "naming-non-dictionary-word-problem"
     }
 
     /**
@@ -97,30 +99,48 @@ let namingModule = {};
     class NameCheckProblem {
         /**
          * @param {number} type
-         * @param {string} explanation
+         * @param {string} description
          */
-        constructor(type, explanation) {
+        constructor(type, description) {
             this.type = type;
-            this.explanation = explanation;
+            this.description = description;
         }
     }
 
     /**
+     * Checks a code name occurrence for potential problems.
      * @param {CodeName} codeName
+     * @return {Array.<NameCheckProblem>}
      */
-    function checkName(codeName){
+    function checkName(codeName) {
         let potentialProblems = []
-        if(!NameTypeConventionCheck[codeName.type](codeName.name)){
-            potentialProblems.push( new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION_PROBLEM,
-                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION_PROBLEM] + " "
-                + CapitalizedNameType[codeName.type] + " \"" + codeName.name + "\" doesn't seem to follow the "
+        if (!NameTypeConventionCheck[codeName.type](codeName.name)) {
+            potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION,
+                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION] + " "
+                + capitalize(codeName.type) + " \"" + codeName.name + "\" doesn&#39;t seem to follow the "
                 + NameTypeConvention[codeName.type] + " convention."));
-        }
-        let words = splitCodeNameIntoWords(codeName.name)
-        //TODO
-        for (const word of words){
-            if(!usEnglishWordList.has(word)){
-
+        } else {
+            // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
+            // because the splitting relies on the notation.
+            let words = splitCodeNameIntoWords(codeName);
+            let nonDictionaryWords = [];
+            for (const word of words) {
+                if (!usEnglishWordList.has(word)) {
+                    nonDictionaryWords.push(word);
+                }
+            }
+            if (nonDictionaryWords.length > 0) {
+                if (nonDictionaryWords.length > 1) {
+                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
+                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
+                        " " + capitalize(codeName.type) + " \"" + codeName.name + "\" has parts \""
+                        + nonDictionaryWords.join("\", \"") + "\" that appear problematic."));
+                } else {
+                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
+                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
+                        " " + capitalize(codeName.type) + " \"" + codeName.name + "\" has part \""
+                        + nonDictionaryWords[0] + "\" that appears problematic."));
+                }
             }
         }
         return potentialProblems;
@@ -151,23 +171,6 @@ let namingModule = {};
                 methodAndVariableNames.push(new CodeName(name, trCodeLine, NameType.VARIABLE, fragment));
             }
         }
-    }
-
-    /**
-     * Compiles an array containing only the CodeName objects with unique "name" field
-     * @param {Array.<CodeName>} namesArray
-     * @return {Array.<CodeName>}
-     */
-    function uniqueNames(namesArray) {
-        let uniqueNamesMap = new Map();
-        namesArray.forEach(
-            (codeName) => {
-                if (!uniqueNamesMap.has(codeName.name)) {
-                    uniqueNamesMap.set(codeName.name, codeName);
-                }
-            }
-        );
-        return [...uniqueNamesMap.values()];
     }
 
     /**
@@ -238,12 +241,26 @@ let namingModule = {};
     function processCodeNameArrayAndAddSection(uiPanel, codeNames, color, sectionTitle) {
         $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
         for (const codeName of codeNames) {
-            $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine));
+            let potentialProblems = checkName(codeName);
+            let problemsDescription = null;
+            let labelStyleClass = "";
+            let defaultMessageText = "";
 
+            if (potentialProblems.length > 0) {
+                problemsDescription = potentialProblems.map(problem => problem.description).join(" ");
+                if (potentialProblems.length > 1) {
+                    labelStyleClass = "naming-compound-problem";
+                } else {
+                    labelStyleClass = NameCheckProblemStyleClass[potentialProblems[0].type];
+                }
+                defaultMessageText = problemsDescription;
+            } else {
+                problemsDescription = "No problems were automatically detected.";
+            }
+            $(uiPanel).append(makeLabelWithClickToScroll(codeName.name, codeName.trCodeLine, labelStyleClass, problemsDescription));
             addButtonComment(
-                codeName.trCodeLine, CapitalizedNameType[codeName.type] + " Used: " + codeName.name,
-                "Non-descriptive naming : " + codeName.name + " is not descriptive of its purpose.",
-                color
+                codeName.trCodeLine, capitalize(codeName.type) + " name: " + codeName.name,
+                defaultMessageText, color
             );
         }
     }
@@ -259,8 +276,7 @@ let namingModule = {};
         for (const [filename, codeFile] of fileDictionary.entries()) {
             if (codeFile.abstractSyntaxTree !== null) {
                 const syntaxTree = codeFile.abstractSyntaxTree;
-                //__DEBUG
-                console.log(syntaxTree);
+
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
                     const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
@@ -277,6 +293,18 @@ let namingModule = {};
             constantNames = uniqueNames(constantNames);
             typeNames = uniqueNames(typeNames);
         }
+
+        let ignoredNamesSet = new Set(ignoredNames);
+        methodAndVariableNames = methodAndVariableNames.filter((codeName) => {
+            return !ignoredNamesSet.has(codeName.name);
+        })
+        constantNames = constantNames.filter((codeName) => {
+            return !ignoredNamesSet.has(codeName.name);
+        })
+        typeNames = typeNames.filter((codeName) => {
+            return !ignoredNamesSet.has(codeName.name);
+        })
+
 
         processCodeNameArrayAndAddSection(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
         processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants");

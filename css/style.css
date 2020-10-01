@@ -1,7 +1,7 @@
 .label,
 .badge {
 	-webkit-border-radius: 3px;
-  border-radius: 3px;	
+  border-radius: 3px;
   display: inline-block;
   padding: 2px 4px;
   margin:1px;
@@ -15,29 +15,51 @@
   background-color: #999999;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-.UIpanel h3 {
+
+.naming-convention-problem {
+	background-color: #cf821f;
+}
+
+.naming-non-dictionary-word-problem {
+	background-color: #9e9711;
+}
+
+.naming-compound-problem {
+	background-color: #e35d10;
+}
+
+.ui-panel h3 {
 	background-color:rgba(0,0,0,0.5);
 	padding:3px;
 }
-.UIpanel h4 {
+.ui-panel h4 {
 	background-color:rgba(0,0,0,0.4);
 	padding:3px;
 }
-.UIpanel p {
+.ui-panel p {
 	margin:3px;
 }
-.UIpanel {
-	position:absolute;
-	z-index:10000; 
-	opacity:1.0; 
-	overflow:scroll; 
-	padding:5px; 
-	height:100%; 
-	word-wrap:break-word; 
-	width:250px; 
-	right:0px; 
-	top:0px; 
+
+.ui-panel-container {
+    position: absolute;
+    padding-left: 220px;
+    width: 450px;
+    right: 0px;
+    top:0px;
+    overflow: scroll;
+    height:100%;
+    pointer-events: none;
+}
+
+.ui-panel {
+	z-index:10;
+	opacity:1.0;
+	overflow:visible;
+	padding:5px;
+	word-wrap:break-word;
+	width:100%;
 	background-color:rgba(0,0,0,0.2);
+    pointer-events: all;
 }
 
 .msg {
@@ -59,18 +81,56 @@
 }
 
 .tip {
-	font-size:10px; 
+	font-size:10px;
 	color:black;
 	cursor:pointer;
 	border-radius:2px;
+    z-index: 5;
 }
+
+.has-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip {
+    visibility: hidden;
+    /*min-width: 200px;*/
+	max-width: 350px;
+    white-space: normal;
+    height: auto;
+	background-color: #555;
+	color: #fff;
+	padding: 5px 6px;
+	border-radius: 6px;
+
+	/* Position the tooltip text */
+	position: absolute;
+	z-index: 11;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -200px;
+
+	/* Fade in tooltip */
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.has-tooltip:hover .tooltip {
+	visibility: visible;
+    opacity: 1;
+}
+
 .comment {
 	font-size:10px;
-	color:black; 
+	color:black;
 	border-radius:5px;
 }
 
 .code-feed-arrow {
+	pointer-events: none;
 	position: absolute;
 	top: 52px;
 	left: 0px;

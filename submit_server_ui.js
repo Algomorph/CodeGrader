@@ -23,7 +23,7 @@ function getAllCheckedTrCodeLines(filesToCheck) {
     return _.reduce(
         filesToCheck,
         function (memo, filename) {
-            var trCodeLinesForFile = getTrCodesForCodeFile(filename);
+            let trCodeLinesForFile = getTrCodesForCodeFile(filename);
             return _.union(memo, trCodeLinesForFile);
         },
         []
@@ -45,10 +45,21 @@ function makeLabels(strList) {
     });
 }
 
-function makeLabelWithClickToScroll(label, targetElement) {
-    return $("<span class='label'>" + label + "</span>").click(function () {
-        getScrollableSourceFilePane().scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
-    });
+function makeLabelWithClickToScroll(label, targetElement, styleClass, toolTip) {
+    if(typeof styleClass === "undefined"){
+        styleClass = "";
+    }
+    if(typeof toolTip !== "undefined"){
+        return $("<div class='label has-tooltip " + styleClass + "'>" + label +
+            "<span class='tooltip'>" + toolTip +"</span></div>").click(function () {
+            getScrollableSourceFilePane().scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
+        });
+    } else {
+        return $("<span class='label " + styleClass + "'>" + label + "</span>").click(function () {
+            getScrollableSourceFilePane().scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
+        });
+    }
+
 }
 
 function makeLabelsWithClick(list) {
@@ -59,9 +70,19 @@ function makeLabelsWithClick(list) {
     });
 }
 
-function addButtonComment(tr, title, msg, color) {
-    let codeNumber = $(tr).find("td.line-number");
+function addButtonComment(trElement, title, defaultMessage, color) {
+    let codeNumber = $(trElement).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
-    let code = $(tr).find(".gwt-Label");
-    $(code).append($("<span class='tip' style='background-color:" + color + "' msg='" + msg + "'>" + title + "</span>"));
+    let code = $(trElement).find(".gwt-Label");
+    $(code).append($("<span class='tip' style='background-color:" + color + "' msg='" + defaultMessage + "'>" + title + "</span>"));
+}
+
+function eventFire(el, etype){
+    if (el.fireEvent) {
+        (el.fireEvent('on' + etype));
+    } else {
+        let evObj = document.createEvent('Events');
+        evObj.initEvent(etype, true, false);
+        el.dispatchEvent(evObj);
+    }
 }

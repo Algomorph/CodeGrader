@@ -24,16 +24,18 @@ def main():
 	words = input_file.readlines()
 
 	output_file = open(output_file, 'w')
-	output_file.write("let usEnglishWordList = new Set([")
+
 	unfit_characters_pattern = re.compile(r"[A-Z]|[']|[`]|[+]|[=]")
+	output_file.write("let usEnglishWordList = \"")
 	output_string = ""
 	for word in words:
 		word = word.strip()
 		if unfit_characters_pattern.search(word) is None:
-			output_string += (word + ",")
+			output_string += (word + "|")
 	output_string = output_string[0:-1]
 	output_file.write(output_string)
-	output_file.write("]);")
+	output_file.write("\";\n")
+	output_file.write("usEnglishWordList = new Set(usEnglishWordList.split('|'));")
 
 	return EXIT_SUCCESS
 

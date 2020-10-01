@@ -1,4 +1,4 @@
-function cs131project7(UIpanel) {
+function cs131project7(uiPanel) {
 	paneToScroll = $(".GMYHEHOCJK");
 	var studentCreatedFiles = [	"fishPond/Fish.java",
 								"fishPond/Model.java",
@@ -13,7 +13,7 @@ function cs131project7(UIpanel) {
 	//          the name doesn't really say what the difference is
 	//        - deduct 1 for other really bad examples of variable name choice
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:orange'>Variables</h3>");
+	$(uiPanel).append("<h3 style='color:orange'>Variables</h3>");
 	var generalVars = [];
 	var regex_declaration = /\s*((int)|(String)|(boolean)|(Fish)|(ArrayList<Fish>)|(Plant)|(ArrayList<Plant>))\s[A-Za-z0-9]+\s*(=|;)/g;
 	$.each(trCodeLines,function(tri,tr) {
@@ -28,7 +28,7 @@ function cs131project7(UIpanel) {
 				var namesList = varNames.split(",");
 				$.each(namesList, function(ni,name) {
 					var varName = $.trim(name.replace(/=.*$/ig,""));
-					$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
+					$(uiPanel).append(makeLabelWithClickToScroll(varName,tr));
 					addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","orange");
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
@@ -37,16 +37,16 @@ function cs131project7(UIpanel) {
 			}); // end of each dec
 		});  // end of each decList
 	});	// end of tr_code loop
-  	$(UIpanel).append("<p>- deduct 1 if they use p and f in many places</p>");
-  	$(UIpanel).append("<p>- deduct 1 if there are bad names like 'curr1' and 'curr2' where the name doesn't really say what the difference is</p>");
-	$(UIpanel).append("<p>-deduct 1 for other really bad examples of variable name choice</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='3'/></p>");
+  	$(uiPanel).append("<p>- deduct 1 if they use p and f in many places</p>");
+  	$(uiPanel).append("<p>- deduct 1 if there are bad names like 'curr1' and 'curr2' where the name doesn't really say what the difference is</p>");
+	$(uiPanel).append("<p>-deduct 1 for other really bad examples of variable name choice</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='3'/></p>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. Named Constant ROCK(28),WATER(27),LEFT(36),RIGHT(37),UP(38),DOWN(39)
 	//	(3 points) not using our named constants (ROCK, UP, etc)
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightgreen'>Named Constant</h3>");
+	$(uiPanel).append("<h3 style='color:lightgreen'>Named Constant</h3>");
 	var regexToFind = /==\s*((27)|(28)|(36)|(37)|(38)|(39))/ig;
 	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
 		var codeText = $($(tr).find("div.gwt-Label")[0]).text();
@@ -54,11 +54,11 @@ function cs131project7(UIpanel) {
 		var wordsFoundInCodeText = codeText.match(regexToFind);
 		if(wordsFoundInCodeText) {
 			addButtonComment(tr,"Named Constant","You have to use Named constants instead of integers.","lightgreen");
-			$(UIpanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
 		}
 	});
-	$(UIpanel).append("<p>-2 for ROCK and WATER.  -1 for DIRECTIONS</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='3'/></p>");
+	$(uiPanel).append("<p>-2 for ROCK and WATER.  -1 for DIRECTIONS</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='3'/></p>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 3. Needless 'elseif' test
@@ -66,7 +66,7 @@ function cs131project7(UIpanel) {
 	//  usual suspect:  public void fight(Fish other), public static void fishEatPlant(Fish f, Plant p)
 	//  or, check stringDistance betweeen if and else if conditionals
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>Needless elseif</h3>");
+	$(uiPanel).append("<h3 style='color:lightblue'>Needless elseif</h3>");
 	var targetMethods = [/public void fight\(Fish other\)/, /public static void fishEatPlant\(/ ];  //
 	_.each(targetMethods, function(startRegex) {
 		var tr_targetMethod = rangeSelectCodeBlock(trCodeLines,startRegex, /\/\*\*/);
@@ -74,7 +74,7 @@ function cs131project7(UIpanel) {
 			var codeText = $($(tr).find("div.gwt-Label")[0]).text();
 			if(codeText.match(/else if/)) {
 				addButtonComment(tr,"Needless else if","[else if] is unnecessary. Regular else would work.","lightblue");
-				$(UIpanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
+				$(uiPanel).append(makeLabelWithClickToScroll(codeText.replace(/\s/ig,""),tr));
 			}
 		});
 	});
@@ -88,19 +88,19 @@ function cs131project7(UIpanel) {
 	// 	if(codeText.match(regElseIf))	elseifCond = codeText.match(regElseIf)[1];
 	// 	if(ifCond.length>0 && elseifCond.length>0 && stringDistance(ifCond,elseifCond)<2) {
 	// 		addButtonComment(tr,"Needless else if","'else if' is unnecessary. Regular 'else' would work.","yellow");
-	// 		$(UIpanel).append(makeLableWithClickToScroll(codeText.replace(/\s/ig,""),tr));
+	// 		$(uiPanel).append(makeLableWithClickToScroll(codeText.replace(/\s/ig,""),tr));
 	// 		ifCond=""; elseifCond="";
 	// 	}
 	// });
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 4. for blatent lack of attempt to avoid redundant code (1pts)
 	//	checks total line of code in each target class
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>Redundant Code</h3>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
+	$(uiPanel).append("<h3 style='color:yellow'>Redundant Code</h3>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,13 +112,13 @@ function cs131project7(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// find helper methods, check block comment above them
 	// count the number of "//" or "*/" and "/*" within each method, add button if a method does not have any.
-	$(UIpanel).append("<h3 style='color:pink'>Comments</h3>");
+	$(uiPanel).append("<h3 style='color:pink'>Comments</h3>");
 	// Finding helper methods
 	var givenMethods = ["Fish","eat","isAlive","shrink","toString","fight","move","setRandomDirection","getSize","getRow","getCol","getDirection",
 			"Model","plantExplosions","fishExplosions","isSpaceAvailable","fishEatPlant","getRows","getCols","shrinkFish","growPlants","removeDeadFish","removeDeadPlants","fishIsSurroundedByRocks","turnFish","moveFish","addPlant","addFish","getFish","getPlants","getShape",
 			"Plant","isAlive","grow","removeBite"];
 	var regex_functionDeclaration = /((public)|(private))\s+(static\s+)?([a-zA-Z0-9]+)\s+[a-zA-Z0-9]+\s*\(/gi;
-	$(UIpanel).append("<span>Helper Methods: </span>");
+	$(uiPanel).append("<span>Helper Methods: </span>");
 	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
 		var codeText = $($(tr).find("div.gwt-Label")[0]).text();
 		var decl = (codeText.match(regex_functionDeclaration))?codeText.match(regex_functionDeclaration)[0]:null;
@@ -127,20 +127,20 @@ function cs131project7(UIpanel) {
 			// var matchingFunction = _.filter(givenMethods, function(w) { return functionName.indexOf(w)!=-1; });
 			if(givenMethods.indexOf(functionName)==-1) {
 				addButtonComment(tr,"Helper method with no comments","User-generated helper methods require block comments.","pink");
-				$(UIpanel).append(makeLabelWithClickToScroll(functionName,tr));
+				$(uiPanel).append(makeLabelWithClickToScroll(functionName,tr));
 			}
 		}
 	});	
-	$(UIpanel).append("<p>(2 point) comments</p>");
-	$(UIpanel).append("<p>- deduct 1 if many helper methods have no comment block above them</p>");
-	$(UIpanel).append("<p>- deduct 1 if none of the longer methods have some comments within them where there's complex code</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='2'/></p>");
+	$(uiPanel).append("<p>(2 point) comments</p>");
+	$(uiPanel).append("<p>- deduct 1 if many helper methods have no comment block above them</p>");
+	$(uiPanel).append("<p>- deduct 1 if none of the longer methods have some comments within them where there's complex code</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='2'/></p>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// TOTAL SCORE
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
-	$("<p>Style score(max. 10)<input class='totalScore' id='score_style'></p>").appendTo(UIpanel);
+	$(uiPanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
+	$("<p>Style score(max. 10)<input class='totalScore' id='score_style'></p>").appendTo(uiPanel);
 	// update total scores when any partial score changes
 	$("input.partialScore").blur(function() {
 		var styleScore = _.reduce($.makeArray($("input.partialScore[kind='style']")), function(memo,input) {
@@ -166,10 +166,10 @@ function cs131project7(UIpanel) {
 		if(publishBut) {
 			eventFire(publishBut[0],"click");	
 		}
-	}).appendTo(UIpanel);
+	}).appendTo(uiPanel);
 }
 
-function cs131project6(UIpanel) {
+function cs131project6(uiPanel) {
 	paneToScroll = $(".GMYHEHOCJK");
 	var studentCreatedFiles = [	"animalManagement/Menagerie.java",
 								"animalManagement/PetStore.java",
@@ -179,18 +179,18 @@ function cs131project6(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 1. Prohibited Words
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>Prohibited Words</h3>");
+	$(uiPanel).append("<h3 style='color:yellow'>Prohibited Words</h3>");
 	var wordsToFind = ["instanceof","ArrayList","Arrays.sort"];	
 	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
 		var codeText = $($(tr).find("div.gwt-Label")[0]).text();
 		if(codeText.match(/\/\//i)) return;
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
-			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 	});
 	// check "for","while" loop used in Mensagerie or PetStore
-	$(UIpanel).append("<span>'for','while' in Menagerie or PetStore (ignore within toString())</span>");
+	$(uiPanel).append("<span>'for','while' in Menagerie or PetStore (ignore within toString())</span>");
 	var trCodeLines_Menagerie_PetStore = getAllCheckedTrCodeLines(["animalManagement/PetStore.java", "animalManagement/Menagerie.java"]);
 	wordsToFind = ["for","while"];
 	var previousLineContainsRetValue = false;
@@ -205,14 +205,14 @@ function cs131project6(UIpanel) {
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
 			var labelText = codeText.replace(/^\s+/,"").replace(/\s+$/,"");
-			$(UIpanel).append(makeLabelWithClickToScroll(labelText,tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(labelText,tr));
 			forloopUsed.push(labelText);
 			addButtonComment(tr,"Loops Used","Loops are not allowed to use in Menagerie and PetStore.","yellow");
 		});
 	});	
-	$(UIpanel).append("<p>For each loop, give -1 (max:-2) below.</p>");
+	$(uiPanel).append("<p>For each loop, give -1 (max:-2) below.</p>");
 	// list all the helper methods that are not given. 
-	$(UIpanel).append("<br><br><span>Student created helper methods below: </span>");
+	$(uiPanel).append("<br><br><span>Student created helper methods below: </span>");
 	var givenMethods = ["getName","getWholesaleCost","getRetailValue","equals","toString",
 						"PetStore","getMenu","addMenagerie","getInventory","getCash","checkIfInInventory",
 						"addShipmentToInventory","placeOrder",
@@ -226,18 +226,18 @@ function cs131project6(UIpanel) {
 			var functionName = decl.match(/[a-zA-Z0-9]+\(/gi)[0].replace("(");
 			var functionNotGiven = _.filter(givenMethods, function(w) { return codeText.indexOf(functionName)!=-1; });
 			_.each(functionNotGiven, function(f) {
-				$(UIpanel).append(makeLabelWithClickToScroll(f,tr));
+				$(uiPanel).append(makeLabelWithClickToScroll(f,tr));
 			});
 		}
 	});	
-	$(UIpanel).append("<p>if a sort function is used, give -1 below.</p>");
-	$(UIpanel).append("<p>Penalty: <input class='partialScore' kind='style' value='"+(0-Math.min(2,forloopUsed.length))+"'/></p>");
+	$(uiPanel).append("<p>if a sort function is used, give -1 below.</p>");
+	$(uiPanel).append("<p>Penalty: <input class='partialScore' kind='style' value='"+(0-Math.min(2,forloopUsed.length))+"'/></p>");
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. Style points (total 5)
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:orange'>Code Redundancy</h3>");
+	$(uiPanel).append("<h3 style='color:orange'>Code Redundancy</h3>");
 	// checking add list not reusing add single item
 	var trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public void add\(Sorte/,/\/\*/);
 	var isRedundant = true;
@@ -245,7 +245,7 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/add\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("add:SortedList",trCodeLines_targetMethod[0]));
+	if(isRedundant) $(uiPanel).append(makeLabelWithClickToScroll("add:SortedList",trCodeLines_targetMethod[0]));
 	// checking remove list not reusing remove single item
 	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public void remove\(Sorte/,/\/\*/);
 	isRedundant = true;
@@ -253,7 +253,7 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/remove\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("remove:SortedList",trCodeLines_targetMethod[0]));
+	if(isRedundant) $(uiPanel).append(makeLabelWithClickToScroll("remove:SortedList",trCodeLines_targetMethod[0]));
 	// checking checkAvailability list not reusing single item version
 	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public boolean checkAvailability\(SortedListOfImmutables/,  /\/\*/);
 	isRedundant = true;
@@ -261,15 +261,15 @@ function cs131project6(UIpanel) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		if(codeText.match(/checkAvailability\(/)) isRedundant = false;
 	});
-	if(isRedundant) $(UIpanel).append(makeLabelWithClickToScroll("checkAvailability:SortedList",trCodeLines_targetMethod[0]));
-	$(UIpanel).append("<p>add:2pts,  remove:2pts, checkAvail.:1pts.</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='5'/></p>");
+	if(isRedundant) $(uiPanel).append(makeLabelWithClickToScroll("checkAvailability:SortedList",trCodeLines_targetMethod[0]));
+	$(uiPanel).append("<p>add:2pts,  remove:2pts, checkAvail.:1pts.</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='5'/></p>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC extra. good variable names
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:orange'>Others</h3>");
-	$(UIpanel).append("Variables :");
+	$(uiPanel).append("<h3 style='color:orange'>Others</h3>");
+	$(uiPanel).append("Variables :");
 	var generalVars = []; 
 	var regex_declaration = /\s*((int)|(String)|(boolean)|(Listable)|(Listable\[\])|(SortedListOfImmutables))\s[A-Za-z0-9]+\s*(=|;)/g;
 	$.each(trCodeLines,function(tri,tr) {
@@ -286,7 +286,7 @@ function cs131project6(UIpanel) {
 					var varName = $.trim(name.replace(/=.*$/ig,""));
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
-						$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
+						$(uiPanel).append(makeLabelWithClickToScroll(varName,tr));
 						addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","yellow");
 					}
 				}); // end of namesList
@@ -298,14 +298,14 @@ function cs131project6(UIpanel) {
 	// RUBRIC 3. other stuff
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	$(UIpanel).append("<p>Look for the following and leave comments but do not deduct points for: <br>* places where comments should be inserted within the code <br>* testing things already known to be true or false like having and if-elseif where the 'elseif' tests the negation of what that if had tested</p>");
+	$(uiPanel).append("<p>Look for the following and leave comments but do not deduct points for: <br>* places where comments should be inserted within the code <br>* testing things already known to be true or false like having and if-elseif where the 'elseif' tests the negation of what that if had tested</p>");
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// TOTAL SCORE
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
-	$("<p>Style score(max. 5)<input class='totalScore' id='score_style'></p>").appendTo(UIpanel);
+	$(uiPanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
+	$("<p>Style score(max. 5)<input class='totalScore' id='score_style'></p>").appendTo(uiPanel);
 	// update total scores when any partial score changes
 	$("input.partialScore").blur(function() {
 		var styleScore = _.reduce($.makeArray($("input.partialScore[kind='style']")), function(memo,input) {
@@ -331,19 +331,19 @@ function cs131project6(UIpanel) {
 		if(publishBut) {
 			eventFire(publishBut[0],"click");	
 		}
-	}).appendTo(UIpanel);
+	}).appendTo(uiPanel);
 	
 }
 
 
 
-function cs131project5(UIpanel) {
+function cs131project5(uiPanel) {
 	paneToScroll = $(".GMYHEHOCJK");
 	var trCodeLines = getAllCheckedTrCodeLines(["poker/Deck.java","poker/PokerHandEvaluator.java"]);
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 1. Prohibited Class (ArrayList and LinkedList)
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>ArrayList, LinkedList</h3>");
+	$(uiPanel).append("<h3 style='color:yellow'>ArrayList, LinkedList</h3>");
 	var wordsToFind = ["ArrayList","LinkedList"];
 	var wordsFound = [];
 	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
@@ -351,15 +351,15 @@ function cs131project5(UIpanel) {
 		if(codeText.match(/\/\//i)) return;
 		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(wordsFoundInCodeText, function(w) {
-			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(w,tr));
 			addButtonComment(tr,"ArrayList&LinkedList"," ","blue");
 		});
 	});
-	$(UIpanel).append("<p>if exist, set all score T1~T19 zero</p>");
+	$(uiPanel).append("<p>if exist, set all score T1~T19 zero</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 1. Code redundancy (hasStraightFlush = straight+flush)
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:orange'>Helper methods for hasStraightFlush</h3>");
+	$(uiPanel).append("<h3 style='color:orange'>Helper methods for hasStraightFlush</h3>");
 	var helperMethods = ["hasStraight(","hasFlush("]; //
 	var trCodeLines_hasStraight = rangeSelectCodeBlock(trCodeLines,/public static boolean hasStraightFlush/,/public static boolean/);
 	$.each(trCodeLines_hasStraight,function(tri,tr) {
@@ -367,15 +367,15 @@ function cs131project5(UIpanel) {
 		// actual test of the code string
 		var methodsFound= _.filter(helperMethods, function(w) { return codeText.indexOf(w)!=-1; });
 		_.each(methodsFound, function(w) {
-			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 	});
-	$(UIpanel).append("<p>if no helper methods used, -2 style points</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='2'/></p>");
+	$(uiPanel).append("<p>if no helper methods used, -2 style points</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='2'/></p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. good variable names
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
+	$(uiPanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
 	var generalVars = []; 
 	var regex_declaration = /\s*((int)|(int\[\])|(String)|(Card)|(Card\[\])|(Deck)|(boolean))\s[A-Za-z0-9]+\s*(=|;)/g;
 	$.each(trCodeLines,function(tri,tr) {
@@ -397,31 +397,31 @@ function cs131project5(UIpanel) {
 					// }
 					if (generalVars.indexOf(varName)===-1) {
 						generalVars.push(varName);
-						$(UIpanel).append(makeLabelWithClickToScroll(varName,tr));
+						$(uiPanel).append(makeLabelWithClickToScroll(varName,tr));
 						addButtonComment(tr,"Variable Used: "+varName,"Non-descriptive Variable Names : "+varName +" is not descriptive of its purpose","yellow");
 					}
 				}); // end of namesList
 			}); // end of each dec
 		});  // end of each decList
 	});	// end of tr_code loop
-	$(UIpanel).append("<p>if they have MANY poor variable names, they lose 2 points</p>");
-	$(UIpanel).append("<p>Score:<input class='partialScore' kind='style' value='2'/></p>");
-	// $(UIpanel).append("<p>Default Comment:<br><input class='defaultComment' id='comment_variable' value='Non-descriptive Variable Names : [varName] is not descriptive of its purpose.'/></p>");
+	$(uiPanel).append("<p>if they have MANY poor variable names, they lose 2 points</p>");
+	$(uiPanel).append("<p>Score:<input class='partialScore' kind='style' value='2'/></p>");
+	// $(uiPanel).append("<p>Default Comment:<br><input class='defaultComment' id='comment_variable' value='Non-descriptive Variable Names : [varName] is not descriptive of its purpose.'/></p>");
 	
-	// show the result on summary UIPanel
+	// show the result on summary uiPanel
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 3. indentation
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>Indentation</h3>");
-	$(UIpanel).append("<p>if they have multiple examples of bad indenting, they lose 1 point</p>");
-	$(UIpanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
+	$(uiPanel).append("<h3 style='color:yellow'>Indentation</h3>");
+	$(uiPanel).append("<p>if they have multiple examples of bad indenting, they lose 1 point</p>");
+	$(uiPanel).append("<p>Score<input class='partialScore' kind='style' value='1'/></p>");
 
 	// now start JUNIT test
 	var trCodeLines = getAllCheckedTrCodeLines(["poker/StudentTests.java"]);
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// JUNIT 1. coverage
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>Test Coverage</h3>");
+	$(uiPanel).append("<h3 style='color:lightblue'>Test Coverage</h3>");
 	var keywordsMatchedTotal = [];   var keywordsWithAssertFalse = [];
 	var keywords = ["PokerHandEvaluator.hasPair","PokerHandEvaluator.hasTwoPair","PokerHandEvaluator.hasThreeOfAKind","PokerHandEvaluator.hasFourOfAKind","PokerHandEvaluator.hasFlush","PokerHandEvaluator.hasStraight","PokerHandEvaluator.hasFullHouse","PokerHandEvaluator.hasStraightFlush" ];
 	$.each(trCodeLines,function(tri,tr) {
@@ -441,10 +441,10 @@ function cs131project5(UIpanel) {
 	if(keywordsWithAssertFalse.length>=4) scoreAssertFalse = 2;
 	else if(keywordsWithAssertFalse.length>=2) scoreAssertFalse = 1;
 	else scoreAssertFalse=0;
-	$(UIpanel).append("<p>Hands that are not tested:"+makeLabels(keywordsNonMatched)+"</p>");
-	$(UIpanel).append("<p>Hands that tested false cases:"+makeLabels(_.map(keywordsWithAssertFalse, function(w) {return w.replace("PokerHandEvaluator.","");}))+"</p>");
-	elTestPassed = $("<p></p>").appendTo(UIpanel);
-	$(UIpanel).append("Score<input class='partialScore' kind='JUnit' value='"+(Math.min(7,keywordsMatchedTotal.length)+scoreAssertFalse)+"'/>");
+	$(uiPanel).append("<p>Hands that are not tested:"+makeLabels(keywordsNonMatched)+"</p>");
+	$(uiPanel).append("<p>Hands that tested false cases:"+makeLabels(_.map(keywordsWithAssertFalse, function(w) {return w.replace("PokerHandEvaluator.","");}))+"</p>");
+	elTestPassed = $("<p></p>").appendTo(uiPanel);
+	$(uiPanel).append("Score<input class='partialScore' kind='JUnit' value='"+(Math.min(7,keywordsMatchedTotal.length)+scoreAssertFalse)+"'/>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// JUNIT 2. Student Test Results
@@ -469,9 +469,9 @@ function cs131project5(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// TOTAL SCORE
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
-	$("<p>JUnit score(max. 9)<input class='totalScore' id='score_JUnit'></p>").appendTo(UIpanel);
-	$("<p>Style score(max. 5)<input class='totalScore' id='score_style'></p>").appendTo(UIpanel);
+	$(uiPanel).append("<h3 style='color:lightblue'>TOTAL SCORE</h3>");
+	$("<p>JUnit score(max. 9)<input class='totalScore' id='score_JUnit'></p>").appendTo(uiPanel);
+	$("<p>Style score(max. 5)<input class='totalScore' id='score_style'></p>").appendTo(uiPanel);
 	// update total scores when any partial score changes
 	$("input.partialScore").blur(function() {
 		var styleScore = _.reduce($.makeArray($("input.partialScore[kind='style']")), function(memo,input) {
@@ -494,10 +494,10 @@ function cs131project5(UIpanel) {
 				{ column:'Style', score: $("input#score_style").val() },
 			]
 		});
-	}).appendTo(UIpanel);
+	}).appendTo(uiPanel);
 }
 
-function cs131project4(UIpanel) {
+function cs131project4(uiPanel) {
 	// second, find a list <tr>tags containing codes
 	var sectionsStudentModified = ["p4_student/QuadraticEquation.java"];
 	var trCodeLines = _.reduce(sectionsStudentModified, function(memo,sec){
@@ -510,8 +510,8 @@ function cs131project4(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 1. good variable names
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
-	var shortVarsDiv=$("<p>[shortVars] </p>").appendTo(UIpanel);
+	$(uiPanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
+	var shortVarsDiv=$("<p>[shortVars] </p>").appendTo(uiPanel);
 	var generalVars = []; shortVars=[];  whitelist = ['a','b','c','d','e','f'];
 	var tokens_java_types = ["int","String","MyDouble"];  // list of type tokens for finding variable names (should be added for later projects)
 	var regex_declaration = /\s*((int)|(String)|(MyDouble))\s[A-Za-z0-9]+\s*(=|;)/g;
@@ -538,18 +538,18 @@ function cs131project4(UIpanel) {
 			}); // end of each dec
 		});  // end of each decList
 	});	// end of tr_code loop
-	// show the result on summary UIPanel
-	//$(UIpanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
-	$(UIpanel).append("<p>max-deduct :-2 <br> -1 per single-letter variable (a,b,c,d,e,f,g are okay). <br>-1 for other non-descriptive variables.</p>");
+	// show the result on summary uiPanel
+	//$(uiPanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
+	$(uiPanel).append("<p>max-deduct :-2 <br> -1 per single-letter variable (a,b,c,d,e,f,g are okay). <br>-1 for other non-descriptive variables.</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. Unnecessary variable in QE
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	// $(UIpanel).append("<h3 style='color:lightgreen'>QuadraticEquation containing other than three MyDouble values</h3>");
-	// $(UIpanel).append("<p>max-deduct :-3 <br> -1 for ZERO constant.</p>");
+	// $(uiPanel).append("<h3 style='color:lightgreen'>QuadraticEquation containing other than three MyDouble values</h3>");
+	// $(uiPanel).append("<p>max-deduct :-3 <br> -1 for ZERO constant.</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 3. MyDouble.zero
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:lightblue'>MyDouble.zero or new MyDouble(0)</h3>");
+	$(uiPanel).append("<h3 style='color:lightblue'>MyDouble.zero or new MyDouble(0)</h3>");
 	var patternToFind = "new MyDouble(0)"; count = 0;
 	$.each(trCodeLines,function(tri,tr) {
 		var codeDiv = $(tr).find("div.gwt-Label")[0];
@@ -558,16 +558,16 @@ function cs131project4(UIpanel) {
 			count++;
 			if(codeText.indexOf("public static MyDouble zero")===-1) {
 				addButtonComment(tr,"MyDouble.zero","Use MyDouble.zero instead of creating your own static one","blue");
-				$(UIpanel).append(makeLabelWithClickToScroll("MyDouble(0)",tr));
+				$(uiPanel).append(makeLabelWithClickToScroll("MyDouble(0)",tr));
 			}
 		}
 	});
-	$(UIpanel).append("<p>"+count+" new MyDouble(0) are used</p>");
-	$(UIpanel).append("<p>max-deduct :-1</p>");
+	$(uiPanel).append("<p>"+count+" new MyDouble(0) are used</p>");
+	$(uiPanel).append("<p>max-deduct :-1</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 4. Public helper method
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:red'>Public Helper Methods</h3>");
+	$(uiPanel).append("<h3 style='color:red'>Public Helper Methods</h3>");
 	console.log("finding public methods");
 	var regex_publicFunction = /public\s+(static\s+)?([a-zA-Z0-9])+\s+[a-zA-Z0-9]+\(/gi;
 	var givenMethods = [/QuadraticEquation\s*\(/i, /getA\s*\(/i, /getB\s*\(/i,
@@ -582,37 +582,37 @@ function cs131project4(UIpanel) {
 			var helperMethodsFound = _.filter(givenMethods, function(m) { return codeText.match(m)!==null; });
 			if(helperMethodsFound.length===0) {
 				addButtonComment(tr, "public helper","A helper method should be private not public","red");
-				$(UIpanel).append(makeLabelWithClickToScroll(codeText,tr));
+				$(uiPanel).append(makeLabelWithClickToScroll(codeText,tr));
 			}
 		}
 	});
-	$(UIpanel).append("<p>max-deduct :-1</p>");
+	$(uiPanel).append("<p>max-deduct :-1</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 5. Indentation in toString and parseQuadratic
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:orange'>Indentation</h3>");
-	$(UIpanel).append("<p>If they don't have good indenting and bracket use in the toString and in the parseQuadratic methods, deduct 2 points (these are the ones that have the most need of indenting and brackets).</p>");
-	$(UIpanel).append("<p>max-deduct :-2</p>");
+	$(uiPanel).append("<h3 style='color:orange'>Indentation</h3>");
+	$(uiPanel).append("<p>If they don't have good indenting and bracket use in the toString and in the parseQuadratic methods, deduct 2 points (these are the ones that have the most need of indenting and brackets).</p>");
+	$(uiPanel).append("<p>max-deduct :-2</p>");
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 6. Use of Array
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:pink'>Use of Array</h3>");
+	$(uiPanel).append("<h3 style='color:pink'>Use of Array</h3>");
 	$.each(trCodeLines,function(tri,tr) {
 		var codeDiv = $(tr).find("div.gwt-Label")[0];
 		var codeText = $(codeDiv).text();
 		if(codeText.indexOf("int[")!==-1 || codeText.indexOf("String[")!==-1) {
-			$(UIpanel).append(makeLabelWithClickToScroll("codeText",tr));
+			$(uiPanel).append(makeLabelWithClickToScroll("codeText",tr));
 		}
 	});
-	$(UIpanel).append("<p>deduct harsh!!!</p>");
+	$(uiPanel).append("<p>deduct harsh!!!</p>");
 
 
 }
 
 
 
-function cs131project3(UIpanel) {
+function cs131project3(uiPanel) {
 	// second, find a list <tr>tags containing codes
 	var sectionsStudentModified = ["p3_student/PhotoTools.java"];
 	var trCodeLines = _.reduce(sectionsStudentModified, function(memo,sec){
@@ -625,8 +625,8 @@ function cs131project3(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 0. Proper indenting
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:plum'>Proper Indenting</h3>");
-	$(UIpanel).append("<p>-1 for small mistakes <br> -2 for lack of effort</p>");
+	$(uiPanel).append("<h3 style='color:plum'>Proper Indenting</h3>");
+	$(uiPanel).append("<p>-1 for small mistakes <br> -2 for lack of effort</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 1. good variable names
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -667,11 +667,11 @@ function cs131project3(UIpanel) {
 			}); // end of each dec
 		});  // end of each decList
 	}); 	// end of tr_code loop
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
-	$(UIpanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
-	$(UIpanel).append("<p>[LOOP VARS] "+makeLabels(_.unique(loopVars)).join(" ")+"</p>");
-	$(UIpanel).append("<p>max-deduct :-2 <br> -1 per single-letter loop variable (x,y are okay) or row/col misuse. <br>-1 for other non-descriptive variables.</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
+	$(uiPanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
+	$(uiPanel).append("<p>[LOOP VARS] "+makeLabels(_.unique(loopVars)).join(" ")+"</p>");
+	$(uiPanel).append("<p>max-deduct :-2 <br> -1 per single-letter loop variable (x,y are okay) or row/col misuse. <br>-1 for other non-descriptive variables.</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. Symbilic constants for vertical/horizontal stretch
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -694,10 +694,10 @@ function cs131project3(UIpanel) {
 			}
 		}
 	});
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:orange'>Conditionals containing literals</h3>");
-	$(UIpanel).append("<p>[LITERALS IN CONDITIONAL FOUND] "+ makeLabels(literalsUsed).join(" ")   +"</p>");
-	$(UIpanel).append("<p>don't deduct. only comment.</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:orange'>Conditionals containing literals</h3>");
+	$(uiPanel).append("<p>[LITERALS IN CONDITIONAL FOUND] "+ makeLabels(literalsUsed).join(" ")   +"</p>");
+	$(uiPanel).append("<p>don't deduct. only comment.</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 3. BLOCK COMMENTS ON HELPER METHODS
 	//	add comment buttons for each helper method declaration. user clicks it -> count up -> calculate deducted points
@@ -718,8 +718,8 @@ function cs131project3(UIpanel) {
 			});
 		});
 	});
-	$(UIpanel).append("<h3 style='color:plum'>Comments</h3>");
-	$(UIpanel).append("<p>(max deduct: -2) -2 for no comments at all. <br> -1 for missing a lot. </p>");
+	$(uiPanel).append("<h3 style='color:plum'>Comments</h3>");
+	$(uiPanel).append("<p>(max deduct: -2) -2 for no comments at all. <br> -1 for missing a lot. </p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 4. CODE REUSE
 	//	it employs the helperMethods
@@ -763,14 +763,14 @@ function cs131project3(UIpanel) {
 	}
 	casesOfCodeReuse.push({message:"Upsidedown without reusing rotated method", scrollTo:tr_methodDefinition});
 	// also list all method not calling any helper method
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:lightgreen'>Code Reuse</h3>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:lightgreen'>Code Reuse</h3>");
 	_.each(makeLabelsWithClick(casesOfCodeReuse), function(label) {
-		$(UIpanel).append(label);
+		$(uiPanel).append(label);
 	});
-	$(UIpanel).append("<p>(max deduct: -3) <br>-1 for not reusing copy method. <br> -1 for not reusing stretch in enlargement. <br> -1 for not reusing rotate in upside-down.</p>");
+	$(uiPanel).append("<p>(max deduct: -3) <br>-1 for not reusing copy method. <br> -1 for not reusing stretch in enlargement. <br> -1 for not reusing rotate in upside-down.</p>");
 }
-function cs131project2(UIpanel) {
+function cs131project2(uiPanel) {
 	// second, find a list <tr>tags containing codes
 	var sectionsStudentModified = ["src/studentCode/LetterMaker.java"];
 	var trCodeLines = _.reduce(sectionsStudentModified, function(memo,sec){
@@ -817,11 +817,11 @@ function cs131project2(UIpanel) {
 			}); // end of each dec
 		});  // end of each decList
 	}); 	// end of tr_code loop
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
-	$(UIpanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
-	$(UIpanel).append("<p>[LOOP VARS] "+makeLabels(_.unique(loopVars)).join(" ")+"</p>");
-	$(UIpanel).append("<p>max-deduct :-4 <br> -1 per single-letter loop variable (up to -2. x,y are okay). <br>-1 per other non-descriptive variables (up to 2)</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
+	$(uiPanel).append("<p>[GENERAL VARS]"+makeLabels(_.unique(generalVars)).join(" ")+"</p>");
+	$(uiPanel).append("<p>[LOOP VARS] "+makeLabels(_.unique(loopVars)).join(" ")+"</p>");
+	$(uiPanel).append("<p>max-deduct :-4 <br> -1 per single-letter loop variable (up to -2. x,y are okay). <br>-1 per other non-descriptive variables (up to 2)</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. BLOCK COMMENTS ON HELPER METHODS
 	//	add comment buttons for each helper method declaration. user clicks it -> count up -> calculate deducted points
@@ -852,8 +852,8 @@ function cs131project2(UIpanel) {
 		});
 		if(currentMethodName) { codeBlockPerHelperMethods[currentMethodName] = (codeBlockPerHelperMethods[currentMethodName])? codeBlockPerHelperMethods[currentMethodName]+" "+codeText : codeText; }
 	});
-	$(UIpanel).append("<h3 style='color:plum'>Block Comments</h3>");
-	$(UIpanel).append("<p>-1 per helper methods without comment (up to -3) </p>");
+	$(uiPanel).append("<h3 style='color:plum'>Block Comments</h3>");
+	$(uiPanel).append("<p>-1 per helper methods without comment (up to -3) </p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 3. CODE REUSE
 	//	it employs the helperMethods
@@ -868,10 +868,10 @@ function cs131project2(UIpanel) {
 			if(codeText.match(hm)) addCommentOnly(tr,hm,"green");
 		});
 	});
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:lightgreen'>Helper methods</h3>");
-	$(UIpanel).append("<p>"+makeLabels(_.keys(helperMethods)).join(" ")+"</p>");
-	$(UIpanel).append("<p>(max deduct: -4) <br>-1~2: for not using helper methods that draw left/right vertical strokes.<br> -1: no helper used for diagonals in N and X.  <br>-1: no helper used for corner cells.</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:lightgreen'>Helper methods</h3>");
+	$(uiPanel).append("<p>"+makeLabels(_.keys(helperMethods)).join(" ")+"</p>");
+	$(uiPanel).append("<p>(max deduct: -4) <br>-1~2: for not using helper methods that draw left/right vertical strokes.<br> -1: no helper used for diagonals in N and X.  <br>-1: no helper used for corner cells.</p>");
 	$.each(codeBlockPerHelperMethods, function(cbi,cb) {
 		console.log(cb);
 		var numberOfHelperMethodsUsedWitinBlock = 0;
@@ -884,14 +884,14 @@ function cs131project2(UIpanel) {
 		if(numberOfHelperMethodsUsedWitinBlock==0) {
 			$("<p>"+makeLabels([cbi])+" employs no helper method.</p>")
 				.attr("codeline",helperMethods[cbi].codeline)
-				.appendTo(UIpanel);
+				.appendTo(uiPanel);
 		}
 	});
-	$(UIpanel).append("<h3 style='color:orange'>Modularity</h3>");
-	$(UIpanel).append("<p>-1: no method for drawing each letter used. Say 'Lack of modularity in code structure : each letter drawing operation deserves to be a separate method.' </p>");
+	$(uiPanel).append("<h3 style='color:orange'>Modularity</h3>");
+	$(uiPanel).append("<p>-1: no method for drawing each letter used. Say 'Lack of modularity in code structure : each letter drawing operation deserves to be a separate method.' </p>");
 	// add function to open textarea and automatically put the same text in
 }
-function cs131project1(UIpanel) {
+function cs131project1(uiPanel) {
 	// second, find a list <tr>tags containing codes
 	var sectionsStudentModified = ["src/CryptoQuiz.java","src/CryptoQuiz.java"];
 	var trCodeLines = _.reduce(sectionsStudentModified, function(memo,sec){
@@ -948,12 +948,12 @@ function cs131project1(UIpanel) {
 			}); // end of each dec
 		});  // end of each decList
 	}); // end of trCodeLines
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
-	$(UIpanel).append("<p>[NONFINAL VARS]"+makeLabels(_.unique(nonfinalDeclarations)).join(" ")+"</p>");
-	$(UIpanel).append("<p>[FINAL VARS] "+makeLabels(_.unique(finalDeclarations)).join(" ")+"</p>");
-	$(UIpanel).append("<p>[WEIRD FINALS] "+makeLabels(_.unique(badSymbolicUsed)).join(" ")+"</p>");
-	$(UIpanel).append("<p>[BLACKLISTED] "+makeLabels(_.unique(blacklistUsed)).join(" ")+"</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:yellow'>Variables Declared</h3>");
+	$(uiPanel).append("<p>[NONFINAL VARS]"+makeLabels(_.unique(nonfinalDeclarations)).join(" ")+"</p>");
+	$(uiPanel).append("<p>[FINAL VARS] "+makeLabels(_.unique(finalDeclarations)).join(" ")+"</p>");
+	$(uiPanel).append("<p>[WEIRD FINALS] "+makeLabels(_.unique(badSymbolicUsed)).join(" ")+"</p>");
+	$(uiPanel).append("<p>[BLACKLISTED] "+makeLabels(_.unique(blacklistUsed)).join(" ")+"</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 2. Proper use of symbilic constants
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -981,10 +981,10 @@ function cs131project1(UIpanel) {
 			}
 		}
 	});
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:orange'>Conditionals containing literals</h3>");
-	$(UIpanel).append("<p>[ALL CONDITIONALS] "+ makeLabels(conditionalsUsed).join(" ")   +"</p>");
-	$(UIpanel).append("<p>[LITERALS FOUND] "+ makeLabels(literalsUsed).join(" ")   +"</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:orange'>Conditionals containing literals</h3>");
+	$(uiPanel).append("<p>[ALL CONDITIONALS] "+ makeLabels(conditionalsUsed).join(" ")   +"</p>");
+	$(uiPanel).append("<p>[LITERALS FOUND] "+ makeLabels(literalsUsed).join(" ")   +"</p>");
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 5. check line length > 80
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1001,9 +1001,9 @@ function cs131project1(UIpanel) {
 			highlightLine(tr,"Line length should be shorter than 80 characters.","lightgreen");
 		}
 	});
-	// show the result on summary UIPanel
-	$(UIpanel).append("<h3 style='color:lightgreen'>Line length longer than 80</h3>");
-	$(UIpanel).append("<p> total "+countOfTooLongLines+" lines found</p>");
+	// show the result on summary uiPanel
+	$(uiPanel).append("<h3 style='color:lightgreen'>Line length longer than 80</h3>");
+	$(uiPanel).append("<p> total "+countOfTooLongLines+" lines found</p>");
 	// add function to open textarea and automatically put the same text in
 	$(".tip").click(function() {
 		eventFire($(this).parent()[0],'dblclick');
@@ -1018,7 +1018,7 @@ function cs131project1(UIpanel) {
 	});
 } // end of project 1
 
-function cs433project(UIpanel) {
+function cs433project(uiPanel) {
 	// 1. modify the line below to specify single/multiple section titles to look up
 	var sectionsStudentModified = ["src/cmsc433_p3/"];
 	var trCodeLines = _.reduce(sectionsStudentModified, function(memo,sec){
@@ -1030,9 +1030,9 @@ function cs433project(UIpanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 0. FINDING  WORDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	$(UIpanel).append("<h3 style='color:plum'>FINDING WORDS</h3>");
-	$(UIpanel).append("<p>any descriptive text here.</p>");
-	$(UIpanel).append("<p>[WORDS FOUND] <br></p>");
+	$(uiPanel).append("<h3 style='color:plum'>FINDING WORDS</h3>");
+	$(uiPanel).append("<p>any descriptive text here.</p>");
+	$(uiPanel).append("<p>[WORDS FOUND] <br></p>");
 	var wordsToFind = ["sleep(","wait(","notify(","synchronized(","ReentrantLock"];
 	var wordsFound = [];
 	// iterates each line of code below
@@ -1048,7 +1048,7 @@ function cs433project(UIpanel) {
 		// option 1. adding comment button
 		_.each(wordsFoundInCodeText, function(w) {
 			//addButtonComment(tr,"button title",wordsFoundInCodeText[0]+" not allowed.","yellow");
-			$(UIpanel).append(makeLabelWithClickToScroll(w,tr));
+			$(uiPanel).append(makeLabelWithClickToScroll(w,tr));
 		});
 		// option 2. simply adding comment
 		//addCommentOnly(tr,"comment message","green");
@@ -1056,7 +1056,7 @@ function cs433project(UIpanel) {
 		// for example, you can update a list of unique words found so far
 		// wordsFound = _.unique(_.union(wordsFound, wordsFoundInCodeText));
 	});  // end of code line iteration
-	// it's time to show the summary in the UIPanel
-	// $(UIpanel).append("<p>[WORDS FOUND] "+ makeLabels(wordsFound).join(" ")   +"</p>");
+	// it's time to show the summary in the uiPanel
+	// $(uiPanel).append("<p>[WORDS FOUND] "+ makeLabels(wordsFound).join(" ")   +"</p>");
 	// END OF RUBRIC 0.
 }

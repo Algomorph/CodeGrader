@@ -5,13 +5,14 @@ function main(optionItems) {
     // condition: URL contains 'instructor' keyword
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
-        var table_submissions = $("table:contains('last submission')");
-        var td_list = $(table_submissions).find("tr").find("td:nth-child(6)");
+        let table_submissions = $("table:contains('last submission')");
+        let td_list = $(table_submissions).find("tr").find("td:nth-child(6)");
+        let projectIndex = location.href.search(/projectPK=(\d+)/);
         $.each(td_list, function (tdi, td) {
-            var atag = $(td).find("a")[0];
-            if (!atag) return;
-            var url = atag.href;
-            var directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
+            let aTag = $(td).find("a")[0];
+            if (!aTag) return;
+            let url = aTag.href;
+            let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
             $(td).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW__</a>");
         });
     }
@@ -21,16 +22,11 @@ function main(optionItems) {
 
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
-        // first, create summary UIPanel
-        let uiPanel = document.createElement('div');
-        uiPanel.setAttribute('class', 'UIpanel');
-        document.body.appendChild(uiPanel);
-
         const projectName = optionItems.submitServerProjectName;
 
         // check if it's the right course & project
         if ($("h1").text().match(projectName)) {
-            constructReviewPanel(uiPanel, optionItems);
+            constructUiPanel(optionItems);
         }
     }
     // assign click event to predefined comment buttons
@@ -39,16 +35,27 @@ function main(optionItems) {
         let self = this;
         setTimeout(function () {
             $(self).parent().parent().find("input[type='checkbox']").prop("checked", false);
-            let textBox = $(self).parent().parent().find("textarea[aria-hidden='false']");
-            $(textBox).val($(self).attr('msg'));
-            //$(self).parent().parent().find("textarea[aria-hidden='false']").focus().select();
-            eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
+            let textBox = $(self).parent().parent().find("textarea");
+            textBox.attr("aria-hidden", "false");
+            if ($(self).attr('msg') !== "") {
+                $(textBox).val($(self).attr('msg'));
+                eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
+            } else {
+                $(textBox).val("");
+            }
         }, 500);
     });
 } // MAIN ENDS
 
+function constructUiPanel(optionItems) {
+    // first, create summary uiPanel
+    let uiPanelContainer = document.createElement('div');
+    uiPanelContainer.setAttribute('class', 'ui-panel-container');
+    let uiPanel = document.createElement('div');
+    uiPanel.setAttribute('class', 'ui-panel');
+    uiPanelContainer.appendChild(uiPanel);
+    document.body.appendChild(uiPanelContainer);
 
-function constructReviewPanel(uiPanel, optionItems) {
     //TODO: get rid of this global entirely, use getScrollableSourceFilePane() instead
     paneToScroll = $(".GMYHEHOCJK");
     makeCodeFeedArrow();
@@ -57,13 +64,13 @@ function constructReviewPanel(uiPanel, optionItems) {
 
     scrollToFirstFile(filesToCheck[0]);
 
+
     if (filesToCheck.length === 0) {
         $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
     } else {
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
-
-        for(const [fileName, fileCode] of codeFileDictionary.entries()){
-            if(fileCode.parseError !== null){
+        for (const [fileName, fileCode] of codeFileDictionary.entries()) {
+            if (fileCode.parseError !== null) {
                 $(uiPanel).append(makeWarning("Note: parse error in file '" + fileName +
                     "'. Please check developer console for details. Disabling modules that depend on static code analysis for this file."));
                 console.log(fileCode.parseError);
@@ -74,8 +81,8 @@ function constructReviewPanel(uiPanel, optionItems) {
         //TODO: make setting for uniqueNamesOnly
         //TODO: make setting for allowedSpecialWords
         namingModule.initialize(uiPanel, codeFileDictionary, ["min", "max"], optionItems.ignoredNames, true);
+        methodCallModule.initialize(uiPanel, codeFileDictionary, optionItems.methodsToIgnore, true)
     }
-
 
 
     gradeServerModule.initialize(uiPanel);

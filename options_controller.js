@@ -3,13 +3,14 @@
 
 // Saves options to chrome.storage
 function saveOptions() {
-	var semesterSeason = document.getElementById('semester_season').value;
-	var year = document.getElementById('year').value;
+	let semesterSeason = document.getElementById('semester_season').value;
+	let year = document.getElementById('year').value;
 	// var projectDistribution = document.getElementById('project_distribution').value;
-	var submitServerProjectName = document.getElementById('submit_server_project_name').value;
+	let submitServerProjectName = document.getElementById('submit_server_project_name').value;
 	
-	var filesToCheck = document.getElementById('files_to_check').value.split(/\s*,\s*/);
-	var ignoredNames = document.getElementById('names_to_ignore').value.split(/\s*,\s*/);
+	let filesToCheck = document.getElementById('files_to_check').value.split(/\s*,\s*/);
+	let ignoredNames = document.getElementById('names_to_ignore').value.split(/\s*,\s*/);
+	let methodsToIgnore = JSON.parse(document.getElementById('methods_to_ignore').value);
 
 	chrome.storage.sync.set({
 		semesterSeason: semesterSeason,
@@ -17,7 +18,8 @@ function saveOptions() {
 		// studentDistributionFiles: studentDistributionFiles,
 		submitServerProjectName: submitServerProjectName,
 		filesToCheck: filesToCheck,
-		ignoredNames: ignoredNames
+		ignoredNames: ignoredNames,
+		methodsToIgnore: methodsToIgnore
 	}, function() {
 		// Update status to let user know options were saved.
 		var status = document.getElementById('status');

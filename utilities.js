@@ -24,13 +24,15 @@ function restoreOptions(callback) {
 	const submitServerProjectNameDefault = "";
 	const filesToCheckDefault = [];
 	const ignoredNamesDefault = [];
+	const defaultMethodsToIgnore = { "global":[] };
 
 	chrome.storage.sync.get({
 		semesterSeason: currentSeason,
 		year: currentYear,
 		submitServerProjectName: submitServerProjectNameDefault,
 		filesToCheck:filesToCheckDefault,
-		ignoredNames:ignoredNamesDefault
+		ignoredNames:ignoredNamesDefault,
+		methodsToIgnore:defaultMethodsToIgnore,
 	},callback);
 }
 
@@ -113,6 +115,31 @@ function getCheckedFileCode(filesToCheck) {
 	return [fileDictionary, trCodeLines];
 }
 
+/**
+ * Return the same string with first letter capitalized.
+ * @param {string} string
+ * @return {string}
+ */
+function capitalize(string){
+	return string[0].toUpperCase() + string.slice(1);
+}
+
+/**
+ * Compiles an array containing only the CodeName / MethodCall objects with unique "name" field from the input array
+ * @param {Array.<CodeName>|Array.<MethodCall>} namesOrCallsArray
+ * @return {Array.<CodeName>|Array.<MethodCall>}
+ */
+function uniqueNames(namesOrCallsArray) {
+	let uniqueNamesMap = new Map();
+	namesOrCallsArray.forEach(
+		(resultObject) => {
+			if (!uniqueNamesMap.has(resultObject.name)) {
+				uniqueNamesMap.set(resultObject.name, resultObject);
+			}
+		}
+	);
+	return [...uniqueNamesMap.values()];
+}
 
 function getHelperMethodsUsedInCodeBlock(trCodeLines,helperMethods) {
 	var usedMethods = [];
@@ -144,6 +171,7 @@ function rangeSelectCodeBlock(trCodeLines,start,end) {
 	}
 	return result_tr;
 }
+
 function findTrUsingRegex(trCodeLines,reg) {
 	for (i in trCodeLines) {
 		var tr = trCodeLines[i];
@@ -155,15 +183,7 @@ function findTrUsingRegex(trCodeLines,reg) {
 function uncheckBoxes(){
 	$("label:contains('Request reply?')").parent().find("input").prop('checked',false);
 }
-function eventFire(el, etype){
-  if (el.fireEvent) {
-    (el.fireEvent('on' + etype));
-  } else {
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    el.dispatchEvent(evObj);
-  }
-}
+
 function addCommentOnly(tr,title,color) {
 	var code = $(tr).find(".gwt-Label");
 	$(code).append($("<span class='comment' style='border:1px solid "+color+"; color:"+color+"'>&larr;"+title+"</span>"));

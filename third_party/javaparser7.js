@@ -542,7 +542,8 @@ function peg$parse(input, options) {
                 return expr;
               default:
                 return { 
-                  node:      'ExpressionStatement', 
+                  node:      'ExpressionStatement',
+                  location:   location(),
                   expression: expr 
                 };  
             }
@@ -655,7 +656,8 @@ function peg$parse(input, options) {
       peg$c91 = function(qual, expr) { return { node: 'ArrayAccess', array: qual, index: expr }; },
       peg$c92 = function(qual, args) { 
             return mergeProps(popQualified(qual), { 
-              node:         'MethodInvocation', 
+              node:         'MethodInvocation',
+              location:      location(),
               arguments:     args, 
               typeArguments: [] 
             }); 
@@ -669,7 +671,8 @@ function peg$parse(input, options) {
       peg$c95 = function(qual) { return { node: 'ThisExpression', qualifier: qual }; },
       peg$c96 = function(qual, args) {
             return { 
-              node:         'SuperConstructorInvocation', 
+              node:         'SuperConstructorInvocation',
+              location:      location(),
               arguments:     args, 
               expression:    qual,
               typeArguments: []
@@ -678,7 +681,7 @@ function peg$parse(input, options) {
       peg$c97 = function(qual, args, rest) { return mergeProps(rest, { expression: qual, typeArguments: optionalList(args) }); },
       peg$c98 = function() { return []; },
       peg$c99 = function(suffix) { return suffix; },
-      peg$c100 = function(id, args) { return { node: 'MethodInvocation', arguments: args, name: id, typeArguments: [] }; },
+      peg$c100 = function(id, args) { return { node: 'MethodInvocation', location: location(), arguments: args, name: id, typeArguments: [] }; },
       peg$c101 = function(op) { return op[0]; /* remove ending spaces */ },
       peg$c102 = function(id) { return { node: 'FieldAccess', name: id }; },
       peg$c103 = function(ret) { return ret; },
@@ -687,7 +690,8 @@ function peg$parse(input, options) {
       peg$c106 = function(expr) { return { node: 'ArrayAccess', index: expr }; },
       peg$c107 = function(args) { 
             return { 
-              node:         'SuperConstructorInvocation', 
+              node:         'SuperConstructorInvocation',
+              location:      location(),
               arguments:     args, 
               expression:    null,
               typeArguments: []
@@ -698,7 +702,8 @@ function peg$parse(input, options) {
               node: 'SuperFieldAccess',
               name:  id  
             } : { 
-              node:         'SuperMethodInvocation', 
+              node:         'SuperMethodInvocation',
+              location:      location(),
               typeArguments: optionalList(gen),
               name:          id, 
               arguments:     args
@@ -734,6 +739,7 @@ function peg$parse(input, options) {
             return mergeProps(rest, {
               node:          'ClassInstanceCreation',
               type:           type,
+              location:       location(),
               typeArguments:  optionalList(args),
               expression:     null
             });
@@ -742,6 +748,7 @@ function peg$parse(input, options) {
       peg$c130 = function(id, args, rest) { 
             return mergeProps(rest, {
               node: 'ClassInstanceCreation',
+              location: location(),
               type:  buildTypeName(id, args, [])
             });  
           },

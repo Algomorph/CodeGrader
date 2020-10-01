@@ -2,7 +2,7 @@ var gradeServerModule = {};
 
 (function() {
 
-this.initialize = function(UIpanel){
+this.initialize = function(uiPanel){
 	// report total score to grade server tab
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
 		console.log("report");
@@ -14,7 +14,7 @@ this.initialize = function(UIpanel){
 				{ column:'Style', score: $("input#score_style").val() },
 			]
 		});
-	}).appendTo(UIpanel);
+	}).appendTo(uiPanel);
 }
 
 }).apply(gradeServerModule);
