@@ -119,12 +119,15 @@ let methodCallModule = {};
                 if (node.hasOwnProperty("expression") && node.expression != null) {
                     if (node.expression.node === "SimpleName") {
                         name = node.expression.identifier + "." + node.name.identifier;
+                    } else if(node.expression.node === "ThisExpression") {
+                        name = "this." + node.name.identifier;
+                    } else if(node.expression.node === "FieldAccess"){
+                        name = "this." + node.expression.name.identifier + "." + node.name.identifier;
                     } else {
-                        //TODO: doesn't work well yet
-
-                        // const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset - node.location.start.offset);
-                        // const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
-                        // name = callExpressionSourceCode + "." + node.name.identifier;
+                        console.log(node);
+                        const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset);
+                        const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
+                        name = callExpressionSourceCode + "." + node.name.identifier;
                     }
                 } else {
                     name = "this." + node.name.identifier;
@@ -176,6 +179,12 @@ let methodCallModule = {};
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
+                    // special this. case handling
+                    if(ignoredMethodsForType.has("this.")){
+                        methodCallsForType = methodCallsForType.filter((methodCall) => {
+                            return !methodCall.name.startsWith("this.");
+                        })
+                    }
                     methodCallsForType.forEach((methodCall) => {
                         if (methodCall.astNode.hasOwnProperty("name") &&
                             ignoredMethodsForType.has(methodCall.astNode.name.identifier)) {
