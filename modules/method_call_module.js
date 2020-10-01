@@ -120,10 +120,14 @@ let methodCallModule = {};
                     if (node.expression.node === "SimpleName") {
                         name = node.expression.identifier + "." + node.name.identifier;
                     } else {
-                        const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset - node.location.start.offset);
-                        const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
-                        name = callExpressionSourceCode + "." + node.name.identifier;
+                        //TODO: doesn't work well yet
+
+                        // const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset - node.location.start.offset);
+                        // const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
+                        // name = callExpressionSourceCode + "." + node.name.identifier;
                     }
+                } else {
+                    name = "this." + node.name.identifier;
                 }
                 methodCalls.push(new MethodCall(name, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.METHOD));
                 children = node.arguments;
