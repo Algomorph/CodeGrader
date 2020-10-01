@@ -4,15 +4,17 @@ var keywordModule = {};
 
 this.initialize = function (uiPanel, trCodeLines, keywords){
 	$(uiPanel).append("<h3 style='color:#92b9d1'>Prohibided Keywords</h3>");
-	var wordsToFind = ["ArrayList","LinkedList"];
-	var wordsFound = [];
+	//TODO: make configurable from options
+	//let wordsToFind = ["ArrayList","LinkedList"];
+	let wordsToFind = [];
+	let wordsFound = [];
 	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
-		var codeText = $($(tr).find("div.gwt-Label")[0]).text();
+		let codeText = $($(tr).find("div.gwt-Label")[0]).text();
 		if(codeText.match(/\/\//i)) return;
-		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
-		_.each(wordsFoundInCodeText, function(w) {
-			$(uiPanel).append(makeLabelWithClickToScroll(w,tr));
-			addButtonComment(tr,"ArrayList&LinkedList"," ","#92b9d1");
+		let wordsFoundInCodeText = _.filter(wordsToFind, function(keyword) { return codeText.indexOf(keyword)!=-1; });
+		_.each(wordsFoundInCodeText, function(keyword) {
+			$(uiPanel).append(makeLabelWithClickToScroll(keyword,tr));
+			addButtonComment(tr,"Prohibited keyword: " + keyword," ","#92b9d1");
 		});
 	});
 }

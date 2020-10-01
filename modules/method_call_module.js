@@ -125,19 +125,27 @@ let methodCallModule = {};
             if (codeFile.abstractSyntaxTree !== null) {
                 const syntaxTree = codeFile.abstractSyntaxTree;
 
-
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
-                    let ignoredMethodsForType = [...globallyIgnoredMethods];
+                    const ignoredMethodsForType = new Set([...globallyIgnoredMethods]);
                     if (ignoredMethods.hasOwnProperty(type.name.identifier)) {
                         ignoredMethodsForType.push(...ignoredMethods[type.name.identifier]);
                     }
                     let methodCallsForType = [];
                     getMethodCallsFromNode(type, methodCallsForType, codeFile);
+                    methodCallsForType = methodCallsForType.filter((methodCall) => {
+                        return !ignoredMethodsForType.has(methodCall.name);
+                    })
                     methodCalls.push(...methodCallsForType);
                 }
             }
         }
+
+        if(uniqueCallsOnly){
+            methodCalls = uniqueNames(methodCalls);
+        }
+
+
 
         for (const methodCall of methodCalls) {
             $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine));

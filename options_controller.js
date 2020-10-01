@@ -10,7 +10,7 @@ function saveOptions() {
 	
 	let filesToCheck = document.getElementById('files_to_check').value.split(/\s*,\s*/);
 	let ignoredNames = document.getElementById('names_to_ignore').value.split(/\s*,\s*/);
-	let methodsToIgnore = JSON.parse(document.getElementById('methods_to_ignore').value);
+	let ignoredMethods = JSON.parse(document.getElementById('methods_to_ignore').value);
 
 	chrome.storage.sync.set({
 		semesterSeason: semesterSeason,
@@ -19,7 +19,7 @@ function saveOptions() {
 		submitServerProjectName: submitServerProjectName,
 		filesToCheck: filesToCheck,
 		ignoredNames: ignoredNames,
-		methodsToIgnore: methodsToIgnore
+		ignoredMethods: ignoredMethods
 	}, function() {
 		// Update status to let user know options were saved.
 		var status = document.getElementById('status');
@@ -50,6 +50,7 @@ function restoreOptionsLocal() {
 			document.getElementById('submit_server_project_name').value = items.submitServerProjectName;
 			document.getElementById('files_to_check').value = items.filesToCheck.join(", ");
 			document.getElementById('names_to_ignore').value = items.ignoredNames.join(", ");
+			document.getElementById('methods_to_ignore').value = JSON.stringify(items.ignoredMethods);
 		}
 	);
 }

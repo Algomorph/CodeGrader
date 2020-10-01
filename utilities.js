@@ -24,7 +24,7 @@ function restoreOptions(callback) {
 	const submitServerProjectNameDefault = "";
 	const filesToCheckDefault = [];
 	const ignoredNamesDefault = [];
-	const defaultMethodsToIgnore = { "global":[] };
+	const defaultIgnoredMethods = { "global":[] };
 
 	chrome.storage.sync.get({
 		semesterSeason: currentSeason,
@@ -32,7 +32,7 @@ function restoreOptions(callback) {
 		submitServerProjectName: submitServerProjectNameDefault,
 		filesToCheck:filesToCheckDefault,
 		ignoredNames:ignoredNamesDefault,
-		methodsToIgnore:defaultMethodsToIgnore,
+		ignoredMethods:defaultIgnoredMethods,
 	},callback);
 }
 
