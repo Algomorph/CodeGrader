@@ -111,7 +111,8 @@ let methodCallModule = {};
                 children = node.arguments;
                 break;
             case "ClassInstanceCreation":
-                methodCalls.push(new MethodCall(node.type.name.identifier, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.CONSTRUCTOR));
+                //FIXME
+                //methodCalls.push(new MethodCall(node.type.name.identifier, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.CONSTRUCTOR));
                 children = node.arguments;
                 break;
             case "MethodInvocation":
@@ -124,7 +125,6 @@ let methodCallModule = {};
                     } else if(node.expression.node === "FieldAccess"){
                         name = "this." + node.expression.name.identifier + "." + node.name.identifier;
                     } else {
-                        console.log(node);
                         const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset);
                         const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
                         name = callExpressionSourceCode + "." + node.name.identifier;
