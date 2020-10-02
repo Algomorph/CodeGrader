@@ -21,12 +21,46 @@ let methodCallModule = {};
         }
     }
 
+    let DeclarationType = {
+        METHOD: 1,
+        TYPE: 2,
+        VARIABLE_OR_CONSTANT: 3,
+        FIELD: 4
+    }
+
+    let DeclarationTypeByNode = {
+        "TypeDeclaration": DeclarationType.TYPE,
+        "MethodDeclaration": DeclarationType.METHOD,
+        "VariableDeclarationStatement": DeclarationType.VARIABLE_OR_CONSTANT,
+        "VariableDeclarationExpression": DeclarationType.VARIABLE_OR_CONSTANT,
+        "SingleVariableDeclaration": DeclarationType.VARIABLE_OR_CONSTANT,
+        "FieldDeclaration": DeclarationType.FIELD,
+    }
+
     class Declaration {
         constructor(name, typeName, typeArguments, astNode) {
             this.name = name;
             this.typeName = typeName;
             this.typeArguments = typeArguments;
             this.astNode = astNode;
+            this.declarationType = DeclarationTypeByNode[astNode.node];
+        }
+    }
+
+
+    function composeQualifiedGenericName(name, typeArguments) {
+        if (typeArguments.length > 0) {
+            return name + "<" + typeArguments.map(([subName, subTypeArguments]) => composeQualifiedGenericName(subName, subTypeArguments)).join(", ") + ">";
+        } else {
+            return name;
+        }
+    }
+
+    function composeUnqualifiedGenericName(name, typeArguments) {
+        if (typeArguments.length > 0) {
+            return name + "<>";
+        } else {
+            return name;
         }
     }
 
@@ -46,33 +80,24 @@ let methodCallModule = {};
                 }
                 return [typeNode.type.name.identifier, typeArguments];
             case "ComponentType":
-                return [typeNode.name.identifier + "[]",]
+                return [typeNode.name.identifier + "[]", typeArguments]
+            case "ArrayType":
+                const [subName, subTypeArguments] = getTypeNameAndArgumentsFromTypeNode(typeNode.componentType);
+                return [subName + "[]", subTypeArguments];
         }
         console.log("Warning! Could not parse type. ");
         console.log(typeNode);
         return ["", typeArguments];
     }
 
-    function composeQualifiedGenericName(name, typeArguments) {
-        if (typeArguments.length > 0) {
-            return name + "<" + typeArguments.map(([subName, subTypeArguments]) => composeQualifiedGenericName(subName, subTypeArguments)).join(", ") + ">";
-        } else {
-            return name;
-        }
-    }
-
-    function composeUnqualifiedGenericName(name, typeArguments) {
-        if (typeArguments.length > 0) {
-            return name + "<>";
-        } else {
-            return name;
-        }
-    }
 
     class Scope {
         constructor(astNode, declarations, children, scopeStack) {
             this.astNode = astNode;
-            this.declarations = declarations;
+            this.declarations = new Map();
+            for (const declaration of declarations) {
+                this.declarations.set(declaration.name, declaration);
+            }
             this.children = children;
             this.scopeStack = scopeStack;
         }
@@ -84,15 +109,100 @@ let methodCallModule = {};
         "SecurityManager", "Short", "StackTraceElement", "StrictMath", "String", "StringBuffer", "StringBuilder",
         "System", "Thread", "ThreadGroup", "Throwable", "Void"]);
 
-    //TODO
-    function determineMethodCallExpressionType(astTree, methodCall) {
-        if (methodCall.expression.node === "SimpleName") {
-            if (javaDotLangPackageClasses.has(methodCall.expression.identifier)) {
-                return methodCall.expression.identifier;
-            } else {
+    const commonApiMethodReturnTypes = new Map([
+        ["$ArrayList$.get", "<0>"],
+        ["$ArrayList$.clone", "=="],
 
+    ]);
+
+    /**
+     *
+     * @param expressionNode
+     * @param fullScopeStack
+     * @param {CodeFile} codeFile
+     * @return {null | DeclarationType}
+     */
+    function findMethodCallTypeDeclaration(expressionNode, fullScopeStack, codeFile) {
+        let declaration = null;
+        switch (expressionNode.node) {
+            case "QualifiedName":
+                declaration = searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
+                break;
+            case "SimpleName":
+                declaration = searchForDeclarationInStack(expressionNode.identifier, fullScopeStack);
+                break;
+            case "ThisExpression":
+                console.log("ThisExpression:");
+                console.log(expressionNode);
+                break;
+            case "FieldAccess":
+                console.log("FieldAccess:");
+                console.log(expressionNode);
+                break;
+            case "MethodInvocation":
+                let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
+                if(subDeclaration != null){
+                    if(subDeclaration.declarationType === DeclarationType.TYPE){
+
+                    }
+
+                }
+
+                break;
+            default:
+                break;
+        }
+        return declaration;
+    }
+
+    function determineQualifiedMethodName(methodCallNode, fullScopeStack, codeFile) {
+        let name = "";
+
+        if (methodCallNode.hasOwnProperty("expression") && methodCallNode.expression != null) {
+            const declaration = findMethodCallTypeDeclaration(methodCallNode.expression, fullScopeStack, codeFile);
+            if (declaration == null) {
+                if (methodCallNode.expression.node === "SimpleName") {
+                    name = methodCallNode.expression.identifier + "." + methodCallNode.name.identifier;
+                    //TODO: also check against imported classes
+                    if (!javaDotLangPackageClasses.has(methodCallNode.expression.identifier)) {
+                        console.log("Declaration not found:");
+                        console.log(methodCallNode.expression);
+                    }
+                } else {
+                    console.log("Declaration not found:");
+                    console.log(methodCallNode.expression);
+                    const callSourceCode = codeFile.sourceCode.substring(methodCallNode.location.start.offset, methodCallNode.location.end.offset);
+                    const callExpressionSourceCode = callSourceCode.split(methodCallNode.name.identifier)[0];
+                    name = callExpressionSourceCode + methodCallNode.name.identifier;
+                }
+            } else {
+                if (declaration.declarationType === DeclarationType.TYPE) {
+                    // static method call
+                    name = declaration.typeName + "." + methodCallNode.name.identifier;
+                } else {
+                    name = "$" + declaration.typeName + "$." + methodCallNode.name.identifier;
+                }
+            }
+        } else {
+            name = "this." + methodCallNode.name.identifier;
+        }
+        return name;
+    }
+
+    /**
+     * Search backwards through the scope stack for a declaration with matching name.
+     * @param {String} name name of the declared element to search for
+     * @param {Array.<Scope>} scopeStack
+     * @return {Declaration}
+     */
+    function searchForDeclarationInStack(name, scopeStack) {
+        for (let iScope = scopeStack.length - 1; iScope >= 0; iScope--) {
+            let scope = scopeStack[iScope];
+            if (scope.declarations.has(name)) {
+                return scope.declarations.get(name);
             }
         }
+        return null;
     }
 
     /**
@@ -108,13 +218,13 @@ let methodCallModule = {};
         let declarations = [];
         switch (astNode.node) {
             case "TypeDeclaration":
-                console.log(astNode);
-                branchScopes.push(new Scope(astNode, [], astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
+                branchScopes.push(new Scope(astNode,
+                    [new Declaration("this", astNode.name.identifier, [], astNode)],
+                    astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
-            case "MethodDeclaration":
-            {
+            case "MethodDeclaration": {
                 const [methodReturnTypeName, methodReturnTypeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.push(new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode));
+                scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
@@ -122,127 +232,137 @@ let methodCallModule = {};
                         declarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter));
                     }
                 }
-                branchScopes.push(new Scope(astNode, declarations, astNode.body.statements, scope.scopeStack.concat([scope])))
+                branchScopes.push(new Scope(astNode, declarations, astNode.body.statements, scope.scopeStack.concat([scope])));
                 break;
             case "Block":
                 scope.children = astNode.statements;
-                branchScopes.push(scope)
+                branchScopes.push(scope);
                 break;
             case "IfStatement":
-                children = [astNode.expression, astNode.thenStatement];
+                scope.children = [astNode.expression];
+                branchScopes.push(scope);
+                branchScopes.push(new Scope(astNode.thenStatement, [], [astNode.thenStatement], scope.scopeStack.concat([scope])));
                 if (astNode.elseStatement !== null) {
-                    children.push(astNode.elseStatement);
+                    branchScopes.push(new Scope(astNode.elseStatement, [], [astNode.elseStatement], scope.scopeStack.concat([scope])));
                 }
-                scopeStack = [...scopeStack];
-                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "ForStatement":
-                children = [...astNode.updaters];
-                children.push(astNode.expression);
-                children.push(...astNode.initializers);
-                children.push(...astNode.body.statements);
-
-                scopeStack = [...scopeStack];
                 for (const initializer of astNode.initializers) {
                     const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(initializer.type);
                     for (const fragment of initializer.fragments) {
                         declarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer));
                     }
                 }
-                scopeStack.push(new Scope(astNode, declarations));
+                branchScopes.push(
+                    new Scope(
+                        astNode, declarations,
+                        astNode.updaters.concat([astNode.expression], astNode.initializers, astNode.body.statements),
+                        scope.scopeStack.concat([scope])
+                    )
+                );
                 break;
-            case "EnhancedForStatement":
-                children = astNode.body.statements;
-                children.push(astNode.expression);
-                scopeStack = [...scopeStack];
+            case "EnhancedForStatement": {
                 const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
                 declarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter));
-                scopeStack.push(new Scope(astNode, declarations));
+            }
+                branchScopes.push(new Scope(astNode, declarations,
+                    astNode.updaters.concat([astNode.expression], astNode.body.statements)),
+                    scope.scopeStack.concat([scope])
+                );
                 break;
             case "SwitchStatement":
-                children = astNode.statements.each(switchCase => switchCase.expression);
-                children.push(astNode.expression);
+                scope.children = astNode.statements.map(switchCase => switchCase.expression);
+                scope.children.push(astNode.expression);
+                branchScopes.push(scope);
                 break;
             case "ReturnStatement":
             case "ParenthesizedExpression":
             case "ThrowStatement":
             case "ExpressionStatement":
-                children = [astNode.expression];
+                scope.children = [astNode.expression];
+                branchScopes.push(scope);
                 break;
             case "TryStatement":
-                console.log(astNode);
-                children = [...astNode.body.statements];
+                branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
                 if (astNode.catchClauses !== null) {
-                    children.push(...astNode.catchClauses);
+                    for (const catchClause of astNode.catchClauses) {
+                        branchScopes.push(new Scope(catchClause, [], [catchClause], scope.scopeStack.concat([scope])));
+                    }
                 }
                 if (astNode.finally !== null) {
-                    children.push(...astNode.finally.statements);
+                    branchScopes.push(new Scope(astNode.finally, [], [astNode.finally.statements], scope.scopeStack.concat([scope])));
                 }
                 break;
             case "InstanceOfExpression":
             case "InfixExpression":
-                children = [astNode.leftOperand, astNode.rightOperand];
+                scope.children = [astNode.leftOperand, astNode.rightOperand];
+                branchScopes.push(scope);
                 break;
             case "PrefixExpression":
-                children = [astNode.operand];
+                scope.children = [astNode.operand];
+                branchScopes.push(scope);
                 break;
             case "Assignment":
-                children = [astNode.leftHandSide, astNode.rightHandSide];
+                scope.children = [astNode.leftHandSide, astNode.rightHandSide];
+                branchScopes.push(scope);
                 break;
             case "SuperMethodInvocation":
                 methodCalls.push(new MethodCall("super.", codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD));
-                children = astNode.arguments;
+                scope.children = astNode.arguments;
+                branchScopes.push(scope);
                 break;
             case "SuperConstructorInvocation":
                 methodCalls.push(new MethodCall("super(", codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
-                children = astNode.arguments;
+                scope.children = astNode.arguments;
+                branchScopes.push(scope);
                 break;
             case "ClassInstanceCreation": {
                 let [methodReturnTypeName, methodReturnTypeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 const name = composeUnqualifiedGenericName(methodReturnTypeName, methodReturnTypeArguments) + "()";
                 methodCalls.push(new MethodCall(name, codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR));
             }
-                children = astNode.arguments;
+                scope.children = astNode.arguments;
+                branchScopes.push(scope);
                 break;
-            case "MethodInvocation":
-                let name = astNode.name.identifier;
-                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                    if (astNode.expression.node === "SimpleName") {
-                        name = astNode.expression.identifier + "." + astNode.name.identifier;
-                    } else if (astNode.expression.node === "ThisExpression") {
-                        name = "this." + astNode.name.identifier;
-                    } else if (astNode.expression.node === "FieldAccess") {
-                        name = "this." + astNode.expression.name.identifier + "." + astNode.name.identifier;
-                    } else {
-                        const callSourceCode = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
-                        const callExpressionSourceCode = callSourceCode.split(astNode.name.identifier)[0];
-                        name = callExpressionSourceCode + astNode.name.identifier;
-                    }
-                } else {
-                    name = "this." + astNode.name.identifier;
-                }
+            case "MethodInvocation": {
+                let fullScopeStack = scope.scopeStack.concat([scope]);
+                let name = determineQualifiedMethodName(astNode, fullScopeStack, codeFile);
                 methodCalls.push(new MethodCall(name, codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
-                children = astNode.arguments;
+                scope.children = astNode.arguments;
+                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                    scope.children.push(astNode.expression);
+                }
+                branchScopes.push(scope);
+            }
                 break;
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
-                children = astNode.fragments;
+                scope.children = astNode.fragments;
+            {
+                const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                for (const fragment of astNode.fragments) {
+                    scope.declarations.set(fragment.name.identifier, new Declaration(fragment.name.identifier, typeName, typeArguments, astNode));
+                }
+            }
+                branchScopes.push(scope);
                 break;
             case "VariableDeclarationFragment":
                 if (astNode.initializer !== null) {
-                    children = [astNode.initializer];
+                    scope.children = [astNode.initializer];
+                    branchScopes.push(scope);
                 }
                 break;
             case "CatchClause":
-                children = astNode.body.statements;
+                scope.children = astNode.body.statements;
+                branchScopes.push(scope);
                 break;
             default:
                 break;
         }
 
         for (const branchScope of branchScopes) {
-            for(const astNode of branchScope.children){
+            for (const astNode of branchScope.children) {
                 getMethodCallsFromNode(astNode, branchScope, methodCalls, codeFile);
             }
         }
@@ -266,7 +386,7 @@ let methodCallModule = {};
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
-                    getMethodCallsFromNode(type, new Scope(syntaxTree, [], []), methodCallsForType, codeFile);
+                    getMethodCallsFromNode(type, new Scope(syntaxTree, [], [], []), methodCallsForType, codeFile);
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
