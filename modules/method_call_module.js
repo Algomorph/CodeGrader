@@ -21,6 +21,41 @@ let methodCallModule = {};
         }
     }
 
+    class Declaration {
+        constructor(name, typeName, typeArguments, astNode) {
+            this.name = name;
+            this.typeName = typeName;
+            this.typeArguments = typeArguments;
+            this.astNode = astNode;
+        }
+    }
+
+    function getTypeNameAndArgumentsFromTypeNode(typeNode){
+        let typeArguments = [];
+        switch (typeNode.node){
+            case "SimpleType":
+                return [typeNode.name.identifier, typeArguments];
+            case "PrimitiveType":
+                return [typeNode.primitiveTypeCode, typeArguments];
+            case "ParameterizedType":
+                for(const typeArgument of typeNode.typeArguments){
+                    typeArguments.push(getTypeNameAndArgumentsFromTypeNode(typeArgument));
+                }
+                return [typeNode.type.name.identifier, typeArguments];
+            case "ComponentType":
+                return [typeNode.name.identifier + "[]", ]
+        }
+        console.log("Warning! Could not parse type node: " + typeNode)
+        return ["", typeArguments];
+    }
+
+    class Scope {
+        constructor(astNode, declarations) {
+            this.astNode = astNode;
+            this.declarations = declarations;
+        }
+    }
+
     const javaDotLangPackageClasses = new Set(["Boolean", "Byte", "Character", "Character.Subset",
         "Character.UnicodeBlock", "ClassLoader", "Compiler", "Double", "Float", "Integer", "Long", "Math", "Number",
         "Object", "Package", "Process", "ProcessBuilder", "ProcessBuilder.Redirect", "Runtime", "RuntimePermission",
@@ -38,122 +73,154 @@ let methodCallModule = {};
         }
     }
 
+
     /**
      * Recursively traverse Abstract Syntax Tree node in search for method calls, append results to provided
      * methodCalls array.
-     * @param {object} node node to search
+     * @param {object} astNode node to search
      * @param {Array.<MethodCall>} methodCalls
      * @param {CodeFile} codeFile
+     * @param {Array.<Scope>} scopeStack stack of scopes, with the current one last
      */
-    function getMethodCallsFromNode(node, methodCalls, codeFile) {
+    function getMethodCallsFromNode(astNode, methodCalls, codeFile, scopeStack) {
         let children = [];
-        switch (node.node) {
+        let currentScope = scopeStack[scopeStack.length - 1];
+        let declarations = [];
+        switch (astNode.node) {
             case "TypeDeclaration":
-                children = node.bodyDeclarations;
+                children = astNode.bodyDeclarations;
+                scopeStack = [...scopeStack];
+                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "MethodDeclaration":
-                children = node.body.statements;
+                console.log(astNode);
+                children = astNode.body.statements;
+                for(const parameter of astNode.parameters){
+                    if(parameter.node === "SingleVariableDeclaration"){
+                        const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(parameter.type);
+                        declarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter));
+                    }
+                }
+                currentScope.declarations.push(astNode.name.identifier, )
+
+                scopeStack = [...scopeStack];
+                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "Block":
-                children = node.statements;
+                children = astNode.statements;
                 break;
             case "IfStatement":
-                children = [node.expression, node.thenStatement];
-                if (node.elseStatement !== null) {
-                    children.push(node.elseStatement);
+                children = [astNode.expression, astNode.thenStatement];
+                if (astNode.elseStatement !== null) {
+                    children.push(astNode.elseStatement);
                 }
+                scopeStack = [...scopeStack];
+                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "ForStatement":
-                children = [...node.updaters];
-                children.push(node.expression);
-                children.push(...node.initializers);
-                children.push(...node.body.statements);
+                children = [...astNode.updaters];
+                children.push(astNode.expression);
+                children.push(...astNode.initializers);
+                children.push(...astNode.body.statements);
+
+                scopeStack = [...scopeStack];
+                for(const initializer of astNode.initializers){
+                    const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(initializer.type);
+                    for(const fragment of initializer.fragments){
+                        declarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer));
+                    }
+                }
+                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "EnhancedForStatement":
-                children = node.body.statements;
-                children.push(node.expression);
+                children = astNode.body.statements;
+                children.push(astNode.expression);
+                scopeStack = [...scopeStack];
+                const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
+                declarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter));
+                scopeStack.push(new Scope(astNode, declarations));
                 break;
             case "SwitchStatement":
-                children = node.statements.each(switchCase => switchCase.expression);
-                children.push(node.expression);
+                children = astNode.statements.each(switchCase => switchCase.expression);
+                children.push(astNode.expression);
                 break;
             case "ReturnStatement":
             case "ParenthesizedExpression":
             case "ThrowStatement":
             case "ExpressionStatement":
-                children = [node.expression];
+                children = [astNode.expression];
                 break;
             case "TryStatement":
-                children = [...node.body.statements];
-                if (node.catchClauses !== null) {
-                    children.push(...node.catchClauses);
+                children = [...astNode.body.statements];
+                if (astNode.catchClauses !== null) {
+                    children.push(...astNode.catchClauses);
                 }
-                if (node.finally !== null) {
-                    children.push(...node.finally.statements);
+                if (astNode.finally !== null) {
+                    children.push(...astNode.finally.statements);
                 }
                 break;
             case "InstanceOfExpression":
             case "InfixExpression":
-                children = [node.leftOperand, node.rightOperand];
+                children = [astNode.leftOperand, astNode.rightOperand];
                 break;
             case "PrefixExpression":
-                children = [node.operand];
+                children = [astNode.operand];
                 break;
             case "Assignment":
-                children = [node.leftHandSide, node.rightHandSide];
+                children = [astNode.leftHandSide, astNode.rightHandSide];
                 break;
             case "SuperMethodInvocation":
-                methodCalls.push(new MethodCall("super.", codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.SUPER_METHOD));
-                children = node.arguments;
+                methodCalls.push(new MethodCall("super.", codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD));
+                children = astNode.arguments;
                 break;
             case "SuperConstructorInvocation":
-                methodCalls.push(new MethodCall("super(", codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.SUPER_CONSTRUCTOR));
-                children = node.arguments;
+                methodCalls.push(new MethodCall("super(", codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
+                children = astNode.arguments;
                 break;
             case "ClassInstanceCreation":
                 //FIXME
                 //methodCalls.push(new MethodCall(node.type.name.identifier, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.CONSTRUCTOR));
-                children = node.arguments;
+                children = astNode.arguments;
                 break;
             case "MethodInvocation":
-                let name = node.name.identifier;
-                if (node.hasOwnProperty("expression") && node.expression != null) {
-                    if (node.expression.node === "SimpleName") {
-                        name = node.expression.identifier + "." + node.name.identifier;
-                    } else if(node.expression.node === "ThisExpression") {
-                        name = "this." + node.name.identifier;
-                    } else if(node.expression.node === "FieldAccess"){
-                        name = "this." + node.expression.name.identifier + "." + node.name.identifier;
+                let name = astNode.name.identifier;
+                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                    if (astNode.expression.node === "SimpleName") {
+                        name = astNode.expression.identifier + "." + astNode.name.identifier;
+                    } else if (astNode.expression.node === "ThisExpression") {
+                        name = "this." + astNode.name.identifier;
+                    } else if (astNode.expression.node === "FieldAccess") {
+                        name = "this." + astNode.expression.name.identifier + "." + astNode.name.identifier;
                     } else {
-                        const callSourceCode = codeFile.sourceCode.substring(node.location.start.offset, node.location.end.offset);
-                        const callExpressionSourceCode = callSourceCode.split(node.name.identifier)[0];
-                        name = callExpressionSourceCode + "." + node.name.identifier;
+                        const callSourceCode = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
+                        const callExpressionSourceCode = callSourceCode.split(astNode.name.identifier)[0];
+                        name = callExpressionSourceCode + "." + astNode.name.identifier;
                     }
                 } else {
-                    name = "this." + node.name.identifier;
+                    name = "this." + astNode.name.identifier;
                 }
-                methodCalls.push(new MethodCall(name, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.METHOD));
-                children = node.arguments;
+                methodCalls.push(new MethodCall(name, codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
+                children = astNode.arguments;
                 break;
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
-                children = node.fragments;
+                children = astNode.fragments;
                 break;
             case "VariableDeclarationFragment":
-                if (node.initializer !== null) {
-                    children = [node.initializer];
+                if (astNode.initializer !== null) {
+                    children = [astNode.initializer];
                 }
                 break;
             case "CatchClause":
-                children = node.body.statements;
+                children = astNode.body.statements;
                 break;
             default:
                 break;
         }
 
         for (const child of children) {
-            getMethodCallsFromNode(child, methodCalls, codeFile);
+            getMethodCallsFromNode(child, methodCalls, codeFile, scopeStack);
         }
     }
 
@@ -175,12 +242,12 @@ let methodCallModule = {};
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
-                    getMethodCallsFromNode(type, methodCallsForType, codeFile);
+                    getMethodCallsFromNode(type, methodCallsForType, codeFile, [new Scope(syntaxTree, [])]);
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
                     // special this. case handling
-                    if(ignoredMethodsForType.has("this.")){
+                    if (ignoredMethodsForType.has("this.")) {
                         methodCallsForType = methodCallsForType.filter((methodCall) => {
                             return !methodCall.name.startsWith("this.");
                         })
