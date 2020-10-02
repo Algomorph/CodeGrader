@@ -30,29 +30,51 @@ let methodCallModule = {};
         }
     }
 
-    function getTypeNameAndArgumentsFromTypeNode(typeNode){
+    function getTypeNameAndArgumentsFromTypeNode(typeNode) {
         let typeArguments = [];
-        switch (typeNode.node){
+        if (typeNode == null) {
+            return ["", typeArguments];
+        }
+        switch (typeNode.node) {
             case "SimpleType":
                 return [typeNode.name.identifier, typeArguments];
             case "PrimitiveType":
                 return [typeNode.primitiveTypeCode, typeArguments];
             case "ParameterizedType":
-                for(const typeArgument of typeNode.typeArguments){
+                for (const typeArgument of typeNode.typeArguments) {
                     typeArguments.push(getTypeNameAndArgumentsFromTypeNode(typeArgument));
                 }
                 return [typeNode.type.name.identifier, typeArguments];
             case "ComponentType":
-                return [typeNode.name.identifier + "[]", ]
+                return [typeNode.name.identifier + "[]",]
         }
-        console.log("Warning! Could not parse type node: " + typeNode)
+        console.log("Warning! Could not parse type. ");
+        console.log(typeNode);
         return ["", typeArguments];
     }
 
+    function composeQualifiedGenericName(name, typeArguments) {
+        if (typeArguments.length > 0) {
+            return name + "<" + typeArguments.map(([subName, subTypeArguments]) => composeQualifiedGenericName(subName, subTypeArguments)).join(", ") + ">";
+        } else {
+            return name;
+        }
+    }
+
+    function composeUnqualifiedGenericName(name, typeArguments) {
+        if (typeArguments.length > 0) {
+            return name + "<>";
+        } else {
+            return name;
+        }
+    }
+
     class Scope {
-        constructor(astNode, declarations) {
+        constructor(astNode, declarations, children, scopeStack) {
             this.astNode = astNode;
             this.declarations = declarations;
+            this.children = children;
+            this.scopeStack = scopeStack;
         }
     }
 
@@ -73,41 +95,38 @@ let methodCallModule = {};
         }
     }
 
-
     /**
      * Recursively traverse Abstract Syntax Tree node in search for method calls, append results to provided
      * methodCalls array.
-     * @param {object} astNode node to search
+     * @param {Object} astNode AST node to search
      * @param {Array.<MethodCall>} methodCalls
      * @param {CodeFile} codeFile
-     * @param {Array.<Scope>} scopeStack stack of scopes, with the current one last
+     * @param {Scope} scope of the current AST node
      */
-    function getMethodCallsFromNode(astNode, methodCalls, codeFile, scopeStack) {
-        let children = [];
-        let currentScope = scopeStack[scopeStack.length - 1];
+    function getMethodCallsFromNode(astNode, scope, methodCalls, codeFile) {
+        let branchScopes = [];
         let declarations = [];
         switch (astNode.node) {
             case "TypeDeclaration":
-                children = astNode.bodyDeclarations;
-                scopeStack = [...scopeStack];
-                scopeStack.push(new Scope(astNode, declarations));
+                console.log(astNode);
+                branchScopes.push(new Scope(astNode, [], astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration":
-                console.log(astNode);
-                children = astNode.body.statements;
-                for(const parameter of astNode.parameters){
-                    if(parameter.node === "SingleVariableDeclaration"){
+            {
+                const [methodReturnTypeName, methodReturnTypeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
+                scope.declarations.push(new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode));
+            }
+                for (const parameter of astNode.parameters) {
+                    if (parameter.node === "SingleVariableDeclaration") {
                         const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(parameter.type);
                         declarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter));
                     }
                 }
-                currentScope.declarations.push(astNode.name.identifier, )
-
-                scopeStack = [...scopeStack];
-                scopeStack.push(new Scope(astNode, declarations));
+                branchScopes.push(new Scope(astNode, declarations, astNode.body.statements, scope.scopeStack.concat([scope])))
                 break;
             case "Block":
-                children = astNode.statements;
+                scope.children = astNode.statements;
+                branchScopes.push(scope)
                 break;
             case "IfStatement":
                 children = [astNode.expression, astNode.thenStatement];
@@ -124,9 +143,9 @@ let methodCallModule = {};
                 children.push(...astNode.body.statements);
 
                 scopeStack = [...scopeStack];
-                for(const initializer of astNode.initializers){
+                for (const initializer of astNode.initializers) {
                     const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(initializer.type);
-                    for(const fragment of initializer.fragments){
+                    for (const fragment of initializer.fragments) {
                         declarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer));
                     }
                 }
@@ -151,6 +170,7 @@ let methodCallModule = {};
                 children = [astNode.expression];
                 break;
             case "TryStatement":
+                console.log(astNode);
                 children = [...astNode.body.statements];
                 if (astNode.catchClauses !== null) {
                     children.push(...astNode.catchClauses);
@@ -177,9 +197,11 @@ let methodCallModule = {};
                 methodCalls.push(new MethodCall("super(", codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
                 children = astNode.arguments;
                 break;
-            case "ClassInstanceCreation":
-                //FIXME
-                //methodCalls.push(new MethodCall(node.type.name.identifier, codeFile.trCodeLines[node.location.start.line - 1], node, MethodCallType.CONSTRUCTOR));
+            case "ClassInstanceCreation": {
+                let [methodReturnTypeName, methodReturnTypeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                const name = composeUnqualifiedGenericName(methodReturnTypeName, methodReturnTypeArguments) + "()";
+                methodCalls.push(new MethodCall(name, codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR));
+            }
                 children = astNode.arguments;
                 break;
             case "MethodInvocation":
@@ -194,7 +216,7 @@ let methodCallModule = {};
                     } else {
                         const callSourceCode = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
                         const callExpressionSourceCode = callSourceCode.split(astNode.name.identifier)[0];
-                        name = callExpressionSourceCode + "." + astNode.name.identifier;
+                        name = callExpressionSourceCode + astNode.name.identifier;
                     }
                 } else {
                     name = "this." + astNode.name.identifier;
@@ -219,8 +241,10 @@ let methodCallModule = {};
                 break;
         }
 
-        for (const child of children) {
-            getMethodCallsFromNode(child, methodCalls, codeFile, scopeStack);
+        for (const branchScope of branchScopes) {
+            for(const astNode of branchScope.children){
+                getMethodCallsFromNode(astNode, branchScope, methodCalls, codeFile);
+            }
         }
     }
 
@@ -242,7 +266,7 @@ let methodCallModule = {};
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
-                    getMethodCallsFromNode(type, methodCallsForType, codeFile, [new Scope(syntaxTree, [])]);
+                    getMethodCallsFromNode(type, new Scope(syntaxTree, [], []), methodCallsForType, codeFile);
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
