@@ -132,13 +132,19 @@ let methodCallModule = {};
                 declaration = searchForDeclarationInStack(expressionNode.identifier, fullScopeStack);
                 break;
             case "ThisExpression":
-                console.log("ThisExpression:");
-                console.log(expressionNode);
+                declaration = searchForDeclarationInStack("this", fullScopeStack);
                 break;
             case "FieldAccess":
                 declaration = searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
                 break;
+            case "ParenthesizedExpression":
+                if(expressionNode.expression.node === "CastExpression"){
+                    const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(expressionNode.expression.type);
+                    declaration = new Declaration(expressionNode.expression.identifier, typeName, typeArguments, expressionNode.expression);
+                }
+                break;
             case "MethodInvocation":
+                //TODO
                 let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
                 if(subDeclaration != null){
                     if(subDeclaration.declarationType === DeclarationType.TYPE){
@@ -218,7 +224,7 @@ let methodCallModule = {};
         switch (astNode.node) {
             case "TypeDeclaration":
                 branchScopes.push(new Scope(astNode,
-                    [new Declaration("this", astNode.name.identifier, [], astNode)],
+                    [new Declaration("this", astNode.name.identifier, [], {"node" : "VariableDeclarationStatement"})],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration": {
