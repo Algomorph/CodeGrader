@@ -137,17 +137,19 @@ let methodCallModule = {};
             case "FieldAccess":
                 declaration = searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
                 break;
+            case "CastExpression": {
+                const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(expressionNode.type);
+                declaration = new Declaration(expressionNode.identifier, typeName, typeArguments, expressionNode);
+            }
+                break;
             case "ParenthesizedExpression":
-                if(expressionNode.expression.node === "CastExpression"){
-                    const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(expressionNode.expression.type);
-                    declaration = new Declaration(expressionNode.expression.identifier, typeName, typeArguments, expressionNode.expression);
-                }
+                declaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
                 break;
             case "MethodInvocation":
                 //TODO
                 let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
-                if(subDeclaration != null){
-                    if(subDeclaration.declarationType === DeclarationType.TYPE){
+                if (subDeclaration != null) {
+                    if (subDeclaration.declarationType === DeclarationType.TYPE) {
 
                     }
 
@@ -224,7 +226,7 @@ let methodCallModule = {};
         switch (astNode.node) {
             case "TypeDeclaration":
                 branchScopes.push(new Scope(astNode,
-                    [new Declaration("this", astNode.name.identifier, [], {"node" : "VariableDeclarationStatement"})],
+                    [new Declaration("this", astNode.name.identifier, [], {"node": "VariableDeclarationStatement"})],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration": {
