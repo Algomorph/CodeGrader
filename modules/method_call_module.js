@@ -136,8 +136,7 @@ let methodCallModule = {};
                 console.log(expressionNode);
                 break;
             case "FieldAccess":
-                console.log("FieldAccess:");
-                console.log(expressionNode);
+                declaration = searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
                 break;
             case "MethodInvocation":
                 let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
@@ -266,8 +265,8 @@ let methodCallModule = {};
                 declarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter));
             }
                 branchScopes.push(new Scope(astNode, declarations,
-                    astNode.updaters.concat([astNode.expression], astNode.body.statements)),
-                    scope.scopeStack.concat([scope])
+                    astNode.body.statements.concat([astNode.expression]),
+                    scope.scopeStack.concat([scope]))
                 );
                 break;
             case "SwitchStatement":
