@@ -329,6 +329,10 @@ let methodCallModule = {};
                 scope.children = astNode.arguments;
                 branchScopes.push(scope);
                 break;
+            case "FieldAccess":
+                scope.children = [astNode.expression];
+                branchScopes.push(scope);
+                break;
             case "MethodInvocation": {
                 let fullScopeStack = scope.scopeStack.concat([scope]);
                 let name = determineQualifiedMethodName(astNode, fullScopeStack, codeFile);
