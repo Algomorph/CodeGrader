@@ -147,13 +147,13 @@ let methodCallModule = {};
                 break;
             case "MethodInvocation":
                 //TODO
-                let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
-                if (subDeclaration != null) {
-                    if (subDeclaration.declarationType === DeclarationType.TYPE) {
-
-                    }
-
-                }
+                // let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
+                // if (subDeclaration != null) {
+                //     if (subDeclaration.declarationType === DeclarationType.TYPE) {
+                //
+                //     }
+                //
+                // }
 
                 break;
             default:
