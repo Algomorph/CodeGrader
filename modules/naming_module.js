@@ -52,6 +52,19 @@ let namingModule = {};
     }
 
     /**
+     * Represents an occurrence of a name within some chunk of Java code.
+     * These include (but are not limited to): member/local/parameter variable names, class names, enum names, and method names.
+     */
+    class CodeName {
+        constructor(name, trCodeLine, type, astNode) {
+            this.name = name;
+            this.trCodeLine = trCodeLine;
+            this.type = type;
+            this.astNode = astNode;
+        }
+    }
+
+    /**
      * Splits a name into "words" (or attempts to).
      * Assumes camelCase, PascalCase, or ALL_CAPS_SNAKE_CASE.
      * @param {CodeName} codeName some string
@@ -65,18 +78,7 @@ let namingModule = {};
         }
     }
 
-    /**
-     * Represents an occurrence of a name within some chunk of Java code.
-     * These include (but are not limited to): member/local/parameter variable names, class names, enum names, and method names.
-     */
-    class CodeName {
-        constructor(name, trCodeLine, type, astNode) {
-            this.name = name;
-            this.trCodeLine = trCodeLine;
-            this.type = type;
-            this.astNode = astNode;
-        }
-    }
+
 
     const NameCheckProblemType = {
         NAMING_CONVENTION: 1,
