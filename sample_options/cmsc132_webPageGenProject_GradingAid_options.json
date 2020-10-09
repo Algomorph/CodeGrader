@@ -1,0 +1,49 @@
+{
+    "filesToCheck": [
+        "src/model/Element.java",
+        "src/model/TagElement.java",
+        "src/model/AnchorElement.java",
+        "src/model/ImageElement.java",
+        "src/model/HeadingElement.java",
+        "src/model/ParagraphElement.java",
+        "src/model/TableElement.java",
+        "src/model/TextElement.java",
+        "src/model/WebPage.java"
+    ],
+    "moduleOptions": {
+        "indentationModule": {
+            "enabled": true
+        },
+        "keywordModule": {
+            "enabled": false,
+            "keywords": []
+        },
+        "methodCallModule": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": false
+        },
+        "namingModule": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "showUniqueOnly": true
+        }
+    },
+    "module_options": {
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerProjectName": "Proj 2",
+    "year": "2020"
+}

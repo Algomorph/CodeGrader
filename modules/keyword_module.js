@@ -1,22 +1,46 @@
-var keywordModule = {};
+let keywordModule = {};
 
 (function () {
 
-this.initialize = function (uiPanel, trCodeLines, keywords){
-	$(uiPanel).append("<h3 style='color:#92b9d1'>Prohibided Keywords</h3>");
-	//TODO: make configurable from options
-	//let wordsToFind = ["ArrayList","LinkedList"];
-	let wordsToFind = [];
-	let wordsFound = [];
-	$.each(trCodeLines,function(tri,tr) {	// iterates each line of code below
-		let codeText = $($(tr).find("div.gwt-Label")[0]).text();
-		if(codeText.match(/\/\//i)) return;
-		let wordsFoundInCodeText = _.filter(wordsToFind, function(keyword) { return codeText.indexOf(keyword)!=-1; });
-		_.each(wordsFoundInCodeText, function(keyword) {
-			$(uiPanel).append(makeLabelWithClickToScroll(keyword,tr));
-			addButtonComment(tr,"Prohibited keyword: " + keyword," ","#92b9d1");
-		});
-	});
-}
+    class Options {
+        /**
+         * Build default options
+         * @param {boolean} enabled whether the module is enabled.
+         * @param {Array.<string>} keywords specific keywords to scan for.
+         */
+        constructor(enabled = false, keywords = []) {
+            this.enabled = enabled;
+            this.keywords = keywords;
+        }
+    }
+
+    this.getDefaultOptions = function () {
+        return new Options();
+    }
+
+    /**
+     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
+     * @param {HTMLDivElement} uiPanel main panel where to add controls
+     * @param {Array.<HTMLTableRowElement>} trCodeLines
+     * @param {Options} options
+     */
+    this.initialize = function (uiPanel, trCodeLines, options) {
+        if(!options.enabled){
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:#92b9d1'>Prohibited Keywords</h3>");
+        let wordsToFind = options.keywords;
+        $.each(trCodeLines, function (tri, tr) {	// iterates each line of code below
+            let codeText = $($(tr).find("div.gwt-Label")[0]).text();
+            if (codeText.match(/\/\//i)) return;
+            let wordsFoundInCodeText = _.filter(wordsToFind, function (keyword) {
+                return codeText.indexOf(keyword) !== -1;
+            });
+            _.each(wordsFoundInCodeText, function (keyword) {
+                $(uiPanel).append(makeLabelWithClickToScroll(keyword, tr));
+                addButtonComment(tr, "Prohibited keyword: " + keyword, " ", "#92b9d1");
+            });
+        });
+    }
 
 }).apply(keywordModule);

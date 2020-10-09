@@ -2,6 +2,8 @@
  * Checks the URL or other property of the current web page and run allowed function
  */
 function main(optionItems) {
+    let options = optionItems.options;
+
     // condition: URL contains 'instructor' keyword
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
@@ -17,16 +19,16 @@ function main(optionItems) {
         });
     }
 
-    const semesterString = optionItems.semesterSeason + optionItems.year.toString();
+    const semesterString = options.semesterSeason + options.year.toString();
 
 
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
-        const projectName = optionItems.submitServerProjectName;
+        const projectName = options.submitServerProjectName;
 
         // check if it's the right course & project
         if ($("h1").text().match(projectName)) {
-            constructUiPanel(optionItems);
+            constructUiPanel(options);
         }
     }
     // assign click event to predefined comment buttons
@@ -47,7 +49,7 @@ function main(optionItems) {
     });
 } // MAIN ENDS
 
-function constructUiPanel(optionItems) {
+function constructUiPanel(options) {
     // first, create summary uiPanel
     let uiPanelContainer = document.createElement('div');
     uiPanelContainer.setAttribute('class', 'ui-panel-container');
@@ -60,7 +62,7 @@ function constructUiPanel(optionItems) {
     paneToScroll = $(".GMYHEHOCJK");
     makeCodeFeedArrow();
 
-    const filesToCheck = optionItems.filesToCheck;
+    const filesToCheck = options.filesToCheck;
 
     if (filesToCheck.length === 0) {
         $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
@@ -75,12 +77,10 @@ function constructUiPanel(optionItems) {
             }
         }
 
-        keywordModule.initialize(uiPanel, trCodeLines, ["ArrayList", "LinkedList"]);
-        //TODO: make setting for uniqueNamesOnly
-        //TODO: make setting for allowedSpecialWords
-        namingModule.initialize(uiPanel, codeFileDictionary, ["min", "max"], optionItems.ignoredNames, true);
-        methodCallModule.initialize(uiPanel, codeFileDictionary, optionItems.ignoredMethods, false)
-        indentationModule.initialize(uiPanel, trCodeLines);
+        keywordModule.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
+        namingModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
+        methodCallModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
+        indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
     }
 
 

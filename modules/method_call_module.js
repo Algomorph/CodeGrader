@@ -2,6 +2,30 @@ let methodCallModule = {};
 
 (function () {
 
+    class Options {
+        /**
+         * Make options for this module.
+         * @param {boolean} enabled whether the module is enabled.
+         * @param ignoredMethods (dictionary of lists of) methods whose calls to ignore.
+         * The dictionary is keyed by class names inside whose implementations to ignore said calls,
+         * globally-ignored methods should be under the key 'global'.
+         * Use '$ClassName$.someInstanceMethod' for instance method 'someInstanceMethod' of class 'ClassName'.
+         * Use 'ClassName.someStaticMethod' for static method 'someStaticMethod' of class 'ClassName'.
+         * @param {boolean} showUniqueOnly whether to show only unique method call occurrences.
+         */
+        constructor(enabled = false,
+                    ignoredMethods = {"global": []},
+                    showUniqueOnly = false) {
+            this.enabled = enabled;
+            this.ignoredMethods = ignoredMethods;
+            this.showUniqueOnly = showUniqueOnly;
+        }
+    }
+
+    this.getDefaultOptions = function (){
+        return new Options();
+    }
+
     const MethodCallType = {
         METHOD: "method",
         INSTANCE_METHOD: "static method",
@@ -239,7 +263,10 @@ let methodCallModule = {};
                         declarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter));
                     }
                 }
-                branchScopes.push(new Scope(astNode, declarations, astNode.body.statements, scope.scopeStack.concat([scope])));
+                // body will be null if it's an abstract or interface method.
+                if(astNode.body != null){
+                    branchScopes.push(new Scope(astNode, declarations, astNode.body.statements, scope.scopeStack.concat([scope])));
+                }
                 break;
             case "Block":
                 scope.children = astNode.statements;
@@ -379,9 +406,18 @@ let methodCallModule = {};
         }
     }
 
-    this.initialize = function (uiPanel, fileDictionary, ignoredMethods, uniqueCallsOnly) {
+    /**
+     * Initialize the module: analyze the parsed code as necessary, add relevant controls to the UI panel.
+     * @param {HTMLDivElement} uiPanel the UI panel where to add the controls.
+     * @param {Map.<string,CodeFile>} fileDictionary dictionary of CodeFile objects to analyze for calls.
+     * @param {Options} options options for the module.
+     */
+    this.initialize = function (uiPanel, fileDictionary, options) {
+        if(!options.enabled){
+            return;
+        }
         $(uiPanel).append("<h3 style='color:#b3769f'>Method Calls</h3>");
-        const globallyIgnoredMethods = ignoredMethods.global;
+        const globallyIgnoredMethods = options.ignoredMethods.global;
 
         let methodCalls = [];
 
@@ -392,8 +428,8 @@ let methodCallModule = {};
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
                     let ignoredMethodsForType = [...globallyIgnoredMethods];
-                    if (ignoredMethods.hasOwnProperty(type.name.identifier)) {
-                        ignoredMethodsForType.push(...ignoredMethods[type.name.identifier]);
+                    if (options.ignoredMethods.hasOwnProperty(type.name.identifier)) {
+                        ignoredMethodsForType.push(...options.ignoredMethods[type.name.identifier]);
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [];
@@ -401,7 +437,7 @@ let methodCallModule = {};
                     methodCallsForType = methodCallsForType.filter((methodCall) => {
                         return !ignoredMethodsForType.has(methodCall.name);
                     })
-                    // special this. case handling
+                    // special "this." case handling
                     if (ignoredMethodsForType.has("this.")) {
                         methodCallsForType = methodCallsForType.filter((methodCall) => {
                             return !methodCall.name.startsWith("this.");
@@ -418,7 +454,7 @@ let methodCallModule = {};
             }
         }
 
-        if (uniqueCallsOnly) {
+        if (options.showUniqueOnly) {
             methodCalls = uniqueNames(methodCalls);
         }
 

@@ -6,7 +6,7 @@ function getSourceFileContainer(filename) {
     return $("div.GMYHEHOCNK:contains('" + filename + "')").parent();
 }
 
-function getScrollableSourceFilePane(){
+function getScrollableSourceFilePane() {
     return $(".GMYHEHOCJK");
 }
 
@@ -17,6 +17,7 @@ function getTrCodesForCodeFile(filename) {
 function getCodeFromTrCodeLine(trCodeLine) {
     return $($(trCodeLine).find("div.gwt-Label")[0]).text();
 }
+
 
 function getAllCheckedTrCodeLines(filesToCheck) {
     // flatten to get <tr> for each line of code
@@ -30,7 +31,7 @@ function getAllCheckedTrCodeLines(filesToCheck) {
     );
 }
 
-function makeWarning(text){
+function makeWarning(text) {
     return "<h4 style='color:#ffa500'>" + text + "</h4>";
 }
 
@@ -46,12 +47,12 @@ function makeLabels(strList) {
 }
 
 function makeLabelWithClickToScroll(label, targetElement, styleClass, toolTip) {
-    if(typeof styleClass === "undefined"){
+    if (typeof styleClass === "undefined") {
         styleClass = "";
     }
-    if(typeof toolTip !== "undefined"){
+    if (typeof toolTip !== "undefined") {
         return $("<div class='label has-tooltip " + styleClass + "'>" + label +
-            "<span class='tooltip'>" + toolTip +"</span></div>").click(function () {
+            "<span class='tooltip'>" + toolTip + "</span></div>").click(function () {
             getScrollableSourceFilePane().scrollTop(targetElement.offsetTop + targetElement.parentElement.parentElement.offsetTop - 50);
         });
     } else {
@@ -70,19 +71,90 @@ function makeLabelsWithClick(list) {
     });
 }
 
-function addButtonComment(trElement, title, defaultMessage, color) {
-    let codeNumber = $(trElement).find("td.line-number");
+function addButtonComment(trCodeLine, title, defaultMessage, color) {
+    let codeNumber = $(trCodeLine).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
-    let code = $(trElement).find(".gwt-Label");
+    let code = $(trCodeLine).find(".gwt-Label");
     $(code).append($("<span class='tip' style='background-color:" + color + "' msg='" + defaultMessage + "'>" + title + "</span>"));
 }
 
-function eventFire(el, etype){
-    if (el.fireEvent) {
-        (el.fireEvent('on' + etype));
+
+function addCommentOnly(trCodeLine, title, color) {
+    let code = $(trCodeLine).find(".gwt-Label");
+    $(code).append($("<span class='comment' style='border:1px solid " + color + "; color:" + color + "'>&larr;" + title + "</span>"));
+}
+
+
+function eventFire(element, eventType) {
+    if (element.fireEvent) {
+        (element.fireEvent('on' + eventType));
     } else {
         let evObj = document.createEvent('Events');
-        evObj.initEvent(etype, true, false);
-        el.dispatchEvent(evObj);
+        evObj.initEvent(eventType, true, false);
+        element.dispatchEvent(evObj);
     }
+}
+
+jQuery.fn.textWalk = function (fn) {
+    this.contents().each(recursiveTextWalk);
+
+    function recursiveTextWalk() {
+        let nodeName = this.nodeName.toLowerCase();
+        if (nodeName === '#text') {
+            fn.call(this);
+        } else if (this.nodeType === 1 && this.childNodes && this.childNodes[0] && nodeName !== 'script' && nodeName !== 'textarea') {
+            $(this).contents().each(recursiveTextWalk);
+        }
+    }
+
+    return this;
+};
+
+jQuery.fn.nextCodeLine = function () {
+    return $(this).parents("tr").next().find(".gwt-Label");
+}
+
+function highlightText(leafDom, s, color) {
+    $(leafDom).textWalk(function () {
+        this.data = this.data.replace(" " + s, " <span style='background-color:" + color + "'>" + s + "</span>");
+    });
+}
+
+function highlightLine(tr, msg, color) {
+    let codeNumber = $(tr).find("td.line-number");
+    $(codeNumber).css("border-left", "3px solid " + color);
+    let codeLines = $(tr).find(".gwt-Label");
+    $(codeLines).html($(codeLines).html().replace(/$/ig, "<span class='tip' style='background-color:" + color + "'>" + msg + "</span>"));
+}
+
+function uncheckBoxes() {
+    $("label:contains('Request reply?')").parent().find("input").prop('checked', false);
+}
+
+
+
+/**
+ * Scroll contents of a container (if possible).
+ * @param {HTMLDivElement} container
+ * @param {HTMLElement} element
+ */
+function scrollTo(container, element) {
+    let absoluteOffset = getAbsoluteOffset(element);
+    container.scrollTop = absoluteOffset.top;
+}
+
+/**
+ * Get absolute offset for an element
+ * @param element
+ * @return {{top: number, left: number}}
+ */
+function getAbsoluteOffset(element) {
+    let xOffset = 0;
+    let yOffset = 0;
+    while (element && !isNaN(element.offsetLeft) && !isNaN(element.offsetTop)) {
+        xOffset += element.offsetLeft - element.scrollLeft;
+        yOffset += element.offsetTop - element.scrollTop;
+        element = element.parentNode;
+    }
+    return {top: yOffset, left: xOffset};
 }

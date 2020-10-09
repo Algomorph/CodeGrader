@@ -15,15 +15,15 @@
             "third_party/underscore-min.js", 
             "third_party/mustache.js", 
             "third_party/bootstrap.min.js",
-            "main.js", 
             "utilities.js", 
             "submit_server_ui.js",
-            "modules/grade_server_module.js", 
-            "modules/indentation_module.js", 
+            "modules/grade_server_module.js",
             "modules/keyword_module.js", 
             "modules/naming_module.js",
             "modules/method_call_module.js",
-            "modules/us_english_dictionary.js"
+            "modules/indentation_module.js",
+            "modules/us_english_dictionary.js",
+            "main.js"
          ],
          "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*" ],
          "run_at": "document_idle"

@@ -2,6 +2,31 @@ let namingModule = {};
 
 (function () {
 
+    class Options {
+        /**
+         * Make options for this module.
+         * @param {boolean} enabled
+         * @param {Array.<string>} allowedSpecialWords
+         * @param ignoredNames (dictionary of lists of) code names to ignore.
+         * The dictionary is keyed by class names inside whose implementations to ignore said names,
+         * globally-ignored names should be under the key 'global'.
+         * @param {boolean} showUniqueOnly whether to show only unique code name occurrences.
+         */
+        constructor(enabled = false,
+                    allowedSpecialWords = ["min", "max"],
+                    ignoredNames = {"global": []},
+                    showUniqueOnly = true) {
+            this.enabled = enabled;
+            this.allowedSpecialWords = allowedSpecialWords;
+            this.ignoredNames = ignoredNames;
+            this.showUniqueOnly = showUniqueOnly;
+        }
+    }
+
+    this.getDefaultOptions = function (){
+        return new Options();
+    }
+
     const NameType = {
         METHOD: 'method',
         VARIABLE: 'variable',
@@ -77,7 +102,6 @@ let namingModule = {};
             return codeName.name.split(/(?=[A-Z])/).map(word => word.toLowerCase());
         }
     }
-
 
 
     const NameCheckProblemType = {
@@ -224,7 +248,9 @@ let namingModule = {};
                             const name = parameter.name.identifier;
                             methodAndVariableNames.push(new CodeName(name, codeFile.trCodeLines[declaration.location.start.line - 1], NameType.VARIABLE));
                         }
-                        handleBlockOfStatements(declaration.body.statements, constantNames, methodAndVariableNames, codeFile);
+                        if(declaration.body != null){
+                            handleBlockOfStatements(declaration.body.statements, constantNames, methodAndVariableNames, codeFile);
+                        }
                     }
                     break;
                 case "TypeDeclaration": // inner class
@@ -240,6 +266,14 @@ let namingModule = {};
         return [methodAndVariableNames, constantNames, typeNames];
     }
 
+    /**
+     * Process an array of code name objects: add a UI button for each code name,
+     * as well as an in-code label with a hidden text area.
+     * @param uiPanel
+     * @param {Array.<CodeName>} codeNames
+     * @param {string} color
+     * @param {string} sectionTitle
+     */
     function processCodeNameArrayAndAddSection(uiPanel, codeNames, color, sectionTitle) {
         $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
         for (const codeName of codeNames) {
@@ -267,45 +301,51 @@ let namingModule = {};
         }
     }
 
-    this.initialize = function (uiPanel, fileDictionary, allowedSpecialWords, ignoredNames, uniqueNamesOnly) {
-
+    /**
+     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
+     * @param {HTMLDivElement} uiPanel
+     * @param {Map.<string, CodeFile>} fileDictionary
+     * @param {Options} options
+     */
+    this.initialize = function (uiPanel, fileDictionary, options) {
+        if(!options.enabled){
+            return;
+        }
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 
         let methodAndVariableNames = [];
         let constantNames = [];
         let typeNames = [];
 
+        let globalIgnoredNames = options.ignoredNames.global;
+
         for (const [filename, codeFile] of fileDictionary.entries()) {
+
             if (codeFile.abstractSyntaxTree !== null) {
                 const syntaxTree = codeFile.abstractSyntaxTree;
 
                 //iterate over classes / enums / etc.
                 for (const type of syntaxTree.types) {
+                    let ignoredNamesForType = [...globalIgnoredNames];
+                    if (options.ignoredNames.hasOwnProperty(type.name.identifier)) {
+                        ignoredNamesForType.push(...options.ignoredNames[type.name.identifier]);
+                    }
+                    ignoredNamesForType = new Set(ignoredNamesForType);
+
                     const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
 
-                    methodAndVariableNames.push(...typeMethodsAndVariables);
-                    constantNames.push(...typeConstants);
-                    typeNames.push(...typeTypeNames);
+                    methodAndVariableNames.push(...typeMethodsAndVariables.filter( codeName => !ignoredNamesForType.has(codeName.name)));
+                    constantNames.push(...typeConstants.filter( codeName => !ignoredNamesForType.has(codeName.name)));
+                    typeNames.push(...typeTypeNames.filter( codeName => !ignoredNamesForType.has(codeName.name)));
                 }
             }
         }
 
-        if (uniqueNamesOnly) {
+        if (options.showUniqueOnly) {
             methodAndVariableNames = uniqueNames(methodAndVariableNames);
             constantNames = uniqueNames(constantNames);
             typeNames = uniqueNames(typeNames);
         }
-
-        let ignoredNamesSet = new Set(ignoredNames);
-        methodAndVariableNames = methodAndVariableNames.filter((codeName) => {
-            return !ignoredNamesSet.has(codeName.name);
-        })
-        constantNames = constantNames.filter((codeName) => {
-            return !ignoredNamesSet.has(codeName.name);
-        })
-        typeNames = typeNames.filter((codeName) => {
-            return !ignoredNamesSet.has(codeName.name);
-        })
 
         processCodeNameArrayAndAddSection(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods");
         processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants");

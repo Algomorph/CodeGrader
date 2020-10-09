@@ -1,0 +1,25 @@
+.button-div {
+    position: relative;
+    overflow: hidden;
+}
+
+input.hidden-active {
+    position: absolute;
+    font-size: 50px;
+    opacity: 0;
+    right: 0;
+    top: 0;
+}
+
+html, body, .container {
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+textarea.form-control {
+    height: 90%;
+    width: 100%;
+}

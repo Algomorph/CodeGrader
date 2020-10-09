@@ -69,7 +69,7 @@ function cs131project7(uiPanel) {
 	$(uiPanel).append("<h3 style='color:lightblue'>Needless elseif</h3>");
 	var targetMethods = [/public void fight\(Fish other\)/, /public static void fishEatPlant\(/ ];  //
 	_.each(targetMethods, function(startRegex) {
-		var tr_targetMethod = rangeSelectCodeBlock(trCodeLines,startRegex, /\/\*\*/);
+		var tr_targetMethod = getTrCodeLinesBetweenMarkers(trCodeLines,startRegex, /\/\*\*/);
 		$.each(tr_targetMethod,function(tri,tr) {	// iterates each line of code below
 			var codeText = $($(tr).find("div.gwt-Label")[0]).text();
 			if(codeText.match(/else if/)) {
@@ -239,7 +239,7 @@ function cs131project6(uiPanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	$(uiPanel).append("<h3 style='color:orange'>Code Redundancy</h3>");
 	// checking add list not reusing add single item
-	var trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public void add\(Sorte/,/\/\*/);
+	var trCodeLines_targetMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public void add\(Sorte/,/\/\*/);
 	var isRedundant = true;
 	$.each(trCodeLines_targetMethod,function(tri,tr) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
@@ -247,7 +247,7 @@ function cs131project6(uiPanel) {
 	});
 	if(isRedundant) $(uiPanel).append(makeLabelWithClickToScroll("add:SortedList",trCodeLines_targetMethod[0]));
 	// checking remove list not reusing remove single item
-	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public void remove\(Sorte/,/\/\*/);
+	trCodeLines_targetMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public void remove\(Sorte/,/\/\*/);
 	isRedundant = true;
 	$.each(trCodeLines_targetMethod,function(tri,tr) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
@@ -255,7 +255,7 @@ function cs131project6(uiPanel) {
 	});
 	if(isRedundant) $(uiPanel).append(makeLabelWithClickToScroll("remove:SortedList",trCodeLines_targetMethod[0]));
 	// checking checkAvailability list not reusing single item version
-	trCodeLines_targetMethod = rangeSelectCodeBlock(trCodeLines,/public boolean checkAvailability\(SortedListOfImmutables/,  /\/\*/);
+	trCodeLines_targetMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public boolean checkAvailability\(SortedListOfImmutables/,  /\/\*/);
 	isRedundant = true;
 	$.each(trCodeLines_targetMethod,function(tri,tr) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
@@ -361,7 +361,7 @@ function cs131project5(uiPanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	$(uiPanel).append("<h3 style='color:orange'>Helper methods for hasStraightFlush</h3>");
 	var helperMethods = ["hasStraight(","hasFlush("]; //
-	var trCodeLines_hasStraight = rangeSelectCodeBlock(trCodeLines,/public static boolean hasStraightFlush/,/public static boolean/);
+	var trCodeLines_hasStraight = getTrCodeLinesBetweenMarkers(trCodeLines,/public static boolean hasStraightFlush/,/public static boolean/);
 	$.each(trCodeLines_hasStraight,function(tri,tr) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		// actual test of the code string
@@ -434,7 +434,7 @@ function cs131project5(uiPanel) {
 		}
 		keywordsMatchedTotal = _.union(keywordsMatchedTotal, keywordsMatched);
 	});
-	var startingLineOfStudentTest = findTrUsingRegex(trCodeLines,/public class StudentTests \{/);
+	var startingLineOfStudentTest = findTrCodeLineUsingRegex(trCodeLines,/public class StudentTests \{/);
 	var keywordsNonMatched = _.map(_.difference(keywords,_.unique(keywordsMatchedTotal)), function(w){ return w.replace("PokerHandEvaluator.","");});
 	if(keywordsNonMatched.length>0) addButtonComment(startingLineOfStudentTest,"Missing Tests", "Missing JUnit tests for "+keywordsNonMatched,"yellow");
 	var scoreAssertFalse;
@@ -676,7 +676,7 @@ function cs131project3(uiPanel) {
 	// RUBRIC 2. Symbilic constants for vertical/horizontal stretch
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	var literalsUsed = [];
-	var trCodeLines_stretched = rangeSelectCodeBlock(trCodeLines,/public static Photograph stretched/,/public static Photograph/);
+	var trCodeLines_stretched = getTrCodeLinesBetweenMarkers(trCodeLines,/public static Photograph stretched/,/public static Photograph/);
 	$.each(trCodeLines_stretched,function(tri,tr) {
 		var codeText = $(tr).find("div.gwt-Label")[0].innerText;
 		// actual test of the code string
@@ -739,26 +739,26 @@ function cs131project3(uiPanel) {
 	});
 	var trCodeLines_singleMethod;  var helperMethodsUsed;  var tr_methodDefinition;
 	// check pixelated function uses copy method.
-	trCodeLines_singleMethod = rangeSelectCodeBlock(trCodeLines,/public static Photograph pixelated/,/((public)|(private)) static/);
+	trCodeLines_singleMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public static Photograph pixelated/,/((public)|(private)) static/);
 	helperMethodsUsed = getHelperMethodsUsedInCodeBlock(trCodeLines_singleMethod,helperMethods);
 	if (_.filter(helperMethodsUsed, function(reg) { return reg.source==(/copy\(/).source;}).length===0)  { //
-		tr_methodDefinition = findTrUsingRegex(trCodeLines, /public static Photograph pixelated/);
+		tr_methodDefinition = findTrCodeLineUsingRegex(trCodeLines, /public static Photograph pixelated/);
 		addButtonComment(tr_methodDefinition,"Code Reuse: Pixelated without reusing copy method","Code Reuse: Pixelated function could have reused copy method of Photograph.","lightgreen");
 	}
 	casesOfCodeReuse.push({message:"Pixelated without reusing copy method", scrollTo:tr_methodDefinition});
 	// check enlargement didn't call stretched twice
-	trCodeLines_singleMethod = rangeSelectCodeBlock(trCodeLines,/public static Photograph enlargement/,/((public)|(private)) static/);
+	trCodeLines_singleMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public static Photograph enlargement/,/((public)|(private)) static/);
 	helperMethodsUsed = getHelperMethodsUsedInCodeBlock(trCodeLines_singleMethod,helperMethods);
 	if (_.filter(helperMethodsUsed, function(reg) { return reg.source==(/stretched\(/).source;}).length===0)  { //
-		tr_methodDefinition = findTrUsingRegex(trCodeLines, /public static Photograph enlargement/);
+		tr_methodDefinition = findTrCodeLineUsingRegex(trCodeLines, /public static Photograph enlargement/);
 		addButtonComment(tr_methodDefinition,"Code Reuse: Enlargement without reusing stretched method","Code Reuse: Enlargement function could have reused stretched method of Photograph.","lightgreen");
 	}
 	casesOfCodeReuse.push({message:"Enlargement without reusing stretched method", scrollTo:tr_methodDefinition});
 	// upside-down didn't call rotated twice
-	trCodeLines_singleMethod = rangeSelectCodeBlock(trCodeLines,/public static Photograph upsideDown/,/((public)|(private)) static/);
+	trCodeLines_singleMethod = getTrCodeLinesBetweenMarkers(trCodeLines,/public static Photograph upsideDown/,/((public)|(private)) static/);
 	helperMethodsUsed = getHelperMethodsUsedInCodeBlock(trCodeLines_singleMethod,helperMethods);
 	if (_.filter(helperMethodsUsed, function(reg) { return reg.source==(/rotated\(/).source;}).length===0)  { //
-		tr_methodDefinition = findTrUsingRegex(trCodeLines, /public static Photograph upsideDown/);
+		tr_methodDefinition = findTrCodeLineUsingRegex(trCodeLines, /public static Photograph upsideDown/);
 		addButtonComment(tr_methodDefinition,"Code Reuse: upsideDown without reusing rotated method","Code Reuse: upsideDown function could have reused rotated method of Photograph.","lightgreen");
 	}
 	casesOfCodeReuse.push({message:"Upsidedown without reusing rotated method", scrollTo:tr_methodDefinition});
