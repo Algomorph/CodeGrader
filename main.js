@@ -80,6 +80,7 @@ function constructUiPanel(optionItems) {
         //TODO: make setting for allowedSpecialWords
         namingModule.initialize(uiPanel, codeFileDictionary, ["min", "max"], optionItems.ignoredNames, true);
         methodCallModule.initialize(uiPanel, codeFileDictionary, optionItems.ignoredMethods, false)
+        indentationModule.initialize(uiPanel, trCodeLines);
     }
 
 
