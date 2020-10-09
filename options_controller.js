@@ -1,6 +1,5 @@
 // var studentDistributionFiles = [];
 
-
 // Saves options to chrome.storage
 function saveOptions() {
 	let semesterSeason = document.getElementById('semester_season').value;
@@ -30,15 +29,6 @@ function saveOptions() {
 	});
 }
 
-function compileLoadedFileDescription(){
-	loadedFileDescription = "";
-	for(const item of studentDistributionFiles){
-		loadedFileDescription += (item.name + ",");
-	}
-	loadedFileDescription = loadedFileDescription.substring(0,loadedFileDescription.length -1);
-	return loadedFileDescription;
-}
-
 // Restores options based on values stored in chrome.storage.
 function restoreOptionsLocal() {
 	restoreOptions(
@@ -57,12 +47,3 @@ function restoreOptionsLocal() {
 
 document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
 document.getElementById('save').addEventListener('click', saveOptions);
-
-// $('#project_distribution').change( function(event) {
-// 	studentDistributionFiles = [];
-// 	for (const file of event.target.files){
-// 		url = URL.createObjectURL(file);
-// 		studentDistributionFiles.push({'url':url, 'name':file.name});
-// 	}
-// 	$("#loaded_files")[0].value = compileLoadedFileDescription();
-// });
