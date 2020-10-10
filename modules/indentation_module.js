@@ -46,12 +46,12 @@
 
         // find first indent use and use that as standard
         let i = 0
-        let expectedIndentation = 0;
-        while (getCodeFromTrCodeLine(trCodeLines[i++]).indexOf('{') === -1) {
-            expectedIndentation = countIndent(getCodeFromTrCodeLine(trCodeLines[i]));
+        let singleIndentationString = 0;
+        while (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
+            singleIndentationString = countIndent(getCodeFromTrCodeLine(trCodeLines[i]));
         }
 
-        let curIndentation = 0; // in white spaces
+        let currentIndentation = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = $($(trCodeLine).find("div.gwt-Label")[0]).text();
             // Handle Comments
@@ -69,17 +69,17 @@
 
             // Handle opening and closing braces updating indent size
             if (codeText.indexOf('}') !== -1) { // if closing brace exists, decrease indent
-                curIndentation -= expectedIndentation;
+                currentIndentation -= singleIndentationString;
             }
             // verify current indent is correct
-            if (countIndent(codeText) !== curIndentation) {
+            if (countIndent(codeText) !== currentIndentation) {
                 badLines.push(trCodeLine);
-                addButtonComment(trCodeLine, "Indent: " + countIndent(codeText) + "Expected Indent: " + curIndentation, " ", "#92b9d1");
+                addButtonComment(trCodeLine, "Indent: " + countIndent(codeText) + "Expected Indent: " + currentIndentation, " ", "#92b9d1");
             }
 
             // if opening brace exists, increase idnent
             if (codeText.indexOf('{') !== -1) {
-                curIndentation += expectedIndentation;
+                currentIndentation += singleIndentationString;
             }
             /* _.each(badLines, function(keyword) {
                 $(uiPanel).push(makeLabelWithClickToScroll(keyword,trCodeLine));
