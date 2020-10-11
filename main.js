@@ -77,10 +77,11 @@ function constructUiPanel(options) {
             }
         }
 
+        indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
         keywordModule.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
         namingModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
         methodCallModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
-        indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
+
     }
 
 

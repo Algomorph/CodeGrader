@@ -15,7 +15,12 @@ function getTrCodesForCodeFile(filename) {
 }
 
 function getCodeFromTrCodeLine(trCodeLine) {
-    return $($(trCodeLine).find("div.gwt-Label")[0]).text();
+    let contentDivTag = $(trCodeLine).find("div.gwt-Label")[0];
+    if ($(contentDivTag).find(".code").length) {
+        return $($(contentDivTag).find(".code")[0]).text();
+    } else {
+        return $(contentDivTag).text();
+    }
 }
 
 
@@ -74,8 +79,13 @@ function makeLabelsWithClick(list) {
 function addButtonComment(trCodeLine, title, defaultMessage, color) {
     let codeNumber = $(trCodeLine).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
-    let code = $(trCodeLine).find(".gwt-Label");
-    $(code).append($("<span class='tip' style='background-color:" + color + "' msg='" + defaultMessage + "'>" + title + "</span>"));
+    let contentDivTag = $(trCodeLine).find(".gwt-Label")[0];
+    if ($(contentDivTag).find(".code").length === 0) {
+        let codeText = $(contentDivTag).text();
+        $(contentDivTag).empty();
+        $(contentDivTag).append($("<span class='code'>" + codeText + "</span>"));
+    }
+    $(contentDivTag).append($("<span class='tip' style='background-color:" + color + "' msg='" + defaultMessage + "'>" + title + "</span>"));
 }
 
 
@@ -127,10 +137,32 @@ function highlightLine(tr, msg, color) {
     $(codeLines).html($(codeLines).html().replace(/$/ig, "<span class='tip' style='background-color:" + color + "'>" + msg + "</span>"));
 }
 
+function highlightSection(tr, start, color) {
+    let codeNumber = $(tr).find("td.line-number");
+    $(codeNumber).css("border-left", "3px solid " + color);
+    let codeLine = $(tr).find(".gwt-Label")[0];
+
+    if($(codeLine).find(".code").length > 0){
+        codeLine = $(codeLine).find(".code")[0];
+    }
+
+    let total = 0;
+    let i = 0;
+    for (; total < start; i++) { // Undoing tabs is hard...
+        if ($(codeLine).html().charAt(i) === '\t') {
+            total = (Math.abs(total / 4) + 1) * 4;
+        } else {
+            total++;
+        }
+    }
+    $(codeLine).html().replace($(codeLine).html(), $(codeLine).html().substr(0, i) +
+        "<span style='background-color:" + color + "'>" + $(codeLine).html().substr(i, -i + $(codeLine).html().length - $(codeLine).html().trimStart().length) + "</span>" +
+        $(codeLine).html().substr($(codeLine).html().length - $(codeLine).html().trimStart().length));
+}
+
 function uncheckBoxes() {
     $("label:contains('Request reply?')").parent().find("input").prop('checked', false);
 }
-
 
 
 /**
