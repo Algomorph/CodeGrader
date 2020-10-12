@@ -10,7 +10,6 @@
         "src/model/TableElement.java",
         "src/model/TextElement.java",
         "src/model/WebPage.java",
-
         "WebPageGen/src/main/java/model/AnchorElement.java",
         "WebPageGen/src/main/java/model/Element.java",
         "WebPageGen/src/main/java/model/TagElement.java",
@@ -21,7 +20,7 @@
         "WebPageGen/src/main/java/model/ParagraphElement.java",
         "WebPageGen/src/main/java/model/TableElement.java",
         "WebPageGen/src/main/java/model/TextElement.java",
-        "WebPageGen/src/main/java/model/WebPage.java"        
+        "WebPageGen/src/main/java/model/WebPage.java"
     ],
     "moduleOptions": {
         "indentationModule": {
@@ -48,6 +47,9 @@
                 "global": []
             },
             "showUniqueOnly": true
+        },
+        "spacingModule": {
+            "enabled": true
         }
     },
     "module_options": {

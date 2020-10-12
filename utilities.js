@@ -34,7 +34,8 @@ class Options {
             "keywordModule": keywordModule.getDefaultOptions(),
             "namingModule": namingModule.getDefaultOptions(),
             "methodCallModule": methodCallModule.getDefaultOptions(),
-            "indentationModule": indentationModule.getDefaultOptions()
+            "indentationModule": indentationModule.getDefaultOptions(),
+            "spacingModule": spacingModule.getDefaultOptions()
         };
     }
 }
@@ -184,7 +185,7 @@ function getTrCodeLinesBetweenMarkers(trCodeLines, start, end) {
             addToRange = false;
             return trCodeLinesInRange;
         }
-        if (codeText.match(start)){
+        if (codeText.match(start)) {
             addToRange = true;
         }
         if (addToRange) {
@@ -203,7 +204,7 @@ function getTrCodeLinesBetweenMarkers(trCodeLines, start, end) {
 function findTrCodeLineUsingRegex(trCodeLines, regex) {
     for (const trCodeLine of trCodeLines) {
         const codeText = getCodeFromTrCodeLine(trCodeLine);
-        if (codeText.match(regex)){
+        if (codeText.match(regex)) {
             return trCodeLine;
         }
     }
@@ -264,6 +265,52 @@ function stringDistance(s, t) {
  * Replaces some html/xml reserved characters with their HTML entities, i.e. ">" with "&gt;"
  * @param {string} text
  */
-function codeTextToHtmlText(text){
-    return text.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;");
+function codeTextToHtmlText(text) {
+    let i = text.length, parts = [];
+
+    while (i--) {
+        let iC = text[i].charCodeAt();
+        if (iC < 65 || iC > 127 || (iC>90 && iC<97)) {
+            parts[i] = '&#'+iC+';';
+        } else {
+            parts[i] = text[i];
+        }
+    }
+    return parts.join('');
+}
+
+/**
+ * Returns the code line without the string literals, i.e. each double-quoted text occurrence is either removed or replaced
+ * with the specified keyword
+ * @param {string} text
+ * @param {boolean} replaceWithKeyword
+ * @param {string} keywordToReplaceWith
+ * @return {string} text without string literals
+ */
+function stripStringsFromCode(text, replaceWithKeyword= false, keywordToReplaceWith = "STRING_LITERAL") {
+    let parts = text.split(/(?<!\\)\"/);
+    let newParts = [];
+    for (let i_part = 0; i_part < parts.length; i_part++) {
+        if (i_part % 2 === 0) {
+            newParts.push(parts[i_part]);
+        }
+    }
+    if (replaceWithKeyword) {
+        return newParts.join(keywordToReplaceWith);
+    } else {
+        return newParts.join("");
+    }
+
+}
+
+/**
+ * Strips comments from code
+ * @param {string} text
+ */
+function stripCommentsFromCode(text) {
+    return text.replace(/\/\*[^*]*$|^[^*]*\*\/|\/\/.*$|\/\*[^*]*\*\//g, "");
+}
+
+function stripGenericArgumentsFromCode(text){
+    return text.replace(/<\s*\w*\s*>/g, "");
 }

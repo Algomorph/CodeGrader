@@ -82,7 +82,7 @@ function constructUiPanel(options) {
         namingModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
         methodCallModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
         indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
-
+        spacingModule.initialize(uiPanel, trCodeLines, options.moduleOptions.spacingModule);
     }
 
 

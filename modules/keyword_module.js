@@ -30,15 +30,15 @@ let keywordModule = {};
         }
         $(uiPanel).append("<h3 style='color:#92b9d1'>Prohibited Keywords</h3>");
         let wordsToFind = options.keywords;
-        $.each(trCodeLines, function (tri, tr) {	// iterates each line of code below
-            let codeText = $($(tr).find("div.gwt-Label")[0]).text();
+        $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
+            let codeText = getCodeFromTrCodeLine(trCodeLine);
             if (codeText.match(/\/\//i)) return;
             let wordsFoundInCodeText = _.filter(wordsToFind, function (keyword) {
                 return codeText.indexOf(keyword) !== -1;
             });
             _.each(wordsFoundInCodeText, function (keyword) {
-                $(uiPanel).append(makeLabelWithClickToScroll(keyword, tr));
-                addButtonComment(tr, "Prohibited keyword: " + keyword, " ", "#92b9d1");
+                $(uiPanel).append(makeLabelWithClickToScroll(keyword, trCodeLine));
+                addButtonComment(trCodeLine, "Prohibited keyword: " + keyword, " ", "#92b9d1");
             });
         });
     }
