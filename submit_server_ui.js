@@ -144,20 +144,27 @@ function highlightSection(tr, start, color) {
 
     if($(codeLine).find(".code").length > 0){
         codeLine = $(codeLine).find(".code")[0];
+        console.log("Ooga Booga!");
     }
+    console.log($(codeLine).text());
 
     let total = 0;
     let i = 0;
     for (; total < start; i++) { // Undoing tabs is hard...
-        if ($(codeLine).html().charAt(i) === '\t') {
+        if ($(codeLine).text().charAt(i) === '\t') {
             total = (Math.abs(total / 4) + 1) * 4;
         } else {
             total++;
         }
     }
-    $(codeLine).html().replace($(codeLine).html(), $(codeLine).html().substr(0, i) +
-        "<span style='background-color:" + color + "'>" + $(codeLine).html().substr(i, -i + $(codeLine).html().length - $(codeLine).html().trimStart().length) + "</span>" +
-        $(codeLine).html().substr($(codeLine).html().length - $(codeLine).html().trimStart().length));
+
+    let code = $(codeLine).text();
+    $(codeLine).empty();
+    //$(codeLine).append("<span class ='code' style='background-color:" + color + "'>" + code + "</span>");
+    $(codeLine).append("<span class ='code'>" + code.substr(0, i) +
+        "<span style='background-color:" + color + "'>" + code.substr(i, -i + code.length - code.trimStart().length) + "</span>" +
+        code.substr(code.length - code.trimStart().length) + "</span>");
+    console.log($(codeLine).text());
 }
 
 function uncheckBoxes() {
