@@ -1,5 +1,6 @@
 {
     "filesToCheck": [
+        "src/model/WebPage.java",
         "src/model/Element.java",
         "src/model/TagElement.java",
         "src/model/AnchorElement.java",
@@ -9,7 +10,7 @@
         "src/model/ParagraphElement.java",
         "src/model/TableElement.java",
         "src/model/TextElement.java",
-        "src/model/WebPage.java",
+        "WebPageGen/src/main/java/model/WebPage.java",
         "WebPageGen/src/main/java/model/AnchorElement.java",
         "WebPageGen/src/main/java/model/Element.java",
         "WebPageGen/src/main/java/model/TagElement.java",
@@ -19,10 +20,12 @@
         "WebPageGen/src/main/java/model/HeadingElement.java",
         "WebPageGen/src/main/java/model/ParagraphElement.java",
         "WebPageGen/src/main/java/model/TableElement.java",
-        "WebPageGen/src/main/java/model/TextElement.java",
-        "WebPageGen/src/main/java/model/WebPage.java"
+        "WebPageGen/src/main/java/model/TextElement.java"
     ],
     "moduleOptions": {
+        "braceStyleModule": {
+            "enabled": false
+        },
         "indentationModule": {
             "enabled": true
         },
@@ -44,6 +47,10 @@
             ],
             "enabled": true,
             "ignoredNames": {
+                "WebPage": [
+                    "findElem",
+                    "stats"
+                ],
                 "global": []
             },
             "showUniqueOnly": true
