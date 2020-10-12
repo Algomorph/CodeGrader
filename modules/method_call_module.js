@@ -257,6 +257,10 @@ let methodCallModule = {};
                 const [methodReturnTypeName, methodReturnTypeArguments] = getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
                 scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode));
             }
+            // public void foo(int a,
+            //          int b) {
+
+
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
                         const [typeName, typeArguments] = getTypeNameAndArgumentsFromTypeNode(parameter.type);

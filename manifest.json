@@ -17,6 +17,7 @@
             "third_party/bootstrap.min.js",
             "utilities.js", 
             "submit_server_ui.js",
+            "modules/braces_module.js",
             "modules/grade_server_module.js",
             "modules/keyword_module.js", 
             "modules/naming_module.js",
