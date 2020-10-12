@@ -46264,7 +46264,6 @@ paprika
 papule
 papyri
 papyrus
-par
 parable
 parables
 parabola
@@ -46501,7 +46500,6 @@ parroting
 parrots
 parry
 parrying
-pars
 parse
 parsec
 parsecs
@@ -49304,7 +49302,6 @@ portrayed
 portraying
 portrays
 ports
-pos
 pose
 posed
 poser
@@ -62038,7 +62035,6 @@ statisticians
 statistics
 stator
 stators
-stats
 statuary
 statue
 statues
