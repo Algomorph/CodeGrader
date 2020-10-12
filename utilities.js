@@ -35,7 +35,8 @@ class Options {
             "namingModule": namingModule.getDefaultOptions(),
             "methodCallModule": methodCallModule.getDefaultOptions(),
             "indentationModule": indentationModule.getDefaultOptions(),
-            "spacingModule": spacingModule.getDefaultOptions()
+            "spacingModule": spacingModule.getDefaultOptions(),
+            "braceStyleModule": braceStyleModule.getDefaultOptions()
         };
     }
 }

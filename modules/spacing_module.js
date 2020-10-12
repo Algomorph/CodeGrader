@@ -63,14 +63,17 @@ let spacingModule = {};
                     let message = null;
                     if (spaceBefore !== " " && spaceAfter !== " ") {
                         message = "Operator '" + operator + "' needs a single space before and after it.";
-                        console.log(code);
-                        console.log(match);
+                        //FIXME remove commented code after most debugging is done
+                        // console.log(code);
+                        // console.log(match);
                     } else if (spaceBefore !== " ") {
                         message = "Operator '" + operator + "' needs a single space before it.";
-                        console.log(code);
-                        console.log(match);
+                        // console.log(code);
+                        // console.log(match);
                     } else {
                         message = "Operator '" + operator + "' needs a single space after it.";
+                        // console.log(code);
+                        // console.log(match);
                     }
                     $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
                     addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
