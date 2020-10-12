@@ -67,7 +67,7 @@ function constructUiPanel(options) {
     if (filesToCheck.length === 0) {
         $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
     } else {
-        scrollToFirstFile(filesToCheck[0]);
+        scrollToFirstFile(filesToCheck);
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
         for (const [fileName, fileCode] of codeFileDictionary.entries()) {
             if (fileCode.parseError !== null) {

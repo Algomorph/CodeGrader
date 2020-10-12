@@ -23,7 +23,7 @@ let namingModule = {};
         }
     }
 
-    this.getDefaultOptions = function (){
+    this.getDefaultOptions = function () {
         return new Options();
     }
 
@@ -212,7 +212,14 @@ let namingModule = {};
                 handleFieldOrVariableDeclaration(statement, constantNames, methodAndVariableNames, codeFile);
             } else if (statement.node === "ForStatement") {
                 handleBlockOfStatements(statement.initializers, constantNames, methodAndVariableNames, codeFile);
-                handleBlockOfStatements(statement.body.statements, constantNames, methodAndVariableNames, codeFile);
+                if (statement.body.node === "ExpressionStatement") {
+                    handleBlockOfStatements([statement.body.expression], constantNames, methodAndVariableNames, codeFile);
+                } else if(statement.body.node === "Block") {
+                    handleBlockOfStatements(statement.body.statements, constantNames, methodAndVariableNames, codeFile);
+                } else {
+                    console.log("Unhandled for statement type!");
+                    console.log(statement);
+                }
             } else if (statement.node === "EnhancedForStatement") {
                 methodAndVariableNames.push(new CodeName(statement.parameter.name.identifier,
                     codeFile.trCodeLines[statement.parameter.location.start.line - 1], NameType.VARIABLE, statement.parameter));
@@ -248,7 +255,7 @@ let namingModule = {};
                             const name = parameter.name.identifier;
                             methodAndVariableNames.push(new CodeName(name, codeFile.trCodeLines[declaration.location.start.line - 1], NameType.VARIABLE));
                         }
-                        if(declaration.body != null){
+                        if (declaration.body != null) {
                             handleBlockOfStatements(declaration.body.statements, constantNames, methodAndVariableNames, codeFile);
                         }
                     }
@@ -308,7 +315,7 @@ let namingModule = {};
      * @param {Options} options
      */
     this.initialize = function (uiPanel, fileDictionary, options) {
-        if(!options.enabled){
+        if (!options.enabled) {
             return;
         }
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
@@ -334,9 +341,9 @@ let namingModule = {};
 
                     const [typeMethodsAndVariables, typeConstants, typeTypeNames] = getTypeNames(type, codeFile);
 
-                    methodAndVariableNames.push(...typeMethodsAndVariables.filter( codeName => !ignoredNamesForType.has(codeName.name)));
-                    constantNames.push(...typeConstants.filter( codeName => !ignoredNamesForType.has(codeName.name)));
-                    typeNames.push(...typeTypeNames.filter( codeName => !ignoredNamesForType.has(codeName.name)));
+                    methodAndVariableNames.push(...typeMethodsAndVariables.filter(codeName => !ignoredNamesForType.has(codeName.name)));
+                    constantNames.push(...typeConstants.filter(codeName => !ignoredNamesForType.has(codeName.name)));
+                    typeNames.push(...typeTypeNames.filter(codeName => !ignoredNamesForType.has(codeName.name)));
                 }
             }
         }

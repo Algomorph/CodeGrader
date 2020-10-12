@@ -259,3 +259,11 @@ function stringDistance(s, t) {
         stringDistance(s.substr(1), t.substr(1)) + (s[0] !== t[0] ? 1 : 0)
     );
 }
+
+/**
+ * Replaces some html/xml reserved characters with their HTML entities, i.e. ">" with "&gt;"
+ * @param {string} text
+ */
+function codeTextToHtmlText(text){
+    return text.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;");
+}

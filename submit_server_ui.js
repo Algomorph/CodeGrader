@@ -1,5 +1,15 @@
-function scrollToFirstFile(firstFileToCheck) {
-    $(".link.link-block:contains('" + firstFileToCheck + "')")[0].click();
+function scrollToFirstFile(filesToCheck) {
+    let found = false;
+    let i_file = 0;
+    let links = null;
+    while(!found && i_file < filesToCheck.length){
+        links = $(".link.link-block:contains('" + filesToCheck[i_file] + "')");
+        found = links.length > 0;
+        i_file++;
+    }
+    if(found){
+        links[0].click();
+    }
 }
 
 function getSourceFileContainer(filename) {
@@ -76,12 +86,13 @@ function makeLabelsWithClick(list) {
     });
 }
 
+
 function addButtonComment(trCodeLine, title, defaultMessage, color) {
     let codeNumber = $(trCodeLine).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
     let contentDivTag = $(trCodeLine).find(".gwt-Label")[0];
     if ($(contentDivTag).find(".code").length === 0) {
-        let codeText = $(contentDivTag).text();
+        let codeText = codeTextToHtmlText($(contentDivTag).text());
         $(contentDivTag).empty();
         $(contentDivTag).append($("<span class='code'>" + codeText + "</span>"));
     }

@@ -4,11 +4,24 @@
         "src/model/TagElement.java",
         "src/model/AnchorElement.java",
         "src/model/ImageElement.java",
+        "src/model/ListElement.java",
         "src/model/HeadingElement.java",
         "src/model/ParagraphElement.java",
         "src/model/TableElement.java",
         "src/model/TextElement.java",
-        "src/model/WebPage.java"
+        "src/model/WebPage.java",
+
+        "WebPageGen/src/main/java/model/AnchorElement.java",
+        "WebPageGen/src/main/java/model/Element.java",
+        "WebPageGen/src/main/java/model/TagElement.java",
+        "WebPageGen/src/main/java/model/AnchorElement.java",
+        "WebPageGen/src/main/java/model/ImageElement.java",
+        "WebPageGen/src/main/java/model/ListElement.java",
+        "WebPageGen/src/main/java/model/HeadingElement.java",
+        "WebPageGen/src/main/java/model/ParagraphElement.java",
+        "WebPageGen/src/main/java/model/TableElement.java",
+        "WebPageGen/src/main/java/model/TextElement.java",
+        "WebPageGen/src/main/java/model/WebPage.java"        
     ],
     "moduleOptions": {
         "indentationModule": {
