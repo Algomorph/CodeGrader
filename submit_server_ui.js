@@ -144,14 +144,12 @@ function highlightSection(tr, start, color) {
 
     if($(codeLine).find(".code").length > 0){
         codeLine = $(codeLine).find(".code")[0];
-        console.log("Ooga Booga!");
     }
-    console.log($(codeLine).text());
 
     let total = 0;
-    let i = 0;
-    for (; total < start; i++) { // Undoing tabs is hard...
-        if ($(codeLine).text().charAt(i) === '\t') {
+    let first = 0;
+    for (; total < start; first++) { // Undoing tabs is hard...
+        if ($(codeLine).text().charAt(first) === '\t') {
             total = (Math.abs(total / 4) + 1) * 4;
         } else {
             total++;
@@ -159,12 +157,12 @@ function highlightSection(tr, start, color) {
     }
 
     let code = $(codeLine).text();
+    let last = code.length - code.trimStart().length;
     $(codeLine).empty();
     //$(codeLine).append("<span class ='code' style='background-color:" + color + "'>" + code + "</span>");
-    $(codeLine).append("<span class ='code'>" + code.substr(0, i) +
-        "<span style='background-color:" + color + "'>" + code.substr(i, -i + code.length - code.trimStart().length) + "</span>" +
-        code.substr(code.length - code.trimStart().length) + "</span>");
-    console.log($(codeLine).text());
+    $(codeLine).append("<span class ='code'>" + code.substr(0, first) +
+        "<span style='background-color:" + color + "'>" + code.substr(first, last - first) + "</span>" +
+        code.substr(last) + "</span>");
 }
 
 function uncheckBoxes() {

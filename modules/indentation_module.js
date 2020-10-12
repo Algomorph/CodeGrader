@@ -134,10 +134,12 @@
 
             // if opening brace exists, increase indent
             if (codeText.indexOf("{") !== -1) {
-                if(codeText.indexOf("}") !== -1) {
+                if(codeText.indexOf("}") === 0) {
                     currentIndentation += (codeText.match(/{/g).length - codeText.match(/}/g).length + 1) * singleIndentationString;
-                } else {
+                } else if (codeText.indexOf("}") === -1) {
                     currentIndentation += codeText.match(/{/g).length * singleIndentationString;
+                } else {
+                    currentIndentation += (codeText.match(/{/g).length - codeText.match(/}/g).length) * singleIndentationString;
                 }
                 stack.push(isNotAllman);
                 isNotAllman = 0;
@@ -150,14 +152,10 @@
             // If it doesn't end in a correct delimiter, it's a continuation of the previous line. Eclipse says to add two indents.
             if (!isPrev && codeText.trim().search(/^(for|while|do\s|else|if)/) !== -1
                     && codeText.trim().charAt(codeText.trim().length - 1) !== "{") {
-
-
                 if (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length)) {
                     if(codeText.indexOf("}") === -1 || codeText.search(/{/g).length !== codeText.search(/}/g).length) {
                         isPrev = true;
                         isNotAllman++;
-                    } else {
-                        currentIndentation -= singleIndentationString;
                     }
                 } else {
                     isPrev = true;
