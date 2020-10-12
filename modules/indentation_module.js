@@ -152,6 +152,9 @@
             }
 
             if(codeText.indexOf("}") !== -1) {
+                if(codeText.indexOf("{") === -1 && codeText.trim().indexOf("}") !== 0) {
+                    currentIndentation -= codeText.match(/}/g).length * singleIndentationString;
+                }
                 isNotAllman = stack.pop(); // Somehow, this fixes nested if's with AND without braces
             }
 
