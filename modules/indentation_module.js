@@ -78,6 +78,27 @@
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = getCodeFromTrCodeLine(trCodeLine);
 
+
+
+            // Handle opening and closing braces updating indent size
+            if (codeText.trim().indexOf("}") === 0) {
+                currentIndentation -= singleIndentationString;
+            }
+
+            if (isPrev && codeText.trim().charAt(0) === "{") { // Accounts for Allman braces
+                isPrev = false;
+                currentIndentation -= 2 * singleIndentationString;
+                if(isNotAllman > 0) {
+                    isNotAllman--;
+                    currentIndentation += 2 * singleIndentationString;
+                }
+            }
+
+            if(isNotAllman > 0) {
+                isPrev = false;
+                currentIndentation += singleIndentationString;
+            }
+
             if (codeText.indexOf("/*") !== -1) {
                 isComment = true;
             }
@@ -101,25 +122,6 @@
             if (codeText.trim().substr(0, 2) === "//") return;
 
             if(codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
-
-            // Handle opening and closing braces updating indent size
-            if (codeText.trim().indexOf("}") === 0) {
-                currentIndentation -= singleIndentationString;
-            }
-
-            if (isPrev && codeText.trim().charAt(0) === "{") { // Accounts for Allman braces
-                isPrev = false;
-                currentIndentation -= 2 * singleIndentationString;
-                if(isNotAllman > 0) {
-                    isNotAllman--;
-                    currentIndentation += 2 * singleIndentationString;
-                }
-            }
-
-            if(isNotAllman > 0) {
-                isPrev = false;
-                currentIndentation += singleIndentationString;
-            }
 
             // verify current indent is correct
             if (countIndent(codeText) !== currentIndentation) {
