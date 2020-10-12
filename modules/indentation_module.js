@@ -124,12 +124,16 @@
             // verify current indent is correct
             if (countIndent(codeText) !== currentIndentation) {
                 badLines.push(trCodeLine);
+                let defaultMessage = "Detected indent: " + countIndent(codeText) + ", Expected indent: " + currentIndentation;
                 if (currentIndentation < countIndent(codeText)) {
                     highlightSection(trCodeLine, currentIndentation, "#92b9d1");
+                    $(uiPanel).append(makeLabelWithClickToScroll("Overindent", trCodeLine, "", defaultMessage));
                 } else {
                     highlightSection(trCodeLine, 0, "#92b9d1");
+                    $(uiPanel).append(makeLabelWithClickToScroll("Underindent", trCodeLine, "", defaultMessage));
                 }
-                addButtonComment(trCodeLine, "Indent: " + countIndent(codeText) + ", Expected Indent: " + currentIndentation, " ", "#92b9d1");
+
+                addButtonComment(trCodeLine, "Poor indentation", defaultMessage, "#92b9d1");
             }
 
             // if opening brace exists, increase indent
