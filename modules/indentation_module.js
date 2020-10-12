@@ -134,7 +134,7 @@
 
             // if opening brace exists, increase indent
             if (codeText.indexOf("{") !== -1) {
-                if(codeText.indexOf("}") === 0) {
+                if(codeText.trim().indexOf("}") === 0) {
                     currentIndentation += (codeText.match(/{/g).length - codeText.match(/}/g).length + 1) * singleIndentationString;
                 } else if (codeText.indexOf("}") === -1) {
                     currentIndentation += codeText.match(/{/g).length * singleIndentationString;

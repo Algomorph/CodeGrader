@@ -148,7 +148,7 @@ function highlightSection(tr, start, color) {
 
     let total = 0;
     let first = 0;
-    for (; total < start; first++) { // Undoing tabs is hard...
+    for (; total < start; first++) { // Undoing tabs is hard... returns the first character of the highlighting area
         if ($(codeLine).text().charAt(first) === '\t') {
             total = (Math.abs(total / 4) + 1) * 4;
         } else {
@@ -157,7 +157,7 @@ function highlightSection(tr, start, color) {
     }
 
     let code = $(codeLine).text();
-    let last = code.length - code.trimStart().length;
+    let last = code.length - code.trimStart().length; //Last whitespace. Always the endpoint of highlighting for indents.
     $(codeLine).empty();
     //$(codeLine).append("<span class ='code' style='background-color:" + color + "'>" + code + "</span>");
     $(codeLine).append("<span class ='code'>" + code.substr(0, first) +
