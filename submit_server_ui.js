@@ -171,9 +171,9 @@ function highlightSection(tr, start, color) {
     let last = code.length - code.trimStart().length; //Last whitespace. Always the endpoint of highlighting for indents.
     $(codeLine).empty();
     //$(codeLine).append("<span class ='code' style='background-color:" + color + "'>" + code + "</span>");
-    $(codeLine).append("<span class ='code'>" + code.substr(0, first) +
-        "<span style='background-color:" + color + "'>" + code.substr(first, last - first) + "</span>" +
-        code.substr(last) + "</span>");
+    $(codeLine).append("<span class ='code'>" + codeTextToHtmlText(code.substr(0, first)) +
+        "<span style='background-color:" + color + "'>" + codeTextToHtmlText(code.substr(first, last - first)) + "</span>" +
+        codeTextToHtmlText(code.substr(last)) + "</span>");
 }
 
 function uncheckBoxes() {
