@@ -1,4 +1,4 @@
-let spacingModule = {};
+let spacing_module = {};
 
 (function () {
 
@@ -82,4 +82,4 @@ let spacingModule = {};
         });
     }
 
-}).apply(spacingModule);
+}).apply(spacing_module);

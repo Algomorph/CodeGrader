@@ -1,4 +1,4 @@
-let braceStyleModule = {};
+let brace_style_module = {};
 
 (function () {
 
@@ -33,4 +33,4 @@ let braceStyleModule = {};
         });
     }
 
-}).apply(braceStyleModule);
+}).apply(brace_style_module);

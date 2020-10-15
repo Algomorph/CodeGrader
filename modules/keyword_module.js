@@ -1,4 +1,4 @@
-let keywordModule = {};
+let keyword_module = {};
 
 (function () {
 
@@ -43,4 +43,4 @@ let keywordModule = {};
         });
     }
 
-}).apply(keywordModule);
+}).apply(keyword_module);

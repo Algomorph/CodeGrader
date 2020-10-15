@@ -1,4 +1,4 @@
-let methodCallModule = {};
+let method_call_module = {};
 
 (function () {
 
@@ -89,4 +89,4 @@ let methodCallModule = {};
         }
     }
 
-}).apply(methodCallModule);
+}).apply(method_call_module);
