@@ -2,6 +2,8 @@ let code_analysis = {};
 
 (function () {
 
+    let log_method_ownership_warnings = false;
+
     const MethodCallType = {
         METHOD: "method",
         INSTANCE_METHOD: "static method",
@@ -27,28 +29,69 @@ let code_analysis = {};
         FIELD: 3,
         VARIABLE: 4,
         CONSTANT: 5,
-        VARIABLE_OR_CONSTANT: 6
+        CONSTANT_FIELD: 6,
+        THIS: 6,
+        CAST: 7
     }
+
+    this.DeclarationType = DeclarationType;
 
     let DeclarationTypeByNode = {
         "TypeDeclaration": DeclarationType.TYPE,
         "MethodDeclaration": DeclarationType.METHOD,
-        "VariableDeclarationStatement": DeclarationType.VARIABLE_OR_CONSTANT,
-        "VariableDeclarationExpression": DeclarationType.VARIABLE_OR_CONSTANT,
-        "SingleVariableDeclaration": DeclarationType.VARIABLE_OR_CONSTANT,
+        "VariableDeclarationStatement": DeclarationType.VARIABLE,
+        "VariableDeclarationExpression": DeclarationType.VARIABLE,
+        "SingleVariableDeclaration": DeclarationType.VARIABLE,
         "FieldDeclaration": DeclarationType.FIELD,
+        "This": DeclarationType.THIS,
+        "CastExpression": DeclarationType.CAST
     }
 
+    const NameType = {
+        METHOD: 'method',
+        VARIABLE: 'variable',
+        TYPE: 'type',
+        CONSTANT: 'constant',
+        NONE: 'none'
+    }
+
+    this.NameType = NameType
+
+    const NameTypeByDeclarationType = new Map([
+        [DeclarationType.TYPE, NameType.TYPE],
+        [DeclarationType.METHOD, NameType.METHOD],
+        [DeclarationType.CONSTANT, NameType.CONSTANT],
+        [DeclarationType.CONSTANT_FIELD, NameType.CONSTANT],
+        [DeclarationType.VARIABLE, NameType.VARIABLE],
+        [DeclarationType.FIELD, NameType.VARIABLE],
+        [DeclarationType.FIELD, NameType.VARIABLE],
+        [DeclarationType.THIS, NameType.NONE],
+        [DeclarationType.CAST, NameType.NONE],
+    ]);
+
     class Declaration {
-        constructor(name, typeName, typeArguments, astNode, hasFinalModifier = false) {
+        constructor(name, typeName, typeArguments, astNode) {
             this.name = name;
-            this.typeName = typeName;
+            this.typeName = typeName; // for methods, the return type
             this.typeArguments = typeArguments;
             this.astNode = astNode;
             this.declarationType = DeclarationTypeByNode[astNode.node];
-            if (this.declarationType === DeclarationType.VARIABLE_OR_CONSTANT) {
-                this.declarationType = hasFinalModifier ? DeclarationType.CONSTANT : DeclarationType.VARIABLE;
+            this.final = false;
+
+            if (this.declarationType !== DeclarationType.THIS && this.declarationType !== DeclarationType.CAST) {
+                if (astNode.modifiers.map(modifier => modifier.keyword).includes("final")) {
+                    this.final = true;
+                    switch (this.declarationType) {
+                        case DeclarationType.FIELD:
+                            this.declarationType = DeclarationType.CONSTANT_FIELD;
+                            break;
+                        case DeclarationType.VARIABLE:
+                            this.declarationType = DeclarationType.CONSTANT;
+                            break;
+                    }
+                }
             }
+            this.nameType = NameTypeByDeclarationType.get(this.declarationType);
         }
     }
 
@@ -145,6 +188,8 @@ let code_analysis = {};
                 declaration = this.searchForDeclarationInStack(expressionNode.identifier, fullScopeStack);
                 break;
             case "ThisExpression":
+                //TODO: probably, shouldn't be handling "this" as a special keyword, since this results in ambiguity between
+                // methods of a nested type and its parent
                 declaration = this.searchForDeclarationInStack("this", fullScopeStack);
                 break;
             case "FieldAccess":
@@ -198,16 +243,20 @@ let code_analysis = {};
                 if (methodCallNode.expression.node === "SimpleName") {
                     name = methodCallNode.expression.identifier + "." + methodCallNode.name.identifier;
                     //TODO: also check against imported classes
-                    if (!javaDotLangPackageClasses.has(methodCallNode.expression.identifier)) {
-                        console.log("Declaration not found:");
-                        console.log(methodCallNode.expression);
+                    if (!javaDotLangPackageClasses.has(methodCallNode.expression.identifier) && log_method_ownership_warnings) {
+                        console.log("Method-owning class/variable declaration not found for method `"
+                            + methodCallNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
+                            + methodCallNode.location.start.line + ". Ast node:", methodCallNode);
                     }
                 } else {
-                    console.log("Declaration not found:");
-                    console.log(methodCallNode.expression);
                     const callSourceCode = codeFile.sourceCode.substring(methodCallNode.location.start.offset, methodCallNode.location.end.offset);
                     const callExpressionSourceCode = callSourceCode.split(methodCallNode.name.identifier)[0];
                     name = callExpressionSourceCode + methodCallNode.name.identifier;
+                    if (log_method_ownership_warnings) {
+                        console.log("Method-owning class/variable declaration not found for method `"
+                            + methodCallNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
+                            + methodCallNode.location.start.line + ". Ast node:", methodCallNode);
+                    }
                 }
             } else {
                 if (declaration.declarationType === DeclarationType.TYPE) {
@@ -275,10 +324,11 @@ let code_analysis = {};
             currentScopeFullyProcessed = false;
         }
 
+        // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration":
                 branchScopes.push(new Scope(astNode,
-                    [new Declaration("this", astNode.name.identifier, [], {"node": "VariableDeclarationStatement"})],
+                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"})],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration": {
@@ -337,10 +387,13 @@ let code_analysis = {};
                 scope.children.push(astNode.expression);
                 continueProcessingCurrentScope();
                 break;
-            case "ReturnStatement":
-            case "ParenthesizedExpression":
-            case "ThrowStatement":
             case "ExpressionStatement":
+                if(astNode.hasOwnProperty("expression") && (astNode.expression.node === "PostfixExpression" || astNode.expression.node !== "PrefixExpression")){
+                    enclosingTypeInformation.unaryExpressions.push(astNode);
+                }
+            case "ParenthesizedExpression":
+            case "ReturnStatement":
+            case "ThrowStatement":
                 scope.children = [astNode.expression];
                 continueProcessingCurrentScope();
                 break;
@@ -348,7 +401,10 @@ let code_analysis = {};
                 branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
                 if (astNode.catchClauses !== null) {
                     for (const catchClause of astNode.catchClauses) {
-                        branchScopes.push(new Scope(catchClause, [], [catchClause], scope.scopeStack.concat([scope])));
+                        const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(catchClause["exception"].type);
+                        branchScopes.push(new Scope(catchClause.body,
+                            [new Declaration(catchClause["exception"].name.identifier, typeName, typeArguments, catchClause["exception"])],
+                            [catchClause], scope.scopeStack.concat([scope])));
                     }
                 }
                 if (astNode.finally !== null) {
@@ -358,6 +414,10 @@ let code_analysis = {};
             case "InstanceOfExpression":
             case "InfixExpression":
                 scope.children = [astNode.leftOperand, astNode.rightOperand];
+                if(!astNode.leftOperand.hasOwnProperty("location") || !astNode.rightOperand.hasOwnProperty("location")){
+                    console.log(codeFile.filename, astNode);
+                }
+                enclosingTypeInformation.binaryExpressions.push(astNode);
                 continueProcessingCurrentScope();
                 break;
             case "PrefixExpression":

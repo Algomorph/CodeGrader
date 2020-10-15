@@ -188,7 +188,7 @@ function peg$parse(input, options) {
             };
           },
       peg$c8 = function(modifiers, member) { return mergeProps(member, { modifiers: modifiers }); },
-      peg$c9 = function(params, rest) { 
+      peg$c9 = function(params, rest) {
             return mergeProps(rest, {
               node:          'MethodDeclaration',
               location:       location(),
@@ -221,7 +221,7 @@ function peg$parse(input, options) {
               constructor: false
             });
           },
-      peg$c13 = function(id, rest) { 
+      peg$c13 = function(id, rest) {
             return mergeProps(rest, {
               node:           'MethodDeclaration',
               location:        location(),
@@ -284,8 +284,8 @@ function peg$parse(input, options) {
               rest.fragments[0].name = id;
               return mergeProps(rest, { type: type });
             } else {
-              return mergeProps(rest, { 
-                returnType2:    type, 
+              return mergeProps(rest, {
+                returnType2:    type,
                 name:           id,
                 typeParameters: []
               });
@@ -305,10 +305,10 @@ function peg$parse(input, options) {
           },
       peg$c26 = function(params) { return makePrimitive('void'); },
       peg$c27 = function(params, type, id, rest) {
-            return mergeProps(rest, { 
-              returnType2:    type, 
-              name:           id, 
-              typeParameters: params 
+            return mergeProps(rest, {
+              returnType2:    type,
+              name:           id,
+              typeParameters: params
             });
           },
       peg$c28 = function(params, throws) {
@@ -325,12 +325,12 @@ function peg$parse(input, options) {
             };
           },
       peg$c29 = function(first, rest) { return buildList(first, rest, 1); },
-      peg$c30 = function(dims, init) { 
+      peg$c30 = function(dims, init) {
               return {
                 node:           'VariableDeclarationFragment',
                 extraDimensions: dims.length,
                 initializer:     init
-            }; 
+            };
           },
       peg$c31 = function(name, impl, eb) {
             return mergeProps(eb, {
@@ -355,7 +355,7 @@ function peg$parse(input, options) {
                 bodyDeclarations:  cls
               },
               arguments:                 optionalList(args),
-              modifiers:                 annot, 
+              modifiers:                 annot,
               name:                      name
             };
           },
@@ -379,7 +379,7 @@ function peg$parse(input, options) {
             };
           },
       peg$c38 = function(params) { return optionalList(params); },
-      peg$c39 = function(modifiers, type, decl) { 
+      peg$c39 = function(modifiers, type, decl) {
             return mergeProps(decl, {
               type:        type,
               modifiers:   modifiers,
@@ -387,7 +387,7 @@ function peg$parse(input, options) {
               initializer: null
             });
           },
-      peg$c40 = function(modifiers, type, decl) { 
+      peg$c40 = function(modifiers, type, decl) {
             return mergeProps(decl, {
               type:        type,
               modifiers:   modifiers,
@@ -397,44 +397,44 @@ function peg$parse(input, options) {
           },
       peg$c41 = function(first, rest, last) { return buildList(first, rest, 1).concat(extractOptionalList(last, 1)); },
       peg$c42 = function(last) { return [last]; },
-      peg$c43 = function(id, dims) { 
-            return { 
+      peg$c43 = function(id, dims) {
+            return {
               node:           'SingleVariableDeclaration',
               location:        location(),
-              name:            id, 
-              extraDimensions: dims.length 
-            }; 
+              name:            id,
+              extraDimensions: dims.length
+            };
           },
-      peg$c44 = function(statements) { 
+      peg$c44 = function(statements) {
             return {
               node:      'Block',
               statements: statements
             }
           },
-      peg$c45 = function(modifiers, decl) { 
-            return { 
+      peg$c45 = function(modifiers, decl) {
+            return {
               node:       'TypeDeclarationStatement',
               location:    location(),
-              declaration: mergeProps(decl,  { modifiers: modifiers }) 
-            }; 
+              declaration: mergeProps(decl,  { modifiers: modifiers })
+            };
           },
-      peg$c46 = function(expr, message) { 
-            return { 
-              node:      'AssertStatement', 
+      peg$c46 = function(expr, message) {
+            return {
+              node:      'AssertStatement',
               expression: expr,
               message:    extractOptional(message, 1)
-            }; 
+            };
           },
-      peg$c47 = function(expr, then, alt) { 
-            return { 
+      peg$c47 = function(expr, then, alt) {
+            return {
               node:         'IfStatement',
               location:      location(),
-              elseStatement: extractOptional(alt, 1), 
+              elseStatement: extractOptional(alt, 1),
               thenStatement: then,
-              expression:    expr.expression,   
-            }; 
+              expression:    expr.expression,
+            };
           },
-      peg$c48 = function(init, expr, up, body) { 
+      peg$c48 = function(init, expr, up, body) {
             return {
               node:        'ForStatement',
               location:     location(),
@@ -444,31 +444,31 @@ function peg$parse(input, options) {
               body:         body
             };
           },
-      peg$c49 = function(param, expr, statement) {       
+      peg$c49 = function(param, expr, statement) {
             return {
               node:      'EnhancedForStatement',
               location:     location(),
               parameter:  param,
               expression: expr,
               body:       statement
-            }; 
-          },
-      peg$c50 = function(expr, body) { 
-            return { 
-              node:      'WhileStatement',
-              location:     location(),
-              expression: expr.expression, 
-              body:       body 
             };
           },
-      peg$c51 = function(statement, expr) { 
-            return { 
-              node:      'DoStatement', 
-              expression: expr.expression, 
-              body:       statement 
-            };  
+      peg$c50 = function(expr, body) {
+            return {
+              node:      'WhileStatement',
+              location:     location(),
+              expression: expr.expression,
+              body:       body
+            };
           },
-      peg$c52 = function(first, rest, body, cat, fin) { 
+      peg$c51 = function(statement, expr) {
+            return {
+              node:      'DoStatement',
+              expression: expr.expression,
+              body:       statement
+            };
+          },
+      peg$c52 = function(first, rest, body, cat, fin) {
             return mergeProps(makeCatchFinally(cat, fin), {
               node:        'TryStatement',
               location:     location(),
@@ -478,7 +478,7 @@ function peg$parse(input, options) {
           },
       peg$c53 = function(body, cat, fin) { return makeCatchFinally(cat, fin); },
       peg$c54 = function(body, fin) { return makeCatchFinally([], fin); },
-      peg$c55 = function(body, rest) { 
+      peg$c55 = function(body, rest) {
             return mergeProps(rest, {
               node:        'TryStatement',
               location:     location(),
@@ -495,7 +495,7 @@ function peg$parse(input, options) {
       peg$c62 = function() { return { node: 'EmptyStatement' }; },
       peg$c63 = function(statement) { return statement; },
       peg$c64 = function(id, statement) { return { node: 'LabeledStatement', label: id, body: statement }; },
-      peg$c65 = function(modifiers, type, decl, expr) { 
+      peg$c65 = function(modifiers, type, decl, expr) {
             var fragment = mergeProps(decl, { initializer: expr });
             fragment.node = 'VariableDeclarationFragment';
             return {
@@ -504,7 +504,7 @@ function peg$parse(input, options) {
               modifiers: modifiers,
               type:      type,
               fragments: [fragment]
-            }; 
+            };
           },
       peg$c66 = function(modifiers, first, rest, decl, body) {
             return {
@@ -514,9 +514,9 @@ function peg$parse(input, options) {
                 modifiers:   modifiers,
                 initializer: null,
                 varargs:     false,
-                type:        rest.length ? { 
-                  node: 'UnionType', 
-                  types: buildList(first, rest, 1) 
+                type:        rest.length ? {
+                  node: 'UnionType',
+                  types: buildList(first, rest, 1)
                   } : first
               })
             };
@@ -525,27 +525,27 @@ function peg$parse(input, options) {
       peg$c68 = function(blocks) { return [].concat.apply([], blocks); },
       peg$c69 = function(expr, blocks) { return [{ node: 'SwitchCase', expression: expr }].concat(blocks); },
       peg$c70 = function(expr) { return expr; },
-      peg$c71 = function(modifiers, type, decls) { 
+      peg$c71 = function(modifiers, type, decls) {
             return [{
               node:     'VariableDeclarationExpression',
               location:  location(),
               modifiers: modifiers,
               fragments: decls,
               type:      type
-            }]; 
+            }];
           },
       peg$c72 = function(first, rest) { return extractExpressions(buildList(first, rest, 1)); },
-      peg$c73 = function(expr) { 
+      peg$c73 = function(expr) {
             switch(expr.node) {
               case 'SuperConstructorInvocation':
               case 'ConstructorInvocation':
                 return expr;
               default:
-                return { 
+                return {
                   node:      'ExpressionStatement',
                   location:   location(),
-                  expression: expr 
-                };  
+                  expression: expr
+                };
             }
           },
       peg$c74 = function(left, op, right) {
@@ -574,140 +574,149 @@ function peg$parse(input, options) {
               } : {
                 node:        'InfixExpression',
                 operator:     element[0][0], // remove ending Spacing
+                location:     location(),
                 leftOperand:  result,
                 rightOperand: element[1]
               };
             });
           },
       peg$c78 = function(operator, operand) {
-            return operand.node === 'NumberLiteral' && operator === '-' && 
-              (operand.token === '9223372036854775808L' || 
+            return operand.node === 'NumberLiteral' && operator === '-' &&
+              (operand.token === '9223372036854775808L' ||
                operand.token === '9223372036854775808l' ||
-               operand.token === '2147483648') 
-              ? { node: 'NumberLiteral', token: text() }
-              : { 
-                node:    'PrefixExpression', 
-                operator: operator, 
+               operand.token === '2147483648')
+              ? { node: 'NumberLiteral', location: location(), token: text() }
+              : {
+                node:    'PrefixExpression',
+                location: location(),
+                operator: operator,
                 operand:  operand
               };
           },
       peg$c79 = function(expr) {
             return {
               node:      'CastExpression',
-              type:       expr[1],     
+              location:   location(),
+              type:       expr[1],
               expression: expr[3]
             };
           },
-      peg$c80 = function(arg, sel, sels, operator) { 
+      peg$c80 = function(arg, sel, sels, operator) {
             return operator.length > 1 ? TODO(/* JLS7? */) : {
-              node:    'PostfixExpression', 
-              operator: operator[0], 
+              node:    'PostfixExpression',
+              location:   location(),
+              operator: operator[0],
               operand:  buildSelectorTree(arg, sel, sels)
             };
           },
       peg$c81 = function(arg, sel, sels) { return buildSelectorTree(arg, sel, sels); },
-      peg$c82 = function(arg, operator) { 
+      peg$c82 = function(arg, operator) {
             return operator.length > 1 ? TODO(/* JLS7? */) : {
-              node:    'PostfixExpression', 
-              operator: operator[0], 
+              node:    'PostfixExpression',
+              location:   location(),
+              operator: operator[0],
               operand:  arg
             };
           },
       peg$c83 = function(args, args_r) { return { node: 'ConstructorInvocation', arguments: args_r, typeArguments: [] }; },
-      peg$c84 = function(args, ret) { 
+      peg$c84 = function(args, ret) {
             if (ret.typeArguments.length) return TODO(/* Ugly ! */);
             ret.typeArguments = args;
             return ret;
           },
-      peg$c85 = function(args) { 
+      peg$c85 = function(args) {
             return args === null ? {
               node:     'ThisExpression',
               qualifier: null
-            } : { 
-              node:         'ConstructorInvocation', 
-              arguments:     args, 
-              typeArguments: [] 
-            }; 
+            } : {
+              node:         'ConstructorInvocation',
+              arguments:     args,
+              typeArguments: []
+            };
           },
-      peg$c86 = function(suffix) { 
-            return suffix.node === 'SuperConstructorInvocation' 
+      peg$c86 = function(suffix) {
+            return suffix.node === 'SuperConstructorInvocation'
               ? suffix
-              : mergeProps(suffix, { qualifier: null }); 
+              : mergeProps(suffix, { qualifier: null });
           },
       peg$c87 = function(creator) { return creator; },
       peg$c88 = function(type, dims) {
             return {
               node: 'TypeLiteral',
+              location: location(),
               type:  buildArrayTree(type, dims)
             };
           },
       peg$c89 = function() {
             return {
               node: 'TypeLiteral',
+              location: location(),
               type:  makePrimitive('void')
             };
           },
-      peg$c90 = function(qual, dims) { 
+      peg$c90 = function(qual, dims) {
             return {
               node: 'TypeLiteral',
+              location: location(),
               type:  buildArrayTree(buildTypeName(qual, null, []), dims)
             };
           },
-      peg$c91 = function(qual, expr) { return { node: 'ArrayAccess', array: qual, index: expr }; },
-      peg$c92 = function(qual, args) { 
-            return mergeProps(popQualified(qual), { 
+      peg$c91 = function(qual, expr) { return { node: 'ArrayAccess',  location: location(), array: qual, index: expr }; },
+      peg$c92 = function(qual, args) {
+            return mergeProps(popQualified(qual), {
               node:         'MethodInvocation',
               location:      location(),
-              arguments:     args, 
-              typeArguments: [] 
-            }); 
+              arguments:     args,
+              typeArguments: []
+            });
           },
-      peg$c93 = function(qual) { return { node: 'TypeLiteral', type: buildTypeName(qual, null, []) }; },
-      peg$c94 = function(qual, ret) { 
+      peg$c93 = function(qual) { return { node: 'TypeLiteral', location: location(), type: buildTypeName(qual, null, []) }; },
+      peg$c94 = function(qual, ret) {
             if (ret.expression) return TODO(/* Ugly ! */);
             ret.expression = qual;
-            return ret; 
+            return ret;
           },
       peg$c95 = function(qual) { return { node: 'ThisExpression', qualifier: qual }; },
       peg$c96 = function(qual, args) {
-            return { 
+            return {
               node:         'SuperConstructorInvocation',
               location:      location(),
-              arguments:     args, 
+              arguments:     args,
               expression:    qual,
               typeArguments: []
-            };  
+            };
           },
       peg$c97 = function(qual, args, rest) { return mergeProps(rest, { expression: qual, typeArguments: optionalList(args) }); },
       peg$c98 = function() { return []; },
       peg$c99 = function(suffix) { return suffix; },
       peg$c100 = function(id, args) { return { node: 'MethodInvocation', location: location(), arguments: args, name: id, typeArguments: [] }; },
       peg$c101 = function(op) { return op[0]; /* remove ending spaces */ },
-      peg$c102 = function(id) { return { node: 'FieldAccess', name: id }; },
+      peg$c102 = function(id) { return { node: 'FieldAccess', location: location(), name: id }; },
       peg$c103 = function(ret) { return ret; },
       peg$c104 = function() { return TODO(/* Any sample ? */); },
       peg$c105 = function(args, ret) { return mergeProps(ret, { typeArguments: optionalList(args) }); },
-      peg$c106 = function(expr) { return { node: 'ArrayAccess', index: expr }; },
-      peg$c107 = function(args) { 
-            return { 
+      peg$c106 = function(expr) { return { node: 'ArrayAccess',  location: location(), index: expr }; },
+      peg$c107 = function(args) {
+            return {
               node:         'SuperConstructorInvocation',
               location:      location(),
-              arguments:     args, 
+              arguments:     args,
               expression:    null,
               typeArguments: []
-            }; 
+            };
           },
-      peg$c108 = function(gen, id, args) { 
+      peg$c108 = function(gen, id, args) {
             return args === null ? {
               node: 'SuperFieldAccess',
-              name:  id  
-            } : { 
+              location: location(),
+              name:  id
+            } : {
               node:         'SuperMethodInvocation',
               location:      location(),
               typeArguments: optionalList(gen),
-              name:          id, 
+              name:          id,
               arguments:     args
-            }; 
+            };
           },
       peg$c109 = "byte",
       peg$c110 = peg$literalExpectation("byte", false),
@@ -727,13 +736,13 @@ function peg$parse(input, options) {
       peg$c124 = peg$literalExpectation("boolean", false),
       peg$c125 = function(type) { return makePrimitive(type); },
       peg$c126 = function(args) { return optionalList(args); },
-      peg$c127 = function(type, rest) { 
-            return  { 
-              node:       'ArrayCreation', 
-              type:        buildArrayTree(type, rest.extraDims), 
+      peg$c127 = function(type, rest) {
+            return  {
+              node:       'ArrayCreation',
+              type:        buildArrayTree(type, rest.extraDims),
               initializer: rest.init,
               dimensions:  rest.dimms
-            }; 
+            };
           },
       peg$c128 = function(args, type, rest) {
             return mergeProps(rest, {
@@ -745,12 +754,12 @@ function peg$parse(input, options) {
             });
           },
       peg$c129 = function(qual, args, rest) { return buildTypeName(qual, args, rest); },
-      peg$c130 = function(id, args, rest) { 
+      peg$c130 = function(id, args, rest) {
             return mergeProps(rest, {
               node: 'ClassInstanceCreation',
               location: location(),
               type:  buildTypeName(id, args, [])
-            });  
+            });
           },
       peg$c131 = function(args, body) {
             return {
@@ -778,9 +787,9 @@ function peg$parse(input, options) {
               node:      'WildcardType',
               upperBound: extractOptional(rest, 0, true),
               bound:      extractOptional(rest, 1)
-            }; 
+            };
           },
-      peg$c145 = function(id, bounds) { 
+      peg$c145 = function(id, bounds) {
             return {
               node:      'TypeParameter',
               name:       id,
@@ -810,41 +819,41 @@ function peg$parse(input, options) {
       peg$c166 = "strictfp",
       peg$c167 = peg$literalExpectation("strictfp", false),
       peg$c168 = function(keyword) { return makeModifier(keyword); },
-      peg$c169 = function(id, body) { 
+      peg$c169 = function(id, body) {
             return {
               node:            'AnnotationTypeDeclaration',
               name:             id,
               bodyDeclarations: body
-            }; 
+            };
           },
       peg$c170 = function(decl) { return skipNulls(decl); },
       peg$c171 = function(modifiers, rest) { return mergeProps(rest, { modifiers: modifiers }); },
       peg$c172 = function(type, rest) { return mergeProps(rest, { type: type }); },
-      peg$c173 = function(id, def) { 
-            return { 
-              node:   'AnnotationTypeMemberDeclaration', 
-              name:    id, 
-              default: def 
-            }; 
+      peg$c173 = function(id, def) {
+            return {
+              node:   'AnnotationTypeMemberDeclaration',
+              name:    id,
+              default: def
+            };
           },
       peg$c174 = function(fragments) { return { node: 'FieldDeclaration', location:  location(),  fragments: fragments }; },
       peg$c175 = function(val) { return val; },
-      peg$c176 = function(id, pairs) { 
-            return { 
-              node:    'NormalAnnotation', 
-              typeName: id, 
+      peg$c176 = function(id, pairs) {
+            return {
+              node:    'NormalAnnotation',
+              typeName: id,
               values:   optionalList(pairs)
-            }; 
+            };
           },
-      peg$c177 = function(id, value) { 
-            return { 
-              node:    'SingleMemberAnnotation', 
-              typeName: id, 
-              value:    value 
-            }; 
+      peg$c177 = function(id, value) {
+            return {
+              node:    'SingleMemberAnnotation',
+              typeName: id,
+              value:    value
+            };
           },
       peg$c178 = function(id) { return { node: 'MarkerAnnotation', typeName: id }; },
-      peg$c179 = function(name, value) { 
+      peg$c179 = function(name, value) {
             return {
               node: 'MemberValuePair',
               name:  name,
@@ -862,7 +871,7 @@ function peg$parse(input, options) {
       peg$c188 = peg$literalExpectation("//", false),
       peg$c189 = /^[\r\n]/,
       peg$c190 = peg$classExpectation(["\r", "\n"], false, false),
-      peg$c191 = function(first, rest) { return { identifier: first + rest, node: 'SimpleName' }; },
+      peg$c191 = function(first, rest) { return { identifier: first + rest, node: 'SimpleName', location: location() }; },
       peg$c192 = /^[a-z]/,
       peg$c193 = peg$classExpectation([["a", "z"]], false, false),
       peg$c194 = /^[A-Z]/,
@@ -939,13 +948,13 @@ function peg$parse(input, options) {
       peg$c265 = peg$literalExpectation("void", false),
       peg$c266 = "while",
       peg$c267 = peg$literalExpectation("while", false),
-      peg$c268 = function() { return { node: 'BooleanLiteral', booleanValue: true }; },
-      peg$c269 = function() { return { node: 'BooleanLiteral', booleanValue: false }; },
-      peg$c270 = function() { return { node: 'NullLiteral' }; },
+      peg$c268 = function() { return { node: 'BooleanLiteral', booleanValue: true, location: location() }; },
+      peg$c269 = function() { return { node: 'BooleanLiteral', booleanValue: false, location: location() }; },
+      peg$c270 = function() { return { node: 'NullLiteral', location: location() }; },
       peg$c271 = function(literal) { return literal; },
       peg$c272 = /^[lL]/,
       peg$c273 = peg$classExpectation(["l", "L"], false, false),
-      peg$c274 = function() { return { node: 'NumberLiteral', token: text() }; },
+      peg$c274 = function() { return { node: 'NumberLiteral', token: text(), location: location() }; },
       peg$c275 = "0",
       peg$c276 = peg$literalExpectation("0", false),
       peg$c277 = /^[1-9]/,
@@ -982,12 +991,12 @@ function peg$parse(input, options) {
       peg$c308 = peg$literalExpectation("'", false),
       peg$c309 = /^['\\\n\r]/,
       peg$c310 = peg$classExpectation(["'", "\\", "\n", "\r"], false, false),
-      peg$c311 = function() { return { node: 'CharacterLiteral', escapedValue: text() }; },
+      peg$c311 = function() { return { node: 'CharacterLiteral', escapedValue: text(), location: location() }; },
       peg$c312 = "\"",
       peg$c313 = peg$literalExpectation("\"", false),
       peg$c314 = /^["\\\n\r]/,
       peg$c315 = peg$classExpectation(["\"", "\\", "\n", "\r"], false, false),
-      peg$c316 = function() { return { node: 'StringLiteral', escapedValue: text() }; },
+      peg$c316 = function() { return { node: 'StringLiteral', escapedValue: text(), location: location() }; },
       peg$c317 = "\\",
       peg$c318 = peg$literalExpectation("\\", false),
       peg$c319 = /^[btnfr"'\\]/,
@@ -13836,6 +13845,7 @@ function peg$parse(input, options) {
         return {
           node:        'InfixExpression',
           operator:     element[0][0], // remove ending Spacing
+          location:     location(),
           leftOperand:  result,
           rightOperand: element[1]
         };
@@ -13843,10 +13853,11 @@ function peg$parse(input, options) {
     }
 
     function buildQualified(first, rest, index) {
-      return buildTree(first, rest, 
+      return buildTree(first, rest,
         function(result, element) {
           return {
             node:     'QualifiedName',
+            location:  location(),
             qualifier: result,
             name:      element[index]
           };
@@ -13855,30 +13866,30 @@ function peg$parse(input, options) {
     }
 
     function popQualified(tree) {
-      return tree.node === 'QualifiedName' 
+      return tree.node === 'QualifiedName'
         ? { name: tree.name, expression: tree.qualifier }
         : { name: tree, expression: null };
     }
 
     function extractThrowsClassType(list) {
-      return list.map(function(node){ 
-        return node.name; 
+      return list.map(function(node){
+        return node.name;
       });
     }
 
     function extractExpressions(list) {
-      return list.map(function(node) { 
-        return node.expression; 
+      return list.map(function(node) {
+        return node.expression;
       });
     }
 
     function buildArrayTree(first, rest) {
-      return buildTree(first, rest, 
+      return buildTree(first, rest,
         function(result, element) {
         return {
           node:         'ArrayType',
           componentType: result
-        }; 
+        };
       });
     }
 
@@ -13902,16 +13913,16 @@ function peg$parse(input, options) {
     }
 
     function makeModifier(keyword) {
-      return { 
-        node:   'Modifier', 
-        keyword: keyword 
+      return {
+        node:   'Modifier',
+        keyword: keyword
       };
     }
 
     function makeCatchFinally(catchClauses, finallyBlock) {
-        return { 
-          catchClauses: catchClauses, 
-          finally:      finallyBlock 
+        return {
+          catchClauses: catchClauses,
+          finally:      finallyBlock
         };
     }
 
@@ -13928,7 +13939,7 @@ function peg$parse(input, options) {
         typeArguments: args
       };
 
-      return buildTree(first, rest, 
+      return buildTree(first, rest,
         function(result, element) {
           var args = element[2];
           return args === null ? {
@@ -13955,8 +13966,8 @@ function peg$parse(input, options) {
         if (props.hasOwnProperty(key)) {
           if (obj.hasOwnProperty(key)) {
             throw new Error(
-              'Property ' + key + ' exists ' + line() + '\n' + text() + 
-              '\nCurrent value: ' + JSON.stringify(obj[key], null, 2) + 
+              'Property ' + key + ' exists ' + line() + '\n' + text() +
+              '\nCurrent value: ' + JSON.stringify(obj[key], null, 2) +
               '\nNew value: ' + JSON.stringify(props[key], null, 2)
             );
           } else {
@@ -13979,7 +13990,7 @@ function peg$parse(input, options) {
             return { expression: v };
         }
       }
-      return buildTree(mergeProps(sel, getMergeVal(sel, arg)), 
+      return buildTree(mergeProps(sel, getMergeVal(sel, arg)),
         sels, function(result, element) {
           return mergeProps(element, getMergeVal(element, result));
       });

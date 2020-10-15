@@ -12,7 +12,8 @@ class TypeInformation {
 }
 
 class CodeFile {
-    constructor(sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
+    constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
+        this.filename = filename;
         this.sourceCode = sourceCode;
         this.trCodeLines = trCodeLines;
         this.abstractSyntaxTree = abstractSyntaxTree;
@@ -67,12 +68,12 @@ class Options {
         this.submitServerProjectName = submitServerProjectName;
         this.filesToCheck = filesToCheck;
         this.moduleOptions = {
-            "keywordModule": keywordModule.getDefaultOptions(),
-            "namingModule": namingModule.getDefaultOptions(),
-            "methodCallModule": methodCallModule.getDefaultOptions(),
-            "indentationModule": indentationModule.getDefaultOptions(),
-            "spacingModule": spacingModule.getDefaultOptions(),
-            "braceStyleModule": braceStyleModule.getDefaultOptions()
+            "keywordModule": keyword_module.getDefaultOptions(),
+            "namingModule": naming_module.getDefaultOptions(),
+            "methodCallModule": method_call_module.getDefaultOptions(),
+            "indentationModule": indentation_module.getDefaultOptions(),
+            "spacingModule": spacing_module.getDefaultOptions(),
+            "braceStyleModule": brace_style_module.getDefaultOptions()
         };
     }
 }
@@ -102,7 +103,7 @@ function readCodeFilesFromServer(fileDescriptors, callback) {
                 const currentDescriptor = fileDescriptors[processedCount];
                 // relies on https://github.com/Algomorph/jsjavaparser
                 const abstractSyntaxTree = parseJavaCode(data);
-                codeFiles.set(currentDescriptor.name, new CodeFile(data, null, abstractSyntaxTree, 0, 0));
+                codeFiles.set(currentDescriptor.name, new CodeFile(currentDescriptor.name, data, null, abstractSyntaxTree, 0, 0));
                 processedCount++;
                 if (processedCount === fileCount) {
                     callback(codeFiles);
@@ -139,7 +140,7 @@ function getCheckedFileCode(filesToCheck) {
             const fileCode = fileCodeLines.join("\n");
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
 
-            fileDictionary.set(filename, new CodeFile(fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
+            fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
         }
     );

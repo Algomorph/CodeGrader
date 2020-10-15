@@ -81,15 +81,15 @@ function constructUiPanel(options) {
         }
 
 
-        keywordModule.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
-        namingModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
-        methodCallModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
-        indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
-        spacingModule.initialize(uiPanel, trCodeLines, options.moduleOptions.spacingModule);
+        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
+        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
+        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
+        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
+        spacing_module.initialize(uiPanel, trCodeLines, options.moduleOptions.spacingModule);
     }
 
 
-    gradeServerModule.initialize(uiPanel);
+    grade_server_module.initialize(uiPanel);
 }
 
 $(document).ready(function () {
