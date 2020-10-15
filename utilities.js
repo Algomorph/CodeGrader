@@ -1,5 +1,41 @@
 // UTILITY FUNCTIONS & CLASSES
 
+
+class TypeInformation {
+    constructor() {
+        this.methodCalls = [];
+        this.declarations = [];
+        this.ternaryExpressions = [];
+        this.binaryExpressions = [];
+        this.unaryExpressions = [];
+    }
+}
+
+class CodeFile {
+    constructor(sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
+        this.sourceCode = sourceCode;
+        this.trCodeLines = trCodeLines;
+        this.abstractSyntaxTree = abstractSyntaxTree;
+        this.parseError = parseError;
+        this.fromLineIndex = fromLineIndex;
+        this.toLineIndex = toLineIndex;
+
+        this.types = new Map();
+    }
+}
+
+function parseJavaCode(fileCode) {
+    let abstractSyntaxTree = null;
+    let parseError = null;
+    try {
+        // relies on https://github.com/Algomorph/jsjavaparser
+        abstractSyntaxTree = JavaParser.parse(fileCode);
+    } catch (err) {
+        parseError = err;
+    }
+    return [abstractSyntaxTree, parseError]
+}
+
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
@@ -52,28 +88,7 @@ function restoreOptions(callback) {
 }
 
 
-class CodeFile {
-    constructor(sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
-        this.sourceCode = sourceCode;
-        this.trCodeLines = trCodeLines;
-        this.abstractSyntaxTree = abstractSyntaxTree;
-        this.parseError = parseError;
-        this.fromLineIndex = fromLineIndex;
-        this.toLineIndex = toLineIndex;
-    }
-}
 
-function parseJava(fileCode) {
-    let abstractSyntaxTree = null;
-    let parseError = null;
-    try {
-        // relies on https://github.com/Algomorph/jsjavaparser
-        abstractSyntaxTree = JavaParser.parse(fileCode);
-    } catch (err) {
-        parseError = err;
-    }
-    return [abstractSyntaxTree, parseError]
-}
 
 function readCodeFilesFromServer(fileDescriptors, callback) {
     const fileCount = fileDescriptors.length;
@@ -85,8 +100,9 @@ function readCodeFilesFromServer(fileDescriptors, callback) {
             descriptor.url,
             function (data) {
                 const currentDescriptor = fileDescriptors[processedCount];
-                const [abstractSyntaxTree, parseError] = parseJava(data);
-                codeFiles.set(currentDescriptor.name, new CodeFile(data, null, abstractSyntaxTree, parseError, 0, 0));
+                // relies on https://github.com/Algomorph/jsjavaparser
+                const abstractSyntaxTree = parseJavaCode(data);
+                codeFiles.set(currentDescriptor.name, new CodeFile(data, null, abstractSyntaxTree, 0, 0));
                 processedCount++;
                 if (processedCount === fileCount) {
                     callback(codeFiles);
@@ -121,7 +137,7 @@ function getCheckedFileCode(filesToCheck) {
             );
             const iEndLine = iLine;
             const fileCode = fileCodeLines.join("\n");
-            const [abstractSyntaxTree, parseError] = parseJava(fileCode);
+            const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
 
             fileDictionary.set(filename, new CodeFile(fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
@@ -271,8 +287,8 @@ function codeTextToHtmlText(text) {
 
     while (i--) {
         let iC = text[i].charCodeAt();
-        if (iC < 65 || iC > 127 || (iC>90 && iC<97)) {
-            parts[i] = '&#'+iC+';';
+        if (iC < 65 || iC > 127 || (iC > 90 && iC < 97)) {
+            parts[i] = '&#' + iC + ';';
         } else {
             parts[i] = text[i];
         }
@@ -288,7 +304,7 @@ function codeTextToHtmlText(text) {
  * @param {string} keywordToReplaceWith
  * @return {string} text without string literals
  */
-function stripStringsFromCode(text, replaceWithKeyword= false, keywordToReplaceWith = "STRING_LITERAL") {
+function stripStringsFromCode(text, replaceWithKeyword = false, keywordToReplaceWith = "STRING_LITERAL") {
     let parts = text.split(/(?<!\\)\"/);
     let newParts = [];
     for (let i_part = 0; i_part < parts.length; i_part++) {
@@ -312,6 +328,6 @@ function stripCommentsFromCode(text) {
     return text.replace(/\/\*[^*]*$|^[^*]*\*\/|\/\/.*$|\/\*[^*]*\*\//g, "");
 }
 
-function stripGenericArgumentsFromCode(text){
+function stripGenericArgumentsFromCode(text) {
     return text.replace(/<\s*\w*\s*>/g, "");
 }

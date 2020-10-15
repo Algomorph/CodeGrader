@@ -69,11 +69,14 @@ function constructUiPanel(options) {
     } else {
         scrollToFirstFile(filesToCheck);
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
-        for (const [fileName, fileCode] of codeFileDictionary.entries()) {
-            if (fileCode.parseError !== null) {
+        for(const codeFile of codeFileDictionary.values()){
+            code_analysis.findEntitiesInCodeFileAst(codeFile);
+        }
+        for (const [fileName, codeFile] of codeFileDictionary.entries()) {
+            if (codeFile.parseError !== null) {
                 $(uiPanel).append(makeWarning("Note: parse error in file '" + fileName +
                     "'. Please check developer console for details. Disabling modules that depend on static code analysis for this file."));
-                console.log(fileCode.parseError);
+                console.log(codeFile.parseError);
             }
         }
 
