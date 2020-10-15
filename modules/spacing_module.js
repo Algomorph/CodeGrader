@@ -62,21 +62,22 @@ let spacingModule = {};
                 if (spaceBefore !== " " || spaceAfter !== " ") {
                     let message = null;
                     if (spaceBefore !== " " && spaceAfter !== " ") {
-                        message = "Operator '" + operator + "' needs a single space before and after it.";
+                        message = "Operator " + operator + " needs a single space before and after it.";
                         //FIXME remove commented code after most debugging is done
                         // console.log(code);
                         // console.log(match);
                     } else if (spaceBefore !== " ") {
-                        message = "Operator '" + operator + "' needs a single space before it.";
+                        message = "Operator " + operator + " needs a single space before it.";
                         // console.log(code);
                         // console.log(match);
                     } else {
-                        message = "Operator '" + operator + "' needs a single space after it.";
+                        message = "Operator " + operator + " needs a single space after it.";
                         // console.log(code);
-                        // console.log(match);
+                        console.log(match);
+                        console.log(spaceAfter);
                     }
                     $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
-                    addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
+                    addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#41a854");
                 }
             }
         });
