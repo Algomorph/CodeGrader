@@ -423,6 +423,7 @@ let code_analysis = {};
                 break;
             case "Assignment":
                 scope.children = [astNode.leftHandSide, astNode.rightHandSide];
+                enclosingTypeInformation.assignments.push(astNode);
                 continueProcessingCurrentScope();
                 break;
             case "SuperMethodInvocation":

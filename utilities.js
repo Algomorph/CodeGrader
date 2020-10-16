@@ -8,6 +8,7 @@ class TypeInformation {
         this.ternaryExpressions = [];
         this.binaryExpressions = [];
         this.unaryExpressions = [];
+        this.assignments = []
     }
 }
 

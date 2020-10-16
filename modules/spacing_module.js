@@ -6,9 +6,13 @@ let spacing_module = {};
         /**
          * Build default options
          * @param {boolean} enabled whether the module is enabled.
+         * @param {boolean} checkSpacingAroundBinaryOperators
+         * @param {boolean} checkSpacingAroundAssignmentOperators
          */
-        constructor(enabled = false) {
+        constructor(enabled = false, checkSpacingAroundBinaryOperators = true, checkSpacingAroundAssignmentOperators = true) {
             this.enabled = enabled;
+            this.checkSpacingAroundBinaryOperators = checkSpacingAroundBinaryOperators;
+            this.checkSpacingAroundAssignmentOperators = checkSpacingAroundAssignmentOperators;
         }
     }
 
@@ -33,32 +37,76 @@ let spacing_module = {};
         for (const codeFile of codeFileDictionary.values()) {
 
             for (const typeInformation of codeFile.types.values()) {
-                for (const binaryExpression of typeInformation.binaryExpressions) {
-                    const textBetweenOperandsStart = code_analysis.getOperandEnd(binaryExpression.leftOperand);
+                let expressionsToIterateOver = [];
+                if (options.checkSpacingAroundBinaryOperators) {
+                    expressionsToIterateOver.push(...typeInformation.binaryExpressions);
+                }
+                if (options.checkSpacingAroundAssignmentOperators) {
+                    expressionsToIterateOver.push(...typeInformation.assignments);
+                }
+                for (const expression of expressionsToIterateOver) {
+                    let leftHandSide = null;
+                    let rightHandSide = null;
+                    switch (expression.node) {
+                        case "InfixExpression":
+                            leftHandSide = expression.leftOperand;
+                            rightHandSide = expression.rightOperand;
+                            break;
+                        case "Assignment":
+                            leftHandSide = expression.leftHandSide;
+                            rightHandSide = expression.rightHandSide;
+                            break;
+                    }
+
+                    const textBetweenOperandsStart = code_analysis.getOperandEnd(leftHandSide);
                     const startCodeLine = codeFile.codeLines[textBetweenOperandsStart.line - 1];
-                    const startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
+                    let startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
                     if (startCodeLineBeforeOperator.endsWith(" ")) {
                         const extraSpaces = startCodeLineBeforeOperator.match(/\s+$/)[0];
                         textBetweenOperandsStart.column -= extraSpaces.length;
                         textBetweenOperandsStart.offset -= extraSpaces.length;
+                        startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
                     }
-                    const textBetweenOperandsEnd = code_analysis.getOperandStart(binaryExpression.rightOperand);
+                    const textBetweenOperandsEnd = code_analysis.getOperandStart(rightHandSide);
                     const endCodeLine = codeFile.codeLines[textBetweenOperandsEnd.line - 1];
-                    const endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
-                    if (endCodeLineAfterOperator.startsWith(" ")){
+                    let endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
+
+                    if (endCodeLineAfterOperator.startsWith(" ")) {
                         const extraSpaces = endCodeLineAfterOperator.match(/^\s+/)[0];
                         textBetweenOperandsEnd.column += extraSpaces.length;
                         textBetweenOperandsEnd.offset += extraSpaces.length;
+                        endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
                     }
 
-                    const textBetweenOperands = codeFile.sourceCode.substring(textBetweenOperandsStart.offset, textBetweenOperandsEnd.offset);
+                    let textBetweenOperands = codeFile.sourceCode.substring(textBetweenOperandsStart.offset, textBetweenOperandsEnd.offset);
+                    const newKeywordMatch = textBetweenOperands.match(/.*(new\s*)$/);
+                    if (newKeywordMatch) {
+                        textBetweenOperands = textBetweenOperands.replace(newKeywordMatch[1], "");
+                        textBetweenOperandsEnd.column -= newKeywordMatch[1];
+                        textBetweenOperandsEnd.offset -= newKeywordMatch[1];
+                        endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
+                    }
 
-                    const operator = binaryExpression.operator;
+                    const operator = expression.operator;
                     const operatorRegexPart = operator.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
                     let checkSpacesBefore = true;
                     let checkSpacesAfter = true;
+
+                    // ]not guaranteed to work on broken lines w/ end of left expression on a line above the operator
+                    if (startCodeLineBeforeOperator.match(/^\s*$/)) {
+                        // line break in expression before operator => only blank space before the operator
+                        checkSpacesBefore = false;
+                    }
+
+                    // ]not guaranteed to work on broken lines w/ start of right expression on a line below the operator
+                    if(endCodeLineAfterOperator.match(/^\s*$/)){
+                        // line break in expression after operator => only blank space after the operator
+                        checkSpacesAfter = false;
+                    }
+
                     if (textBetweenOperandsStart.line !== textBetweenOperandsEnd.line) {
-                        // line break in expression
+                        // line break in expression (not guaranteed to work on all multi-line expressions,
+                        // the above two checks are also necessary)
                         const startingWithOperatorPattern = new RegExp("^\\s*" + operatorRegexPart + ".*");
                         const endingWithOperatorPattern = new RegExp(".*" + operatorRegexPart + "\\s*$");
                         if (endCodeLine.match(startingWithOperatorPattern)) {
@@ -69,6 +117,7 @@ let spacing_module = {};
                             checkSpacesBefore = checkSpacesAfter = false;
                         }
                     }
+
                     const whitespace = textBetweenOperands.split(operator);
                     const whitespaceBefore = whitespace[0];
                     const whitespaceAfter = whitespace[1];
@@ -80,13 +129,13 @@ let spacing_module = {};
                         if (badSpaceBefore && badSpaceAfter) {
                             message = "Operator '" + operator + "' needs a single space before and after it.";
                             trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
-                            // console.log(badSpaceBefore.length, operator, badSpaceAfter.length)
                         } else if (badSpaceBefore) {
                             message = "Operator '" + operator + "' needs a single space before it.";
                             trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
                         } else {
                             message = "Operator '" + operator + "' needs a single space after it.";
                             trCodeLine = codeFile.trCodeLines[textBetweenOperandsEnd.line - 1];
+
                         }
                         $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
                         addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
