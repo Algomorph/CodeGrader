@@ -1,0 +1,54 @@
+{
+    "filesToCheck": [
+        "src/blackjack/Blackjack.java"
+    ],
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": true,
+            "ignoredNames": {
+                "WebPage": [
+                    "findElem",
+                    "stats"
+                ],
+                "global": []
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        }
+    },
+    "module_options": {
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerProjectName": "Proj 1",
+    "year": "2020"
+}

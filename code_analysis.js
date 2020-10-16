@@ -34,6 +34,7 @@ let code_analysis = {};
         CAST: 7
     }
 
+
     this.DeclarationType = DeclarationType;
 
     let DeclarationTypeByNode = {
@@ -69,6 +70,7 @@ let code_analysis = {};
         [DeclarationType.CAST, NameType.NONE],
     ]);
 
+
     class Declaration {
         constructor(name, typeName, typeArguments, astNode, codeFile) {
             this.name = name;
@@ -100,7 +102,6 @@ let code_analysis = {};
         }
     }
 
-
     class Scope {
         constructor(astNode, declarations, children, scopeStack) {
             this.astNode = astNode;
@@ -108,8 +109,14 @@ let code_analysis = {};
             for (const declaration of declarations) {
                 this.declarations.set(declaration.name, declaration);
             }
-            this.children = children;
+            this.childAstNodes = children;
+            this.unprocessedChildAstNodes = children;
             this.scopeStack = scopeStack;
+        }
+
+        addChildAstNodes(children) {
+            this.childAstNodes.push(...children);
+            this.unprocessedChildAstNodes = children;
         }
     }
 
@@ -325,7 +332,6 @@ let code_analysis = {};
         let currentScopeFullyProcessed = true;
 
         function continueProcessingCurrentScope() {
-            branchScopes.push(scope);
             currentScopeFullyProcessed = false;
         }
 
@@ -352,28 +358,31 @@ let code_analysis = {};
                 }
                 break;
             case "Block":
-                scope.children = astNode.statements;
+                scope.addChildAstNodes(astNode.statements);
                 continueProcessingCurrentScope();
                 break;
             case "IfStatement":
-                scope.children = [astNode.expression];
+                scope.addChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
-                branchScopes.push(new Scope(astNode.thenStatement, [], [astNode.thenStatement], scope.scopeStack.concat([scope])));
+                branchScopes.push(new Scope(astNode, [], [astNode.thenStatement], scope.scopeStack.concat([scope])));
                 if (astNode.elseStatement !== null) {
                     branchScopes.push(new Scope(astNode.elseStatement, [], [astNode.elseStatement], scope.scopeStack.concat([scope])));
                 }
                 break;
             case "ForStatement":
                 for (const initializer of astNode.initializers) {
-                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(initializer.type);
-                    for (const fragment of initializer.fragments) {
-                        branchScopeDeclarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer, codeFile));
+                    if (initializer.hasOwnProperty("fragments")) {
+                        // only add declaration(s) in case assignment(s) to existing variable(s) isn't/aren't used as initializer(s)
+                        const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(initializer.type);
+                        for (const fragment of initializer.fragments) {
+                            branchScopeDeclarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer, codeFile));
+                        }
                     }
                 }
                 branchScopes.push(
                     new Scope(
                         astNode, branchScopeDeclarations,
-                        astNode.updaters.concat([astNode.expression], astNode.initializers, astNode.body.statements),
+                        astNode.updaters.concat([astNode.expression], astNode.initializers, astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]),
                         scope.scopeStack.concat([scope])
                     )
                 );
@@ -388,8 +397,7 @@ let code_analysis = {};
                 );
                 break;
             case "SwitchStatement":
-                scope.children = astNode.statements.map(switchCase => switchCase.expression);
-                scope.children.push(astNode.expression);
+                scope.addChildAstNodes(astNode.statements.map(switchCase => switchCase.expression).concat([astNode.expression]));
                 continueProcessingCurrentScope();
                 break;
             case "ExpressionStatement":
@@ -399,8 +407,10 @@ let code_analysis = {};
             case "ParenthesizedExpression":
             case "ReturnStatement":
             case "ThrowStatement":
-                scope.children = [astNode.expression];
-                continueProcessingCurrentScope();
+                if (astNode.expression != null) {
+                    scope.addChildAstNodes([astNode.expression]);
+                    continueProcessingCurrentScope();
+                }
                 break;
             case "TryStatement":
                 branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
@@ -418,29 +428,29 @@ let code_analysis = {};
                 break;
             case "InstanceOfExpression":
             case "InfixExpression":
-                scope.children = [astNode.leftOperand, astNode.rightOperand];
+                scope.addChildAstNodes([astNode.leftOperand, astNode.rightOperand]);
                 enclosingTypeInformation.binaryExpressions.push(astNode);
                 continueProcessingCurrentScope();
                 break;
             case "PrefixExpression":
-                scope.children = [astNode.operand];
+                scope.addChildAstNodes([astNode.operand]);
                 continueProcessingCurrentScope();
                 break;
             case "Assignment":
-                scope.children = [astNode.leftHandSide, astNode.rightHandSide];
+                scope.addChildAstNodes([astNode.leftHandSide, astNode.rightHandSide]);
                 enclosingTypeInformation.assignments.push(astNode);
                 continueProcessingCurrentScope();
                 break;
             case "SuperMethodInvocation":
                 enclosingTypeInformation.methodCalls.push(new MethodCall("super.",
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD));
-                scope.children = astNode.arguments;
+                scope.addChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             case "SuperConstructorInvocation":
                 enclosingTypeInformation.methodCalls.push(new MethodCall("super(",
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
-                scope.children = astNode.arguments;
+                scope.addChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
@@ -449,11 +459,11 @@ let code_analysis = {};
                 enclosingTypeInformation.methodCalls.push(new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR));
             }
-                scope.children = astNode.arguments;
+                scope.addChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             case "FieldAccess":
-                scope.children = [astNode.expression];
+                scope.unprocessedChildAstNodes = [astNode.expression];
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
@@ -461,9 +471,9 @@ let code_analysis = {};
                 let name = this.determineMethodOwningClassFromInvocation(astNode, fullScopeStack, codeFile);
                 enclosingTypeInformation.methodCalls.push(new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
-                scope.children = astNode.arguments;
+                scope.unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                    scope.children.push(astNode.expression);
+                    scope.unprocessedChildAstNodes.push(astNode.expression);
                 }
                 continueProcessingCurrentScope();
             }
@@ -471,7 +481,7 @@ let code_analysis = {};
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
-                scope.children = astNode.fragments;
+                scope.unprocessedChildAstNodes = astNode.fragments;
             {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 for (const fragment of astNode.fragments) {
@@ -483,27 +493,33 @@ let code_analysis = {};
                 break;
             case "VariableDeclarationFragment":
                 if (astNode.initializer !== null) {
-                    scope.children = [astNode.initializer];
+                    scope.addChildAstNodes([astNode.initializer]);
                     continueProcessingCurrentScope();
                 }
                 break;
             case "CatchClause":
-                scope.children = astNode.body.statements;
+                scope.addChildAstNodes(astNode.body.statements);
                 continueProcessingCurrentScope();
                 break;
             default:
                 break;
         }
 
-        if (currentScopeFullyProcessed) {
-            enclosingTypeInformation.declarations.push(...scope.declarations.values());
-        }
-
         for (const branchScope of branchScopes) {
-            for (const astNode of branchScope.children) {
-                this.findEntitiesInAstNode(astNode, branchScope, codeFile, enclosingTypeInformation);
+            let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
+            for (const childAstNode of unprocessedBranchNodes) {
+                this.findEntitiesInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
             }
         }
+
+        if (!currentScopeFullyProcessed) {
+            let unprocessedBranchNodes = [...scope.unprocessedChildAstNodes];
+            for (const childAstNode of unprocessedBranchNodes) {
+                this.findEntitiesInAstNode(childAstNode, scope, codeFile, enclosingTypeInformation);
+            }
+        }
+
+        enclosingTypeInformation.scopes.push(...branchScopes);
     }
     /**
      * Finds code entities (declarations, method calls, etc.) from the AST of a code file.
@@ -516,7 +532,12 @@ let code_analysis = {};
             //iterate over classes / enums / etc.
             for (const typeNode of syntaxTree.types) {
                 let typeInformation = new TypeInformation();
-                this.findEntitiesInAstNode(typeNode, new Scope(syntaxTree, [], [], []), codeFile, typeInformation);
+                const fileScope = new Scope(syntaxTree, [], [], []);
+                typeInformation.scopes.push(fileScope);
+                this.findEntitiesInAstNode(typeNode, fileScope, codeFile, typeInformation);
+                for (const scope of typeInformation.scopes) {
+                    typeInformation.declarations.push(...scope.declarations.values());
+                }
                 codeFile.types.set(typeNode.name.identifier, typeInformation);
             }
         }

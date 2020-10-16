@@ -23,24 +23,24 @@
         "WebPageGen/src/main/java/model/TextElement.java"
     ],
     "moduleOptions": {
-        "braceStyleModule": {
-            "enabled": false
-        },
-        "indentationModule": {
+        "brace_style_module": {
             "enabled": true
         },
-        "keywordModule": {
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_module": {
             "enabled": false,
             "keywords": []
         },
-        "methodCallModule": {
+        "method_call_module": {
             "enabled": false,
             "ignoredMethods": {
                 "global": []
             },
             "showUniqueOnly": false
         },
-        "namingModule": {
+        "naming_module": {
             "allowedSpecialWords": [
                 "min",
                 "max"
@@ -53,9 +53,12 @@
                 ],
                 "global": []
             },
+            "numbersAllowedInNames": true,
             "showUniqueOnly": true
         },
-        "spacingModule": {
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
             "enabled": true
         }
     },

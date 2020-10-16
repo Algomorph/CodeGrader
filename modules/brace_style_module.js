@@ -19,18 +19,26 @@ let brace_style_module = {};
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
      * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Array.<HTMLTableRowElement>} trCodeLines
+     * @param {Map.<string,CodeFile>} codeFileDictionary
      * @param {Options} options
      */
-    this.initialize = function (uiPanel, trCodeLines, options) {
-        if(!options.enabled){
+    this.initialize = function (uiPanel, codeFileDictionary, options) {
+        if (!options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#92b9d1'>Brace Style Module</h3>");
-        $.each(trCodeLines, function (lineIndex, trCodeLine) {	// iterates each line of code below
-            let codeText = getCodeFromTrCodeLine(trCodeLine);
+        $(uiPanel).append("<h3 style='color:#843a02'>Brace Style</h3>");
 
-        });
+        for (const codeFile of codeFileDictionary.values()) {
+            console.log(codeFile.filename);
+            for (const typeInformation of codeFile.types.values()) {
+                for (const scope of typeInformation.scopes){
+                    if(scope.astNode.node === "IfStatement"){
+                        console.log(scope.astNode);
+                        console.log(codeFile.sourceCode.substring(scope.astNode.location.start.offset, scope.astNode.location.end.offset));
+                    }
+                }
+            }
+        }
     }
 
 }).apply(brace_style_module);

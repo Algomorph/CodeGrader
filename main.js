@@ -95,12 +95,12 @@ function constructUiPanel(options) {
             }
         }
 
-
-        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
-        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
-        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
-        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
-        spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacingModule);
+        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keyword_module);
+        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
+        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
+        spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
+        brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
+        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 
 

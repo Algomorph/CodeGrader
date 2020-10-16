@@ -5,10 +5,11 @@ class TypeInformation {
     constructor() {
         this.methodCalls = [];
         this.declarations = [];
+        this.scopes = [];
         this.ternaryExpressions = [];
         this.binaryExpressions = [];
         this.unaryExpressions = [];
-        this.assignments = []
+        this.assignments = [];
     }
 }
 
@@ -39,60 +40,6 @@ function parseJavaCode(fileCode) {
     }
     return [abstractSyntaxTree, parseError]
 }
-
-function getCurrentSemesterSeasonString() {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    let currentSeason = "winter";
-    if (currentMonth > 0 && currentMonth < 4) {
-        currentSeason = "spring";
-    } else if (currentMonth < 8) {
-        currentSeason = "summer";
-    } else {
-        currentSeason = "fall";
-    }
-    return currentSeason;
-}
-
-class Options {
-    /**
-     * Make an options object
-     * @param semesterSeason
-     * @param year
-     * @param submitServerProjectName
-     * @param {Array.<string>} filesToCheck
-     */
-    constructor(semesterSeason = getCurrentSemesterSeasonString(),
-                year = (new Date()).getFullYear().toString(),
-                submitServerProjectName = "",
-                filesToCheck = []) {
-        this.semesterSeason = semesterSeason;
-        this.year = year;
-        this.submitServerProjectName = submitServerProjectName;
-        this.filesToCheck = filesToCheck;
-        this.moduleOptions = {
-            "keywordModule": keyword_module.getDefaultOptions(),
-            "namingModule": naming_module.getDefaultOptions(),
-            "methodCallModule": method_call_module.getDefaultOptions(),
-            "indentationModule": indentation_module.getDefaultOptions(),
-            "spacingModule": spacing_module.getDefaultOptions(),
-            "braceStyleModule": brace_style_module.getDefaultOptions()
-        };
-    }
-}
-
-// Restores options based on values stored in chrome.storage.
-function restoreOptions(callback) {
-
-    let options = new Options();
-
-    chrome.storage.sync.get({
-        options: options
-    }, callback);
-}
-
-
-
 
 function readCodeFilesFromServer(fileDescriptors, callback) {
     const fileCount = fileDescriptors.length;

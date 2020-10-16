@@ -23,12 +23,16 @@
     }
 
     tr.r1 {
-        background: #818181;
-        background-color:#818181;
+        background-color: #717070;
     }
 
-    a, a:visited, a:hover {
+    a,
+    a:visited,
+    a:hover {
         color: #9d9db2;
+    }
+    a:link {
+        color: #c1aa8d;
     }
 
     .tray-file-view {
