@@ -15,12 +15,14 @@ class CodeFile {
     constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
         this.filename = filename;
         this.sourceCode = sourceCode;
+        this.codeLines = sourceCode.split("\n");
         this.trCodeLines = trCodeLines;
         this.abstractSyntaxTree = abstractSyntaxTree;
         this.parseError = parseError;
         this.fromLineIndex = fromLineIndex;
         this.toLineIndex = toLineIndex;
 
+        /**@type {Map.<string, TypeInformation>}*/
         this.types = new Map();
     }
 }

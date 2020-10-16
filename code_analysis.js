@@ -414,9 +414,6 @@ let code_analysis = {};
             case "InstanceOfExpression":
             case "InfixExpression":
                 scope.children = [astNode.leftOperand, astNode.rightOperand];
-                if(!astNode.leftOperand.hasOwnProperty("location") || !astNode.rightOperand.hasOwnProperty("location")){
-                    console.log(codeFile.filename, astNode);
-                }
                 enclosingTypeInformation.binaryExpressions.push(astNode);
                 continueProcessingCurrentScope();
                 break;

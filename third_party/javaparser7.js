@@ -569,6 +569,7 @@ function peg$parse(input, options) {
             return buildTree(first, rest, function(result, element) {
               return element[0][0] === 'instanceof' ? {
                 node:        'InstanceofExpression',
+                location:     location(),
                 leftOperand:  result,
                 rightOperand: element[1]
               } : {
@@ -627,6 +628,7 @@ function peg$parse(input, options) {
       peg$c85 = function(args) {
             return args === null ? {
               node:     'ThisExpression',
+              location:     location(),
               qualifier: null
             } : {
               node:         'ConstructorInvocation',
@@ -676,7 +678,7 @@ function peg$parse(input, options) {
             ret.expression = qual;
             return ret;
           },
-      peg$c95 = function(qual) { return { node: 'ThisExpression', qualifier: qual }; },
+      peg$c95 = function(qual) { return { node: 'ThisExpression', location: location(), qualifier: qual }; },
       peg$c96 = function(qual, args) {
             return {
               node:         'SuperConstructorInvocation',
@@ -739,6 +741,7 @@ function peg$parse(input, options) {
       peg$c127 = function(type, rest) {
             return  {
               node:       'ArrayCreation',
+              location:    location(),
               type:        buildArrayTree(type, rest.extraDims),
               initializer: rest.init,
               dimensions:  rest.dimms
@@ -773,8 +776,8 @@ function peg$parse(input, options) {
       peg$c132 = function(dims, init) { return { extraDims:dims, init:init, dimms: [] }; },
       peg$c133 = function(dimexpr, dims) { return { extraDims:dimexpr.concat(dims), init:null, dimms: dimexpr }; },
       peg$c134 = function(dim) { return { extraDims:[dim], init:null, dimms: [] }; },
-      peg$c135 = function(init) { return { node: 'ArrayInitializer', expressions: optionalList(init) }; },
-      peg$c136 = function(expr) { return { node: 'ParenthesizedExpression', expression: expr }; },
+      peg$c135 = function(init) { return { node: 'ArrayInitializer', location: location(), expressions: optionalList(init) }; },
+      peg$c136 = function(expr) { return { node: 'ParenthesizedExpression', location: location(), expression: expr }; },
       peg$c137 = function(first, rest) { return buildQualified(first, rest, 1); },
       peg$c138 = function(exp) { return exp; },
       peg$c139 = function(type, dims) { return buildArrayTree(type, dims); },
@@ -860,7 +863,7 @@ function peg$parse(input, options) {
               value: value
             };
           },
-      peg$c180 = function(values) { return { node: 'ArrayInitializer', expressions: optionalList(values)}; },
+      peg$c180 = function(values) { return { node: 'ArrayInitializer', location: location(), expressions: optionalList(values)}; },
       peg$c181 = /^[ \t\r\n\f]/,
       peg$c182 = peg$classExpectation([" ", "\t", "\r", "\n", "\f"], false, false),
       peg$c183 = "/*",
