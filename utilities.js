@@ -98,6 +98,15 @@ function getCheckedFileCode(filesToCheck) {
 }
 
 /**
+ * Logs the code associated with the current node to console
+ * @param {CodeFile} codeFile
+ * @param {{location : {offset: *, line: *, column: *}}} astNode
+ */
+function logNodeCode(codeFile, astNode){
+    console.log(codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset));
+}
+
+/**
  * Return the same string with first letter capitalized.
  * @param {string} string
  * @return {string}

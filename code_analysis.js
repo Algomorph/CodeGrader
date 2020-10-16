@@ -392,11 +392,24 @@ let code_analysis = {};
                 branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
             }
                 branchScopes.push(new Scope(astNode, branchScopeDeclarations,
-                    astNode.body.statements.concat([astNode.expression]),
+                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
+                    scope.scopeStack.concat([scope]))
+                );
+                break;
+            case "WhileStatement":
+                branchScopes.push(new Scope(astNode, [],
+                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
+                    scope.scopeStack.concat([scope]))
+                );
+                break;
+            case "DoStatement":
+                branchScopes.push(new Scope(astNode, [],
+                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
                     scope.scopeStack.concat([scope]))
                 );
                 break;
             case "SwitchStatement":
+                //TODO: probably not 100%, switch statement cases can have scopes too
                 scope.addChildAstNodes(astNode.statements.map(switchCase => switchCase.expression).concat([astNode.expression]));
                 continueProcessingCurrentScope();
                 break;
@@ -547,7 +560,7 @@ let code_analysis = {};
      * Get start location (in code) of the provided AST operand node
      * considering any qualifiers, sub-expressions. that might appear before it.
      * @param {Object} operandAstNode the provided AST operand node
-     * @returns {(function(*): string)|{offset: *, line: *, column: *}}
+     * @returns {{offset: *, line: *, column: *}}
      */
     this.getOperandStart = function (operandAstNode) {
         switch (operandAstNode.node) {
@@ -578,7 +591,7 @@ let code_analysis = {};
      * considering any qualifiers, sub-expressions. that might appear after it.
      *
      * @param operandAstNode
-     * @returns {(function(*): string)|{offset: *, line: *, column: *}}
+     * @returns {{offset: *, line: *, column: *}}
      */
     this.getOperandEnd = function (operandAstNode) {
         switch (operandAstNode.node) {
