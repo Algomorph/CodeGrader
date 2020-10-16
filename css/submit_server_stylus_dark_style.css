@@ -1,0 +1,38 @@
+@-moz-document domain("submit.cs.umd.edu") {
+    body {
+        color: #cfcfcf;
+        background: #333;
+        margin: 1em;
+    }
+
+    th {
+        vertical-align: bottom;
+        padding: 4px;
+        border: 1px solid #8e8e8e;
+        margin: 0px;
+        background: #4b0a0a;
+    }
+
+    a:visited {
+        color: rgb(110, 149, 187) !important;
+    }
+
+    tr.r0 {
+        background: #41403d;
+        background-color: rgb(74, 73, 69);
+    }
+
+    tr.r1 {
+        background: #818181;
+        background-color:#818181;
+    }
+
+    a, a:visited, a:hover {
+        color: #9d9db2;
+    }
+
+    .tray-file-view {
+        margin: 3px;
+        border: 2px solid #191919;
+    }
+}

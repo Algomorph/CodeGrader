@@ -516,4 +516,50 @@ let code_analysis = {};
         }
     }
 
+    /**
+     * Get start location (in code) of the provided AST operand node
+     * considering any qualifiers, sub-expressions. that might appear before it.
+     * @param {Object} operandAstNode the provided AST operand node
+     * @returns {(function(*): string)|{offset: *, line: *, column: *}}
+     */
+    this.getOperandStart = function(operandAstNode) {
+        switch (operandAstNode.node) {
+            case "MethodInvocation":
+            case "PrefixExpression":
+            case "PostfixExpression":
+            case "FieldAccess":
+                if (operandAstNode.expression != null) {
+                    return this.getOperandStart(operandAstNode.expression);
+                } else {
+                    return operandAstNode.location.start;
+                }
+            case "ArrayAccess":
+                if (operandAstNode.hasOwnProperty("array")) {
+                    return this.getOperandStart(operandAstNode.array);
+                }
+                break;
+            case "InfixExpression":
+                return this.getOperandStart(operandAstNode.leftOperand);
+            default:
+                return operandAstNode.location.start;
+        }
+
+    }
+
+    /**
+     * Get end location (in code) of the provided AST operand node
+     * considering any qualifiers, sub-expressions. that might appear after it.
+     *
+     * @param operandAstNode
+     * @returns {(function(*): string)|{offset: *, line: *, column: *}}
+     */
+    this.getOperandEnd = function (operandAstNode) {
+        switch (operandAstNode.node) {
+            case "InfixExpression":
+                return this.getOperandEnd(operandAstNode.rightOperand);
+            default:
+                return operandAstNode.location.end;
+        }
+    }
+
 }).apply(code_analysis);

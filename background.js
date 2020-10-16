@@ -43,7 +43,7 @@ function init() {
 
 function insertGrades(tab,option) {
 	chrome.tabs.executeScript(tab.id, {file:"jquery.min.js"}, function() {
-		chrome.tabs.executeScript(tab.id, {file:"insertGrades.js"}, function() {
+		chrome.tabs.executeScript(tab.id, {file:"insert_grades.js"}, function() {
 			chrome.tabs.sendMessage(tab.id, {options: option}, function() {
 				
 			});
