@@ -9,13 +9,14 @@
       {
          "all_frames": false,
          "css": [ "css/style.css"],
-         "js": [ 
+         "js": [
             "third_party/javaparser7.min.js", 
             "third_party/jquery-3.5.1.min.js", 
             "third_party/underscore-min.js", 
             "third_party/mustache.js", 
             "third_party/bootstrap.min.js",
-            "utilities.js", 
+            "code_analysis.js",
+            "utilities.js",
             "submit_server_ui.js",
             "modules/spacing_module.js",
             "modules/brace_style_module.js",

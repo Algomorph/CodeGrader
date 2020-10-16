@@ -1,4 +1,4 @@
-var gradeServerModule = {};
+let grade_server_module = {};
 
 (function() {
 
@@ -17,4 +17,4 @@ this.initialize = function(uiPanel){
 	}).appendTo(uiPanel);
 }
 
-}).apply(gradeServerModule);
+}).apply(grade_server_module);

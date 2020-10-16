@@ -69,24 +69,27 @@ function constructUiPanel(options) {
     } else {
         scrollToFirstFile(filesToCheck);
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
-        for (const [fileName, fileCode] of codeFileDictionary.entries()) {
-            if (fileCode.parseError !== null) {
+        for(const codeFile of codeFileDictionary.values()){
+            code_analysis.findEntitiesInCodeFileAst(codeFile);
+        }
+        for (const [fileName, codeFile] of codeFileDictionary.entries()) {
+            if (codeFile.parseError !== null) {
                 $(uiPanel).append(makeWarning("Note: parse error in file '" + fileName +
                     "'. Please check developer console for details. Disabling modules that depend on static code analysis for this file."));
-                console.log(fileCode.parseError);
+                console.log(codeFile.parseError);
             }
         }
 
 
-        keywordModule.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
-        namingModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
-        methodCallModule.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
-        indentationModule.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
-        spacingModule.initialize(uiPanel, trCodeLines, options.moduleOptions.spacingModule);
+        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keywordModule);
+        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
+        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
+        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
+        spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacingModule);
     }
 
 
-    gradeServerModule.initialize(uiPanel);
+    grade_server_module.initialize(uiPanel);
 }
 
 $(document).ready(function () {
