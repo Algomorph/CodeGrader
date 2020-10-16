@@ -70,13 +70,18 @@ let code_analysis = {};
     ]);
 
     class Declaration {
-        constructor(name, typeName, typeArguments, astNode) {
+        constructor(name, typeName, typeArguments, astNode, codeFile) {
             this.name = name;
             this.typeName = typeName; // for methods, the return type
             this.typeArguments = typeArguments;
             this.astNode = astNode;
             this.declarationType = DeclarationTypeByNode[astNode.node];
             this.final = false;
+            if (astNode.hasOwnProperty("location")) {
+                this.trCodeLine = codeFile.trCodeLines[astNode.location.start.line - 1];
+            } else {
+                this.trCodeLine = null;
+            }
 
             if (this.declarationType !== DeclarationType.THIS && this.declarationType !== DeclarationType.CAST) {
                 if (astNode.modifiers.map(modifier => modifier.keyword).includes("final")) {
@@ -197,7 +202,7 @@ let code_analysis = {};
                 break;
             case "CastExpression": {
                 const [typeName, typeArguments] = code_analysis.getTypeNameAndArgumentsFromTypeNode(expressionNode.type);
-                declaration = new Declaration(expressionNode.identifier, typeName, typeArguments, expressionNode);
+                declaration = new Declaration(expressionNode.identifier, typeName, typeArguments, expressionNode, codeFile);
             }
                 break;
             case "ParenthesizedExpression":
@@ -328,17 +333,17 @@ let code_analysis = {};
         switch (astNode.node) {
             case "TypeDeclaration":
                 branchScopes.push(new Scope(astNode,
-                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"})],
+                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile)],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration": {
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode));
+                scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
-                        branchScopeDeclarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter));
+                        branchScopeDeclarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter, codeFile));
                     }
                 }
                 // body will be null if it's an abstract or interface method.
@@ -362,7 +367,7 @@ let code_analysis = {};
                 for (const initializer of astNode.initializers) {
                     const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(initializer.type);
                     for (const fragment of initializer.fragments) {
-                        branchScopeDeclarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer));
+                        branchScopeDeclarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer, codeFile));
                     }
                 }
                 branchScopes.push(
@@ -375,7 +380,7 @@ let code_analysis = {};
                 break;
             case "EnhancedForStatement": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
-                branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter));
+                branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
             }
                 branchScopes.push(new Scope(astNode, branchScopeDeclarations,
                     astNode.body.statements.concat([astNode.expression]),
@@ -388,7 +393,7 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "ExpressionStatement":
-                if(astNode.hasOwnProperty("expression") && (astNode.expression.node === "PostfixExpression" || astNode.expression.node !== "PrefixExpression")){
+                if (astNode.hasOwnProperty("expression") && (astNode.expression.node === "PostfixExpression" || astNode.expression.node !== "PrefixExpression")) {
                     enclosingTypeInformation.unaryExpressions.push(astNode);
                 }
             case "ParenthesizedExpression":
@@ -403,7 +408,7 @@ let code_analysis = {};
                     for (const catchClause of astNode.catchClauses) {
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(catchClause["exception"].type);
                         branchScopes.push(new Scope(catchClause.body,
-                            [new Declaration(catchClause["exception"].name.identifier, typeName, typeArguments, catchClause["exception"])],
+                            [new Declaration(catchClause["exception"].name.identifier, typeName, typeArguments, catchClause["exception"], codeFile)],
                             [catchClause], scope.scopeStack.concat([scope])));
                     }
                 }
@@ -471,7 +476,7 @@ let code_analysis = {};
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 for (const fragment of astNode.fragments) {
                     scope.declarations.set(fragment.name.identifier,
-                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode));
+                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
                 }
             }
                 continueProcessingCurrentScope();
@@ -523,7 +528,7 @@ let code_analysis = {};
      * @param {Object} operandAstNode the provided AST operand node
      * @returns {(function(*): string)|{offset: *, line: *, column: *}}
      */
-    this.getOperandStart = function(operandAstNode) {
+    this.getOperandStart = function (operandAstNode) {
         switch (operandAstNode.node) {
             case "MethodInvocation":
             case "PrefixExpression":

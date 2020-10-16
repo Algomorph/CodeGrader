@@ -287,14 +287,14 @@ function stringDistance(s, t) {
  * @param {string} text
  */
 function codeTextToHtmlText(text) {
-    let i = text.length, parts = [];
+    let iCharacter = text.length, parts = [];
 
-    while (i--) {
-        let iC = text[i].charCodeAt();
-        if (iC < 65 || iC > 127 || (iC > 90 && iC < 97)) {
-            parts[i] = '&#' + iC + ';';
+    while (iCharacter--) {
+        let characterCode = text[iCharacter].charCodeAt(0);
+        if (characterCode < 65 || characterCode > 127 || (characterCode > 90 && characterCode < 97)) {
+            parts[iCharacter] = '&#' + characterCode + ';';
         } else {
-            parts[i] = text[i];
+            parts[iCharacter] = text[iCharacter];
         }
     }
     return parts.join('');

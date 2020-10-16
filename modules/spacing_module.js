@@ -137,6 +137,7 @@ let spacing_module = {};
                             trCodeLine = codeFile.trCodeLines[textBetweenOperandsEnd.line - 1];
 
                         }
+                        message = codeTextToHtmlText(message);
                         $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
                         addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
                     }

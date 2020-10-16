@@ -195,7 +195,8 @@ let naming_module = {};
             }
             $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, declaration.trCodeLine, labelStyleClass, problemsDescription));
             addButtonComment(
-                declaration.trCodeLine, capitalize(declaration.nameType) + " name: " + declaration.name,
+                declaration.trCodeLine,
+                capitalize(declaration.nameType) + " name: " + declaration.name,
                 defaultMessageText, color
             );
         }
