@@ -214,7 +214,8 @@ let brace_style_module = {};
             let braceErrors = [];
 
             const rootStartLine = codeFile.codeLines[astNode.location.start.line - 1];
-            const bodyEndLine = codeFile.codeLines[bodyNode.location.end.line - 1];
+            const bodyEndLine = codeFile.codeLines[bodyNode.location.end.line - 2];
+
             const statementStartColumn = getIndentationWidth(rootStartLine);
             const closingBraceColumn = getIndentationWidth(bodyEndLine);
             const openingBraceColumn = locationBeforeBrace.line === bodyNode.location.start.line ?
@@ -228,9 +229,10 @@ let brace_style_module = {};
                     // starting brace is on the same line with "if", assume 1TBS
                     matchedBraceStyles = [BraceStyle.ONE_TBS];
                     if (statementStartColumn !== closingBraceColumn) {
-                        console.log(statementStartColumn, closingBraceColumn, astNode.location.start.line);
-                        console.log(rootStartLine);
-                        console.log(bodyEndLine);
+                        console.log(codeFile.filename, statementStartColumn, closingBraceColumn, astNode.location.start.line, astNode.location.start.offset);
+                        console.log(rootStartLine, astNode.location.start.line);
+                        console.log(bodyEndLine, bodyNode.location.end.line);
+                        console.log(getNodeCode(codeFile, bodyNode));
                         braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
                     }
                 } else if (locationBeforeBrace.line === bodyNode.location.start.line - 1) {
@@ -283,13 +285,17 @@ let brace_style_module = {};
             for (const typeInformation of codeFile.types.values()) {
                 for (const scope of typeInformation.scopes) {
                     const astNode = scope.astNode;
+                    //__DEBUG
+                    // if(astNode.node === "IfStatement" && astNode.location.start.offset === 2696){
+                    //     console.log("HELLO")
+                    // }
                     handleBraceNode(astNode, codeFile, bracePairs);
                 }
             }
             if (codeFile.filename === "src/model/WebPage.java") {
                 for (const bracePair of bracePairs) {
-                    console.log(bracePair, bracePair.rootAstNode.location.start.line);
-                    console.log(getNodeCode(codeFile, bracePair.braceAstNode));
+                    // console.log(bracePair, bracePair.rootAstNode.location.start.line);
+                    // console.log(getNodeCode(codeFile, bracePair.braceAstNode));
                 }
             }
         }
