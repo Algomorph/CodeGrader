@@ -113,11 +113,13 @@ let brace_style_module = {};
     class BraceScopeBehavior {
         /**
          * Define a scope node behavior
+         * @param {string} expressionProperty
          * @param {string} bodyProperty
          * @param {string} bodyLocation
          * @param {Array.<BraceScopeClauseProperty>} clauseProperties
          */
-        constructor(bodyProperty, bodyLocation, clauseProperties,) {
+        constructor(expressionProperty, bodyProperty, bodyLocation, clauseProperties,) {
+            this.expressionProperty = expressionProperty;
             this.bodyProperty = bodyProperty;
             this.bodyLocation = bodyLocation;
             this.clauseProperties = clauseProperties;
@@ -128,7 +130,7 @@ let brace_style_module = {};
     // see https://github.com/tc39/proposal-class-fields
     /** @type {Map.<string, BraceScopeBehavior | null>}*/
     const BehaviorByNode = new Map([
-        ["IfStatement", new BraceScopeBehavior("thenStatement", BracePairLocationType.IF_BODY,
+        ["IfStatement", new BraceScopeBehavior("expression", "thenStatement", BracePairLocationType.IF_BODY,
             [new BraceScopeClauseProperty("elseStatement", null, BracePairLocationType.ELSE_CLAUSE)])],
         //FIXME
         ["SwitchStatement", null],
@@ -168,6 +170,14 @@ let brace_style_module = {};
             return this.behavior.bodyLocation;
         }
 
+        get expression() {
+            if (this.behavior.expressionProperty != null) {
+                return this.astNode[this.behavior.expressionProperty];
+            } else {
+                return null;
+            }
+        }
+
         get clauses() {
             let clauses = [];
             for (const clauseProperty of this.behavior.clauseProperties) {
@@ -194,6 +204,8 @@ let brace_style_module = {};
 
         if (braceScopeNode.behaviorDefined) {
             const bodyNode = braceScopeNode.body;
+            const expressionNode = braceScopeNode.expression;
+            const locationBeforeBrace = expressionNode == null ? astNode.location.start : expressionNode.location.end;
 
             // Check body
 
@@ -201,28 +213,34 @@ let brace_style_module = {};
             let matchedBraceStyles = [BraceStyle.UNKNOWN];
             let braceErrors = [];
 
-            const closingBraceColumn = bodyNode.location.end.column - 1;
-            const openingBraceColumn = bodyNode.location.start.column;
-            const statementStartColumn = astNode.location.start.column;
+            const rootStartLine = codeFile.codeLines[astNode.location.start.line - 1];
+            const bodyEndLine = codeFile.codeLines[bodyNode.location.end.line - 1];
+            const statementStartColumn = getIndentationWidth(rootStartLine);
+            const closingBraceColumn = getIndentationWidth(bodyEndLine);
+            const openingBraceColumn = locationBeforeBrace.line === bodyNode.location.start.line ?
+                statementStartColumn + (astNode.location.start.offset - bodyNode.location.start.offset) : getIndentationWidth(bodyNode.location.start.line);
 
             if (codeFile.sourceCode.charAt(bodyNode.location.start.offset) !== '{') {
                 braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.MISSING));
                 braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.MISSING));
             } else {
-                if (astNode.location.start.line === bodyNode.location.start.line) {
+                if (locationBeforeBrace.line === bodyNode.location.start.line) {
                     // starting brace is on the same line with "if", assume 1TBS
                     matchedBraceStyles = [BraceStyle.ONE_TBS];
-                    if (astNode.location.start.column !== bodyNode.location.end.column - 1) {
+                    if (statementStartColumn !== closingBraceColumn) {
+                        console.log(statementStartColumn, closingBraceColumn, astNode.location.start.line);
+                        console.log(rootStartLine);
+                        console.log(bodyEndLine);
                         braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
                     }
-                } else if (astNode.location.start.line === bodyNode.location.start.line - 1) {
-                    if (statementStartColumn === openingBraceColumn || openingBraceColumn === closingBraceColumn ){
+                } else if (locationBeforeBrace.line === bodyNode.location.start.line - 1) {
+                    if (statementStartColumn === openingBraceColumn || openingBraceColumn === closingBraceColumn) {
                         // starting brace and/or ending brace are on the next line from "if" and have no extra indent, assume Allman
                         matchedBraceStyles = [BraceStyle.ALLMAN];
-                        if(statementStartColumn !== openingBraceColumn){
+                        if (statementStartColumn !== openingBraceColumn) {
                             braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.UNMATCHED));
                         }
-                        if(openingBraceColumn !== closingBraceColumn){
+                        if (openingBraceColumn !== closingBraceColumn) {
                             braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
                         }
                     } else {
@@ -268,10 +286,11 @@ let brace_style_module = {};
                     handleBraceNode(astNode, codeFile, bracePairs);
                 }
             }
-            console.log( "*** " +  codeFile.filename + " ***0");
-            for(const bracePair of bracePairs){
-                console.log(bracePair, bracePair.);
-                logNodeCode(codeFile, bracePair.rootAstNode);
+            if (codeFile.filename === "src/model/WebPage.java") {
+                for (const bracePair of bracePairs) {
+                    console.log(bracePair, bracePair.rootAstNode.location.start.line);
+                    console.log(getNodeCode(codeFile, bracePair.braceAstNode));
+                }
             }
         }
 

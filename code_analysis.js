@@ -26,12 +26,13 @@ let code_analysis = {};
     let DeclarationType = {
         METHOD: 1,
         TYPE: 2,
-        FIELD: 3,
-        VARIABLE: 4,
-        CONSTANT: 5,
+        VARIABLE: 3,
+        CONSTANT: 4,
+        FIELD: 5,
         CONSTANT_FIELD: 6,
-        THIS: 6,
-        CAST: 7
+        THIS: 7,
+        CAST: 8,
+        CONSTRUCTOR: 9
     }
 
 
@@ -62,12 +63,12 @@ let code_analysis = {};
         [DeclarationType.TYPE, NameType.TYPE],
         [DeclarationType.METHOD, NameType.METHOD],
         [DeclarationType.CONSTANT, NameType.CONSTANT],
-        [DeclarationType.CONSTANT_FIELD, NameType.CONSTANT],
         [DeclarationType.VARIABLE, NameType.VARIABLE],
         [DeclarationType.FIELD, NameType.VARIABLE],
-        [DeclarationType.FIELD, NameType.VARIABLE],
+        [DeclarationType.CONSTANT_FIELD, NameType.CONSTANT],
         [DeclarationType.THIS, NameType.NONE],
         [DeclarationType.CAST, NameType.NONE],
+        [DeclarationType.CONSTRUCTOR, NameType.NONE] // matches the type name, hence constructor name holds no additional information and doesn't need to be inspected
     ]);
 
 
@@ -85,7 +86,7 @@ let code_analysis = {};
                 this.trCodeLine = null;
             }
 
-            if (this.declarationType !== DeclarationType.THIS && this.declarationType !== DeclarationType.CAST) {
+            if (this.declarationType === DeclarationType.FIELD || this.declarationType === DeclarationType.VARIABLE) {
                 if (astNode.modifiers.map(modifier => modifier.keyword).includes("final")) {
                     this.final = true;
                     switch (this.declarationType) {
@@ -222,7 +223,8 @@ let code_analysis = {};
                 // if the declaration is within the code stack. The solution is somewhat complex,
                 // as it would involve not only traversing declarations available in the stack, but also adding imported
                 // classes, e.g. cross-file analysis and some database of common API.
-
+                // Also, if the method invoked is a constructor, there is special syntax of the name to search for in the declaration stack, i.e. ClassName(...);
+                //
                 // let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
                 // if (subDeclaration != null) {
                 //     if (subDeclaration.declarationType === DeclarationType.TYPE) {
@@ -339,12 +341,17 @@ let code_analysis = {};
         switch (astNode.node) {
             case "TypeDeclaration":
                 branchScopes.push(new Scope(astNode,
-                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile)],
+                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
+                        new Declaration(astNode.name.identifier, "type", [], astNode, codeFile)],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
                 break;
             case "MethodDeclaration": {
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                if (astNode.constructor) {
+                    scope.declarations.set(astNode.name.identifier + "(...)", new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                } else {
+                    scope.declarations.set(astNode.name.identifier, new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                }
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
@@ -461,7 +468,7 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "SuperConstructorInvocation":
-                enclosingTypeInformation.methodCalls.push(new MethodCall("super(",
+                enclosingTypeInformation.methodCalls.push(new MethodCall("super(...)",
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
                 scope.addChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();

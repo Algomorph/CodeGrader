@@ -98,22 +98,56 @@ function getCheckedFileCode(filesToCheck) {
 }
 
 
+//TODO: use in indentation_module instead of countIndent after Matt is done working on it
 /**
- * Retrieve the code associated with the provided AST node
- * @param {CodeFile} codeFile
- * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * Gets width of indentation, in spaces or space-equivalents, for a given code line
+ * @param {string} codeLine
+ * @param {number} tabWidth assumed tab width
+ * @return {number} indentation character count
  */
-function getNodeCode(codeFile, astNode){
-    return codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
+function getIndentationWidth(codeLine, tabWidth = 4) {
+    let whitespaceCharacterCount = codeLine.length - codeLine.trimStart().length;
+    if(codeLine.indexOf("*/") !== -1) {
+        whitespaceCharacterCount = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
+    }
+    let i = 0;
+    let total = 0;
+    for(; i < whitespaceCharacterCount; i++) {
+        if (codeLine.charAt(i) === '\t') {
+            total = (Math.floor(total / tabWidth) + 1) * tabWidth;
+        } else {
+            total++;
+        }
+    }
+    return total;
 }
 
 /**
- * Logs the code associated with the provided AST node to console
+ * Retrieve the code associated with the provided AST node.
+ * @param {CodeFile} codeFile
+ * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * @param {boolean} tryClearingIndentation when true, will remove the same whitespace as the first line of the code fragment from every remaining line
+ */
+function getNodeCode(codeFile, astNode, tryClearingIndentation = true) {
+    let code = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
+    let codeLines = code.split("\n");
+    if (codeLines.length > 1) {
+        const indentationLength = codeFile.codeLines[astNode.location.start.line - 1].match(/^(\s*).*/)[1].length;
+        for (let iLine = 1; iLine < codeLines.length; iLine++) {
+            codeLines[iLine] = codeLines[iLine].substring(indentationLength);
+        }
+        code = codeLines.join("\n");
+    }
+    return code;
+}
+
+/**
+ * Logs the code associated with the provided AST node to console.
  * @param {CodeFile} codeFile
  * @param {{location : {offset: *, line: *, column: *}}} astNode
  */
-function logNodeCode(codeFile, astNode){
-    console.log(getNodeCode());
+function logNodeCode(codeFile, astNode) {
+    console.log(getNodeCode(codeFile, astNode));
 }
 
 /**
