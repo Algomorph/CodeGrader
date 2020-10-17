@@ -33,7 +33,6 @@ let spacing_module = {};
         }
 
         $(uiPanel).append("<h3 style='color:#41a854'>Spacing</h3>");
-
         for (const codeFile of codeFileDictionary.values()) {
 
             for (const typeInformation of codeFile.types.values()) {
