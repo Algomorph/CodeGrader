@@ -1,4 +1,4 @@
-﻿let indentationModule = {};
+﻿let indentation_module = {};
 
 (function () {
 
@@ -203,4 +203,4 @@
         });
     }
 
-}).apply(indentationModule);
+}).apply(indentation_module);

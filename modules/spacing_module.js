@@ -1,4 +1,4 @@
-let spacingModule = {};
+let spacing_module = {};
 
 (function () {
 
@@ -6,9 +6,13 @@ let spacingModule = {};
         /**
          * Build default options
          * @param {boolean} enabled whether the module is enabled.
+         * @param {boolean} checkSpacingAroundBinaryOperators
+         * @param {boolean} checkSpacingAroundAssignmentOperators
          */
-        constructor(enabled = false) {
+        constructor(enabled = false, checkSpacingAroundBinaryOperators = true, checkSpacingAroundAssignmentOperators = true) {
             this.enabled = enabled;
+            this.checkSpacingAroundBinaryOperators = checkSpacingAroundBinaryOperators;
+            this.checkSpacingAroundAssignmentOperators = checkSpacingAroundAssignmentOperators;
         }
     }
 
@@ -16,71 +20,129 @@ let spacingModule = {};
         return new Options();
     }
 
-    let nonUnaryOperatorList = [
-        "\\*", "\\%", "\\+", "\\-", "\\<\\<", "\\>\\>", "\\>\\>\\>", "\\<", "\\>", "\\<\\=", "\\>\\=",
-        "instanceof", "\\=\\=", "\\!\\=", "\\&", "\\^", "\\|", "\\&\\&",
-        "\\|\\|", "\\?", "\\:", "\\=", "\\+\\=", "\\-\\=", "\\*\\=", "\\*\\=", "\\/\\=", "\\%\\=", "\\&\\=", "\\|\\=",
-        "\\<\\<\\=", "\\>\\>\\=", "\\>\\>\\=",
-        "\\&lt;", "\\&lt;\\&lt;", "\\&lt;=", "\\&gt;", "\\&gt;\\&gt;", "\\&gt;\\&gt;\\&gt;", "\\&gt;=", "\\&amp;",
-        "\\&amp;\\&amp;", "\\&lt;\\&lt;=", "\\&gt;\\&gt;=", "\\&gt;\\&gt;\\&gt;="
-    ];
-
-    function makeNonCaptureGroup(operator) {
-        return "(?:" + operator + ")";
-    }
-
-    function makeNonUnaryOperatorRegex(groups) {
-        return "(?<=\\w|[)]|\\d|\"|'|[.])(\\s*)(" + groups + ")(\\s*)(?=\\w|[(]|\\d|\"|'|[.])";
-    }
-
-    function compileNonUnaryOperatorRegex() {
-        let groupList = nonUnaryOperatorList.map(operator => makeNonCaptureGroup(operator));
-        return makeNonUnaryOperatorRegex(groupList.join("|"));
-    }
 
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
      * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Array.<HTMLTableRowElement>} trCodeLines
+     * @param {Map.<string, CodeFile>} codeFileDictionary
      * @param {Options} options
      */
-    this.initialize = function (uiPanel, trCodeLines, options) {
+    this.initialize = function (uiPanel, codeFileDictionary, options) {
         if (!options.enabled) {
             return;
         }
 
-        const nonUnaryOperatorRegex = new RegExp(compileNonUnaryOperatorRegex(), 'g');
-
         $(uiPanel).append("<h3 style='color:#41a854'>Spacing</h3>");
-        $.each(trCodeLines, function (lineIndex, trCodeLine) {	// iterates each line of code below
-            const code = stripGenericArgumentsFromCode(stripStringsFromCode(stripCommentsFromCode(getCodeFromTrCodeLine(trCodeLine)), true));
-            const lineMatches = [...code.matchAll(nonUnaryOperatorRegex)];
-            for (const match of lineMatches) {
-                const operator = match[2];
-                const spaceBefore = match[1];
-                const spaceAfter = match[3];
-                if (spaceBefore !== " " || spaceAfter !== " ") {
-                    let message = null;
-                    if (spaceBefore !== " " && spaceAfter !== " ") {
-                        message = "Operator " + operator + " needs a single space before and after it.";
-                        //FIXME remove commented code after most debugging is done
-                        // console.log(code);
-                        // console.log(match);
-                    } else if (spaceBefore !== " ") {
-                        message = "Operator " + operator + " needs a single space before it.";
-                        // console.log(code);
-                        // console.log(match);
-                    } else {
-                        message = "Operator " + operator + " needs a single space after it.";
-                        // console.log(code);
-                        console.log(match);
-                        console.log(spaceAfter);
+        for (const codeFile of codeFileDictionary.values()) {
+
+            for (const typeInformation of codeFile.types.values()) {
+                let expressionsToIterateOver = [];
+                if (options.checkSpacingAroundBinaryOperators) {
+                    expressionsToIterateOver.push(...typeInformation.binaryExpressions);
+                }
+                if (options.checkSpacingAroundAssignmentOperators) {
+                    expressionsToIterateOver.push(...typeInformation.assignments);
+                }
+                for (const expression of expressionsToIterateOver) {
+                    let leftHandSide = null;
+                    let rightHandSide = null;
+                    switch (expression.node) {
+                        case "InfixExpression":
+                            leftHandSide = expression.leftOperand;
+                            rightHandSide = expression.rightOperand;
+                            break;
+                        case "Assignment":
+                            leftHandSide = expression.leftHandSide;
+                            rightHandSide = expression.rightHandSide;
+                            break;
                     }
-                    $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
-                    addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#41a854");
+
+                    const textBetweenOperandsStart = code_analysis.getOperandEnd(leftHandSide);
+                    const startCodeLine = codeFile.codeLines[textBetweenOperandsStart.line - 1];
+                    let startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
+                    if (startCodeLineBeforeOperator.endsWith(" ")) {
+                        const extraSpaces = startCodeLineBeforeOperator.match(/\s+$/)[0];
+                        textBetweenOperandsStart.column -= extraSpaces.length;
+                        textBetweenOperandsStart.offset -= extraSpaces.length;
+                        startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
+                    }
+                    const textBetweenOperandsEnd = code_analysis.getOperandStart(rightHandSide);
+                    const endCodeLine = codeFile.codeLines[textBetweenOperandsEnd.line - 1];
+                    let endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
+
+                    if (endCodeLineAfterOperator.startsWith(" ")) {
+                        const extraSpaces = endCodeLineAfterOperator.match(/^\s+/)[0];
+                        textBetweenOperandsEnd.column += extraSpaces.length;
+                        textBetweenOperandsEnd.offset += extraSpaces.length;
+                        endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
+                    }
+
+                    let textBetweenOperands = codeFile.sourceCode.substring(textBetweenOperandsStart.offset, textBetweenOperandsEnd.offset);
+                    const newKeywordMatch = textBetweenOperands.match(/.*(new\s*)$/);
+                    if (newKeywordMatch) {
+                        textBetweenOperands = textBetweenOperands.replace(newKeywordMatch[1], "");
+                        textBetweenOperandsEnd.column -= newKeywordMatch[1];
+                        textBetweenOperandsEnd.offset -= newKeywordMatch[1];
+                        endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
+                    }
+
+                    const operator = expression.operator;
+                    const operatorRegexPart = operator.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+                    let checkSpacesBefore = true;
+                    let checkSpacesAfter = true;
+
+                    // ]not guaranteed to work on broken lines w/ end of left expression on a line above the operator
+                    if (startCodeLineBeforeOperator.match(/^\s*$/)) {
+                        // line break in expression before operator => only blank space before the operator
+                        checkSpacesBefore = false;
+                    }
+
+                    // ]not guaranteed to work on broken lines w/ start of right expression on a line below the operator
+                    if(endCodeLineAfterOperator.match(/^\s*$/)){
+                        // line break in expression after operator => only blank space after the operator
+                        checkSpacesAfter = false;
+                    }
+
+                    if (textBetweenOperandsStart.line !== textBetweenOperandsEnd.line) {
+                        // line break in expression (not guaranteed to work on all multi-line expressions,
+                        // the above two checks are also necessary)
+                        const startingWithOperatorPattern = new RegExp("^\\s*" + operatorRegexPart + ".*");
+                        const endingWithOperatorPattern = new RegExp(".*" + operatorRegexPart + "\\s*$");
+                        if (endCodeLine.match(startingWithOperatorPattern)) {
+                            checkSpacesBefore = false;
+                        } else if (startCodeLine.match(endingWithOperatorPattern)) {
+                            checkSpacesAfter = false;
+                        } else {
+                            checkSpacesBefore = checkSpacesAfter = false;
+                        }
+                    }
+
+                    const whitespace = textBetweenOperands.split(operator);
+                    const whitespaceBefore = whitespace[0];
+                    const whitespaceAfter = whitespace[1];
+                    let badSpaceBefore = checkSpacesBefore && whitespaceBefore !== " ";
+                    let badSpaceAfter = checkSpacesAfter && whitespaceAfter !== " ";
+                    if (badSpaceBefore || badSpaceAfter) {
+                        let message = null;
+                        let trCodeLine = null;
+                        if (badSpaceBefore && badSpaceAfter) {
+                            message = "Operator '" + operator + "' needs a single space before and after it.";
+                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
+                        } else if (badSpaceBefore) {
+                            message = "Operator '" + operator + "' needs a single space before it.";
+                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
+                        } else {
+                            message = "Operator '" + operator + "' needs a single space after it.";
+                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsEnd.line - 1];
+
+                        }
+                        message = codeTextToHtmlText(message);
+                        $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
+                        addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
+                    }
                 }
             }
-        });
+        }
     }
 
-}).apply(spacingModule);
+}).apply(spacing_module);
