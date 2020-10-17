@@ -106,12 +106,12 @@ function getCheckedFileCode(filesToCheck) {
  */
 function getIndentationWidth(codeLine, tabWidth = 4) {
     let whitespaceCharacterCount = codeLine.length - codeLine.trimStart().length;
-    if(codeLine.indexOf("*/") !== -1) {
+    if (codeLine.indexOf("*/") !== -1) {
         whitespaceCharacterCount = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
     }
     let i = 0;
     let total = 0;
-    for(; i < whitespaceCharacterCount; i++) {
+    for (; i < whitespaceCharacterCount; i++) {
         if (codeLine.charAt(i) === '\t') {
             total = (Math.floor(total / tabWidth) + 1) * tabWidth;
         } else {
@@ -129,13 +129,15 @@ function getIndentationWidth(codeLine, tabWidth = 4) {
  */
 function getNodeCode(codeFile, astNode, tryClearingIndentation = true) {
     let code = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
-    let codeLines = code.split("\n");
-    if (codeLines.length > 1) {
-        const indentationLength = codeFile.codeLines[astNode.location.start.line - 1].match(/^(\s*).*/)[1].length;
-        for (let iLine = 1; iLine < codeLines.length; iLine++) {
-            codeLines[iLine] = codeLines[iLine].substring(indentationLength);
+    if (tryClearingIndentation) {
+        let codeLines = code.split("\n");
+        if (codeLines.length > 1) {
+            const indentationLength = codeFile.codeLines[astNode.location.start.line - 1].match(/^(\s*).*/)[1].length;
+            for (let iLine = 1; iLine < codeLines.length; iLine++) {
+                codeLines[iLine] = codeLines[iLine].substring(indentationLength);
+            }
+            code = codeLines.join("\n");
         }
-        code = codeLines.join("\n");
     }
     return code;
 }

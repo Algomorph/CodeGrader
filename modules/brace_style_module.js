@@ -214,6 +214,10 @@ let brace_style_module = {};
             let braceErrors = [];
 
             const rootStartLine = codeFile.codeLines[astNode.location.start.line - 1];
+
+            const bodyCode = getNodeCode(codeFile, bodyNode, false);
+            // const lineCount = bodyCode.split('\n').length;
+            // const bodyEndLine = codeFile.codeLines[bodyNode.location.start.line - 3 + lineCount];
             const bodyEndLine = codeFile.codeLines[bodyNode.location.end.line - 2];
 
             const statementStartColumn = getIndentationWidth(rootStartLine);
