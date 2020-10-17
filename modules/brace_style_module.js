@@ -30,6 +30,8 @@ let brace_style_module = {};
         FINALLY_CLAUSE: "finally clause"
     }
 
+
+
     const BraceStyle = {
         ALLMAN: "Allman",
         ONE_TBS: "1TBS",
@@ -58,60 +60,121 @@ let brace_style_module = {};
         }
     }
 
-    function handleBraceNode(astNode, codeFile, bracePairs){
-        let locationType = null;
-        switch (astNode.node) {
-            case "IfStatement":
-                // console.log(astNode);
-                // logNodeCode(codeFile, astNode);
+    /**
+     * Clause property of an ast node (used to define brace node behavior)
+     */
+    class BraceScopeNodeClauseProperty {
+        /**
+         * Build clause property
+         * @param {string | null} singleClauseName
+         * @param {string | null} clauseArrayName
+         */
+        constructor(singleClauseName, clauseArrayName) {
+            this.singleClauseName = singleClauseName;
+            this.clauseArrayName = clauseArrayName;
+        }
+    }
 
-                locationType = BracePairLocationType.IF_BODY;
-                // Check then statement
-                if (codeFile.sourceCode.charAt(astNode.thenStatement.location.start.offset) !== '{') {
-                    bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.MISSING,
-                        [IncorrectBraceInPair.OPENING, IncorrectBraceInPair.CLOSING],
-                        locationType));
-                } else {
-                    if (astNode.location.start.line === astNode.thenStatement.location.start.line) {
-                        // starting brace is on the same line with "if", assume 1TBS
-                        let problematicBraces = [];
-                        if (astNode.location.start.column !== astNode.thenStatement.location.end.column - 1) {
-                            problematicBraces.push(IncorrectBraceInPair.CLOSING);
-                        }
-                        bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
-                    } else if(astNode.location.start.line === astNode.thenStatement.location.start.line - 1){
-                        // starting brace is on the next line from "if", assume Allman
-                        let problematicBraces = [];
-                        if (astNode.thenStatement.location.start.column !== astNode.thenStatement.location.end.column) {
-                            problematicBraces.push(IncorrectBraceInPair.CLOSING);
-                        }
-                        bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
-                    } else {
-                        // starting brace is of unknown style, check that at least it matches the end brace
-                        let problematicBraces = [];
 
-                    }
+    class BraceScopeNodeBehavior {
+        /**
+         * Define a scope node behavior
+         * @param {string} bodyProperty
+         * @param {Array.<BraceScopeNodeClauseProperty>} clauseProperties
+         */
+        constructor(bodyProperty, clauseProperties) {
+            this.bodyProperty = bodyProperty;
+            this.clauseProperties = clauseProperties;
+        }
+    }
 
-                }
-                // Check else statement
-                if (astNode.hasOwnProperty("elseStatement")){
-                    handleBraceNode(astNode.elseStatement, codeFile, bracePairs);
-                }
+    //TODO: make static private field of BraceScopeNode when the class fields proposal is fully supported by all major browsers,
+    // see https://github.com/tc39/proposal-class-fields
+    /** @type {Map.<string, BraceScopeNodeBehavior | null>}*/
+    const BehaviorByNode = new Map([
+        ["IfStatement", new BraceScopeNodeBehavior("thenStatement",
+            [new BraceScopeNodeClauseProperty("elseStatement", null)])],
+        //FIXME
+        ["SwitchStatement", null],
+        ["ForStatement", null],
+        ["EnhancedForStatement", null],
+        ["WhileStatement", null],
+        ["DoStatement", null],
+        ["TryStatement", null],
+    ]);
 
-                const ifExpressionAndThenStatement = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.thenStatement.location.end.offset);
-
-                break;
-            case "ForLoop":
-            case "EnhancedForStatement":
-            case "WhileStatement":
-            case "DoStatement":
-                break;
-            case "SwitchStatement":
-                break;
-            case "TryStatement":
-                break;
+    /**
+     * A wrapper around an AST node making its body and clauses easy to access.
+     */
+    class BraceScopeNode {
+        constructor(astNode) {
+            this.astNode = astNode;
+            /** @type {null | BraceScopeNodeBehavior} */
+            this.behavior = null;
+            if (BehaviorByNode.has(astNode.node)) {
+                this.behavior = BehaviorByNode.get(astNode.node);
+            }
         }
 
+        get behaviorDefined() {
+            return this.behavior != null;
+        }
+
+        get body() {
+            return this.astNode[this.behavior.bodyProperty];
+        }
+
+        get clauses() {
+            let clauses = [];
+            for (const clauseProperty of this.behavior.clauseProperties) {
+                if (clauseProperty.singleClauseName != null && this.astNode.hasOwnProperty(clauseProperty.singleClauseName)) {
+                    clauses.push(this.astNode[clauseProperty.singleClauseName]);
+                }
+                if (clauseProperty.clauseArrayName != null && this.astNode.hasOwnProperty(clauseProperty.clauseArrayName)) {
+                    clauses.push(...this.astNode[clauseProperty.clauseArrayName]);
+                }
+            }
+        }
+    }
+
+    function handleBraceNode(astNode, codeFile, bracePairs) {
+        let locationType = null;
+
+
+
+
+        locationType = BracePairLocationType.IF_BODY;
+        // Check then statement
+        if (codeFile.sourceCode.charAt(astNode.thenStatement.location.start.offset) !== '{') {
+            bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.MISSING,
+                [IncorrectBraceInPair.OPENING, IncorrectBraceInPair.CLOSING],
+                locationType));
+        } else {
+            if (astNode.location.start.line === astNode.thenStatement.location.start.line) {
+                // starting brace is on the same line with "if", assume 1TBS
+                let problematicBraces = [];
+                if (astNode.location.start.column !== astNode.thenStatement.location.end.column - 1) {
+                    problematicBraces.push(IncorrectBraceInPair.CLOSING);
+                }
+                bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
+            } else if (astNode.location.start.line === astNode.thenStatement.location.start.line - 1) {
+                // starting brace is on the next line from "if", assume Allman
+                let problematicBraces = [];
+                if (astNode.thenStatement.location.start.column !== astNode.thenStatement.location.end.column) {
+                    problematicBraces.push(IncorrectBraceInPair.CLOSING);
+                }
+                bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
+            } else {
+                // starting brace is of unknown style, check that at least it matches the end brace
+                let problematicBraces = [];
+
+            }
+
+        }
+        // Check else statement
+        if (astNode.hasOwnProperty("elseStatement") && astNode.elseStatement != null) {
+
+        }
     }
 
     /**
