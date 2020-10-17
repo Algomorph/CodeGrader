@@ -97,13 +97,23 @@ function getCheckedFileCode(filesToCheck) {
     return [fileDictionary, trCodeLines];
 }
 
+
 /**
- * Logs the code associated with the current node to console
+ * Retrieve the code associated with the provided AST node
+ * @param {CodeFile} codeFile
+ * @param {{location : {offset: *, line: *, column: *}}} astNode
+ */
+function getNodeCode(codeFile, astNode){
+    return codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
+}
+
+/**
+ * Logs the code associated with the provided AST node to console
  * @param {CodeFile} codeFile
  * @param {{location : {offset: *, line: *, column: *}}} astNode
  */
 function logNodeCode(codeFile, astNode){
-    console.log(codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset));
+    console.log(getNodeCode());
 }
 
 /**

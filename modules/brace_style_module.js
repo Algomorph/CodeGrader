@@ -30,32 +30,52 @@ let brace_style_module = {};
         FINALLY_CLAUSE: "finally clause"
     }
 
-
-
     const BraceStyle = {
         ALLMAN: "Allman",
         ONE_TBS: "1TBS",
-        UNKNOWN: "unknown",
-        MISSING: "missing",
+        UNKNOWN: "unknown"
     }
 
-    const IncorrectBraceInPair = {
+    const BraceType = {
         OPENING: "opening",
         CLOSING: "closing"
+    }
+
+    const BraceStyleErrorType = {
+        UNMATCHED: "is unmatched with the other brace",
+        WRONG_LINE: "is on the wrong line",
+        MISSING: "is missing"
+    }
+
+    class BraceStyleError {
+        /**
+         * Generate a brace style error
+         * @param {string} braceType opening/closing (see BraceType)
+         * @param {string} errorType error type (see BraceStyleErrorType)
+         */
+        constructor(braceType, errorType) {
+            this.bracceType = braceType;
+            this.errorType = errorType;
+        }
     }
 
     class BracePair {
         /**
          * Make a brace pair
-         * @param {{location : {start : {offset : {Number}, line : {Number}, column : {Number}}, end :  {offset : {Number}, line : {Number}, column : {Number}}}}} astNode the AST node with location
-         * @param {string} style the brace pair style (see BraceStyle)
-         * @param {Array.<string>} incorrectBracesInPair braces (if any) that have a problem
+         * @param {{location : {start : {offset : Number, line : Number, column : Number},
+         * end :  {offset : Number, line : Number, column : Number}}}} rootAstNode the AST node of a scope-opening
+         * control statement (potentially with clauses), such as 'if', 'try', etc. or declaration (including the signature).
+         * * @param {{location : {start : {offset : Number, line : Number, column : Number},
+         * end :  {offset : Number, line : Number, column : Number}}}} braceAstNode the AST node of the actual scope the brace opens
+         * @param {Array.<string>} matchingStyles the list of styles the brace pair satisfies (see BraceStyle)
+         * @param {Array.<BraceStyleError>} braceStyleError brace matchingStyles errors (if any)
          * @param {string} locationType brace location type
          */
-        constructor(astNode, style, incorrectBracesInPair, locationType) {
-            this.astNode = astNode;
-            this.type = style;
-            this.incorrectBracesInPair = incorrectBracesInPair;
+        constructor(rootAstNode, braceAstNode, matchingStyles, braceStyleError, locationType) {
+            this.rootAstNode = rootAstNode;
+            this.braceAstNode = braceAstNode;
+            this.braceStyles = matchingStyles;
+            this.braceStyleErrors = braceStyleError;
             this.braceLocationType = locationType;
         }
     }
@@ -63,37 +83,53 @@ let brace_style_module = {};
     /**
      * Clause property of an ast node (used to define brace node behavior)
      */
-    class BraceScopeNodeClauseProperty {
+    class BraceScopeClauseProperty {
         /**
          * Build clause property
          * @param {string | null} singleClauseName
          * @param {string | null} clauseArrayName
+         * @param {string} clauseLocation
          */
-        constructor(singleClauseName, clauseArrayName) {
+        constructor(singleClauseName, clauseArrayName, clauseLocation) {
             this.singleClauseName = singleClauseName;
             this.clauseArrayName = clauseArrayName;
+            this.clauseLocation = clauseLocation;
+        }
+    }
+
+    class BraceScopeClause {
+        /**
+         *
+         * @param {{node: string, location: {start : {offset, line, column}, end: {offset, line, column}}}} astNode
+         * @param {string} location
+         */
+        constructor(astNode, location) {
+            this.astNode = astNode;
+            this.location = location;
         }
     }
 
 
-    class BraceScopeNodeBehavior {
+    class BraceScopeBehavior {
         /**
          * Define a scope node behavior
          * @param {string} bodyProperty
-         * @param {Array.<BraceScopeNodeClauseProperty>} clauseProperties
+         * @param {string} bodyLocation
+         * @param {Array.<BraceScopeClauseProperty>} clauseProperties
          */
-        constructor(bodyProperty, clauseProperties) {
+        constructor(bodyProperty, bodyLocation, clauseProperties,) {
             this.bodyProperty = bodyProperty;
+            this.bodyLocation = bodyLocation;
             this.clauseProperties = clauseProperties;
         }
     }
 
-    //TODO: make static private field of BraceScopeNode when the class fields proposal is fully supported by all major browsers,
+    //TODO: make static private field of BraceScope when the class fields proposal is fully supported by all major browsers,
     // see https://github.com/tc39/proposal-class-fields
-    /** @type {Map.<string, BraceScopeNodeBehavior | null>}*/
+    /** @type {Map.<string, BraceScopeBehavior | null>}*/
     const BehaviorByNode = new Map([
-        ["IfStatement", new BraceScopeNodeBehavior("thenStatement",
-            [new BraceScopeNodeClauseProperty("elseStatement", null)])],
+        ["IfStatement", new BraceScopeBehavior("thenStatement", BracePairLocationType.IF_BODY,
+            [new BraceScopeClauseProperty("elseStatement", null, BracePairLocationType.ELSE_CLAUSE)])],
         //FIXME
         ["SwitchStatement", null],
         ["ForStatement", null],
@@ -106,10 +142,14 @@ let brace_style_module = {};
     /**
      * A wrapper around an AST node making its body and clauses easy to access.
      */
-    class BraceScopeNode {
+    class BraceScope {
+        /**
+         * Construct a brace scope node object around the provided ast Node
+         * @param {{node: string, location: {start : {offset, line, column}, end: {offset, line, column}}}} astNode the provided node
+         */
         constructor(astNode) {
             this.astNode = astNode;
-            /** @type {null | BraceScopeNodeBehavior} */
+            /** @type {null | BraceScopeBehavior} */
             this.behavior = null;
             if (BehaviorByNode.has(astNode.node)) {
                 this.behavior = BehaviorByNode.get(astNode.node);
@@ -124,57 +164,88 @@ let brace_style_module = {};
             return this.astNode[this.behavior.bodyProperty];
         }
 
+        get bodyLocation() {
+            return this.behavior.bodyLocation;
+        }
+
         get clauses() {
             let clauses = [];
             for (const clauseProperty of this.behavior.clauseProperties) {
                 if (clauseProperty.singleClauseName != null && this.astNode.hasOwnProperty(clauseProperty.singleClauseName)) {
-                    clauses.push(this.astNode[clauseProperty.singleClauseName]);
+                    clauses.push(new BraceScopeClause(this.astNode[clauseProperty.singleClauseName], clauseProperty.clauseLocation));
                 }
                 if (clauseProperty.clauseArrayName != null && this.astNode.hasOwnProperty(clauseProperty.clauseArrayName)) {
-                    clauses.push(...this.astNode[clauseProperty.clauseArrayName]);
+                    for (const clauseNode of this.astNode[clauseProperty.clauseArrayName]) {
+                        clauses.push(new BraceScopeClause(clauseNode, clauseProperty.clauseLocation));
+                    }
                 }
             }
+            return clauses;
         }
     }
 
     function handleBraceNode(astNode, codeFile, bracePairs) {
         let locationType = null;
+        if (BehaviorByNode.has(astNode.node) && BehaviorByNode.get(astNode.node) != null) {
+            //TODO: debug other nodes
+        }
 
+        const braceScopeNode = new BraceScope(astNode);
 
+        if (braceScopeNode.behaviorDefined) {
+            const bodyNode = braceScopeNode.body;
 
+            // Check body
 
-        locationType = BracePairLocationType.IF_BODY;
-        // Check then statement
-        if (codeFile.sourceCode.charAt(astNode.thenStatement.location.start.offset) !== '{') {
-            bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.MISSING,
-                [IncorrectBraceInPair.OPENING, IncorrectBraceInPair.CLOSING],
-                locationType));
-        } else {
-            if (astNode.location.start.line === astNode.thenStatement.location.start.line) {
-                // starting brace is on the same line with "if", assume 1TBS
-                let problematicBraces = [];
-                if (astNode.location.start.column !== astNode.thenStatement.location.end.column - 1) {
-                    problematicBraces.push(IncorrectBraceInPair.CLOSING);
-                }
-                bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
-            } else if (astNode.location.start.line === astNode.thenStatement.location.start.line - 1) {
-                // starting brace is on the next line from "if", assume Allman
-                let problematicBraces = [];
-                if (astNode.thenStatement.location.start.column !== astNode.thenStatement.location.end.column) {
-                    problematicBraces.push(IncorrectBraceInPair.CLOSING);
-                }
-                bracePairs.push(new BracePair(astNode.thenStatement, BraceStyle.ONE_TBS, problematicBraces, locationType))
+            // determine brace styles
+            let matchedBraceStyles = [BraceStyle.UNKNOWN];
+            let braceErrors = [];
+
+            const closingBraceColumn = bodyNode.location.end.column - 1;
+            const openingBraceColumn = bodyNode.location.start.column;
+            const statementStartColumn = astNode.location.start.column;
+
+            if (codeFile.sourceCode.charAt(bodyNode.location.start.offset) !== '{') {
+                braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.MISSING));
+                braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.MISSING));
             } else {
-                // starting brace is of unknown style, check that at least it matches the end brace
-                let problematicBraces = [];
-
+                if (astNode.location.start.line === bodyNode.location.start.line) {
+                    // starting brace is on the same line with "if", assume 1TBS
+                    matchedBraceStyles = [BraceStyle.ONE_TBS];
+                    if (astNode.location.start.column !== bodyNode.location.end.column - 1) {
+                        braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
+                    }
+                } else if (astNode.location.start.line === bodyNode.location.start.line - 1) {
+                    if (statementStartColumn === openingBraceColumn || openingBraceColumn === closingBraceColumn ){
+                        // starting brace and/or ending brace are on the next line from "if" and have no extra indent, assume Allman
+                        matchedBraceStyles = [BraceStyle.ALLMAN];
+                        if(statementStartColumn !== openingBraceColumn){
+                            braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.UNMATCHED));
+                        }
+                        if(openingBraceColumn !== closingBraceColumn){
+                            braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
+                        }
+                    } else {
+                        if (openingBraceColumn !== closingBraceColumn) {
+                            braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
+                        }
+                    }
+                } else {
+                    // starting brace is not after or under the first line but on some other line, check that at least the start brace matches the end brace
+                    if (openingBraceColumn !== closingBraceColumn) {
+                        braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.UNMATCHED));
+                    }
+                }
             }
 
-        }
-        // Check else statement
-        if (astNode.hasOwnProperty("elseStatement") && astNode.elseStatement != null) {
+            bracePairs.push(new BracePair(astNode, bodyNode, matchedBraceStyles, braceErrors, braceScopeNode.bodyLocation));
+
+
+            const clauses = braceScopeNode.clauses;
 
         }
+
+
     }
 
     /**
@@ -189,16 +260,21 @@ let brace_style_module = {};
         }
         $(uiPanel).append("<h3 style='color:#843a02'>Brace Style</h3>");
 
-        let bracePairs = [];
-
         for (const codeFile of codeFileDictionary.values()) {
+            let bracePairs = [];
             for (const typeInformation of codeFile.types.values()) {
                 for (const scope of typeInformation.scopes) {
                     const astNode = scope.astNode;
-                    handleBraceNode(astNode, codeFile, bracePairs)
+                    handleBraceNode(astNode, codeFile, bracePairs);
                 }
             }
+            console.log( "*** " +  codeFile.filename + " ***0");
+            for(const bracePair of bracePairs){
+                console.log(bracePair, bracePair.);
+                logNodeCode(codeFile, bracePair.rootAstNode);
+            }
         }
+
     }
 
 }).apply(brace_style_module);
