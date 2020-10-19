@@ -18,6 +18,13 @@ class CodeFile {
         this.filename = filename;
         this.sourceCode = sourceCode;
         this.codeLines = sourceCode.split("\n");
+        this.codeLineLengths = this.codeLines.map(codeLine => codeLine.length);
+        let offset = 0;
+        this.lineEndOffsets = [];
+        $.each(this.codeLineLengths, (iLine, length) => {
+            offset += length;
+            this.lineEndOffsets.push(offset);
+        });
         this.trCodeLines = trCodeLines;
         this.abstractSyntaxTree = abstractSyntaxTree;
         this.parseError = parseError;
@@ -26,6 +33,12 @@ class CodeFile {
 
         /**@type {Map.<string, TypeInformation>}*/
         this.types = new Map();
+    }
+}
+
+function getLineIndexFromOffset(lineStartOffsets, offset) {
+    for (let iLine = 0; iLine < lineStartOffsets.length; iLine++) {
+
     }
 }
 
@@ -104,21 +117,33 @@ function getCheckedFileCode(filesToCheck) {
  * @param {number} tabWidth assumed tab width
  * @return {number} indentation character count
  */
-function getIndentationWidth(codeLine, tabWidth = 4) {
+function getIndentationWidth2(codeLine, tabWidth = 4) {
+
     let whitespaceCharacterCount = codeLine.length - codeLine.trimStart().length;
     if (codeLine.indexOf("*/") !== -1) {
         whitespaceCharacterCount = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
     }
-    let i = 0;
-    let total = 0;
-    for (; i < whitespaceCharacterCount; i++) {
-        if (codeLine.charAt(i) === '\t') {
-            total = (Math.floor(total / tabWidth) + 1) * tabWidth;
+    let iWhitespaceCharacter = 0;
+    let width = 0;
+    for (; iWhitespaceCharacter < whitespaceCharacterCount; iWhitespaceCharacter++) {
+        if (codeLine.charAt(iWhitespaceCharacter) === '\t') {
+            width = (Math.floor(width / tabWidth) + 1) * tabWidth;
         } else {
-            total++;
+            width++;
         }
     }
-    return total;
+    return width;
+}
+
+let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
+
+function getIndentationWidth(codeLine, tabWidth = 4) {
+    let tabReplacement = " ".repeat(tabWidth);
+    return codeLine.match(indentationRegEx)[0].replace("\t", tabReplacement).length;
+}
+
+function removeIndentation(codeLine){
+    return codeLine.replace(indentationRegEx, "");
 }
 
 /**
