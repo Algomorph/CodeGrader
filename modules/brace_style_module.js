@@ -178,13 +178,13 @@ let brace_style_module = {};
             [new BraceScopeClauseProperty("elseStatement", null, BracePairLocationType.ELSE_CLAUSE, "else")])],
         //FIXME
         ["SwitchStatement", null],
-        ["ForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.FOR_LOOP,[])],
-        ["EnhancedForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP,[])],
-        ["WhileStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP,[])],
-        ["DoStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.DO_WHILE_LOOP,[])],
+        ["ForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.FOR_LOOP, [])],
+        ["EnhancedForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
+        ["WhileStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
+        ["DoStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.DO_WHILE_LOOP, [])],
         ["TryStatement", null],
         ["ClassDeclaration", null],
-        ["MethodDeclaration", new BraceScopeBehavior(null, "body", BracePairLocationType.METHOD_BODY,[])]
+        ["MethodDeclaration", new BraceScopeBehavior(null, "body", BracePairLocationType.METHOD_BODY, [])]
     ]);
 
     /**
@@ -338,8 +338,12 @@ let brace_style_module = {};
     }
 
     function handleBraceNode(astNode, codeFile, bracePairs) {
-        if (BehaviorByNode.has(astNode.node) && BehaviorByNode.get(astNode.node) == null) {
-                //TODO: debug other nodes
+        //__DEBUG
+        if (BehaviorByNode.has(astNode.node)) {
+            if (astNode.node === "ForStatement") {
+                console.log(astNode);
+                logNodeCode(codeFile, astNode)
+            }
 
         }
 
