@@ -8,7 +8,7 @@ function main(optionItems) {
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
         let table_submissions = $("table:contains('last submission')");
-        let td_list = $(table_submissions).find("tr").find("td:nth-child(6)");
+        let td_list = $(table_submissions).find("tr").find("td:nth-child(8)");
         let projectIndex = location.href.search(/projectPK=(\d+)/);
         $.each(td_list, function (tdi, td) {
             let aTag = $(td).find("a")[0];
