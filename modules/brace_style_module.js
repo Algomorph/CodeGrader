@@ -153,17 +153,14 @@ let brace_style_module = {};
         }
     }
 
-
     class BraceScopeBehavior {
         /**
          * Define a scope node behavior
-         * @param {string|null} expressionProperty
-         * @param {string} bodyProperty
+         * @param {null|string} bodyProperty
          * @param {string} bodyLocation
          * @param {Array.<BraceScopeClauseProperty>} clauseProperties
          */
-        constructor(expressionProperty, bodyProperty, bodyLocation, clauseProperties,) {
-            this.expressionProperty = expressionProperty;
+        constructor(bodyProperty, bodyLocation, clauseProperties,) {
             this.bodyProperty = bodyProperty;
             this.bodyLocation = bodyLocation;
             this.clauseProperties = clauseProperties;
@@ -174,17 +171,16 @@ let brace_style_module = {};
     // see https://github.com/tc39/proposal-class-fields
     /** @type {Map.<string, BraceScopeBehavior | null>}*/
     const BehaviorByNode = new Map([
-        ["IfStatement", new BraceScopeBehavior("expression", "thenStatement", BracePairLocationType.IF_BODY,
+        ["IfStatement", new BraceScopeBehavior("thenStatement", BracePairLocationType.IF_BODY,
             [new BraceScopeClauseProperty("elseStatement", null, BracePairLocationType.ELSE_CLAUSE, "else")])],
-        //FIXME
-        ["SwitchStatement", null],
-        ["ForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.FOR_LOOP, [])],
-        ["EnhancedForStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
-        ["WhileStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
-        ["DoStatement", new BraceScopeBehavior(null, "body", BracePairLocationType.DO_WHILE_LOOP, [])],
-        ["TryStatement", null],
-        ["ClassDeclaration", null],
-        ["MethodDeclaration", new BraceScopeBehavior(null, "body", BracePairLocationType.METHOD_BODY, [])]
+        ["SwitchStatement", null], //TODO (null body behavior)
+        ["ForStatement", new BraceScopeBehavior("body", BracePairLocationType.FOR_LOOP, [])],
+        ["EnhancedForStatement", new BraceScopeBehavior("body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
+        ["WhileStatement", new BraceScopeBehavior("body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
+        ["DoStatement", new BraceScopeBehavior("body", BracePairLocationType.DO_WHILE_LOOP, [])],
+        ["TryStatement", new BraceScopeBehavior("body", BracePairLocationType.TRY_BODY, [])],
+        ["ClassDeclaration", null], //TODO (null body behavior)
+        ["MethodDeclaration", new BraceScopeBehavior("body", BracePairLocationType.METHOD_BODY, [])]
     ]);
 
     /**
@@ -209,19 +205,15 @@ let brace_style_module = {};
         }
 
         get body() {
-            return this.astNode[this.behavior.bodyProperty];
+            if (this.behavior.bodyProperty != null) {
+                return this.astNode[this.behavior.bodyProperty];
+            } else {
+                return null;
+            }
         }
 
         get bodyLocation() {
             return this.behavior.bodyLocation;
-        }
-
-        get expression() {
-            if (this.behavior.expressionProperty != null) {
-                return this.astNode[this.behavior.expressionProperty];
-            } else {
-                return null;
-            }
         }
 
         /**
@@ -254,7 +246,7 @@ let brace_style_module = {};
             let bodyCodeLines = bodyCode.split("\n");
             let iFinalBodyCodeLine = bodyCodeLines.length - 1;
             let lastBodyLine = bodyCodeLines[iFinalBodyCodeLine];
-            while (!lastBodyLine.endsWith('}')) {
+            while (!lastBodyLine.trim().endsWith('}')) {
                 iFinalBodyCodeLine--;
                 lastBodyLine = bodyCodeLines[iFinalBodyCodeLine];
             }
@@ -337,22 +329,40 @@ let brace_style_module = {};
         return new BracePair(rootNode, bodyOrClauseNode, matchedBraceStyles, braceErrors, bracePairLocationType);
     }
 
-    function handleBraceNode(astNode, codeFile, bracePairs) {
-        //__DEBUG
-        if (BehaviorByNode.has(astNode.node)) {
-            if (astNode.node === "ForStatement") {
-                console.log(astNode);
-                logNodeCode(codeFile, astNode)
-            }
+    /**
+     * For a method/statement with a (possibly, braced) body, finds the
+     * location of the previous non-whitespace character before the body
+     * @param {{location : {start: {offset, line, column}, end : {offset, line, column}}}} astNode
+     * @param {{location : {start: {offset, line, column}, end : {offset, line, column}}}} bodyNode
+     * @param {CodeFile} codeFile
+     */
+    function findNonSpaceBeforeBody(astNode, bodyNode, codeFile) {
+        const wholeStatementStart = astNode.location.start;
+        const bodyNodeStart = bodyNode.location.start;
+        const codeBeforeBodyWithFirstCharacter = codeFile.sourceCode.substring(wholeStatementStart.offset, bodyNodeStart.offset + 1);
+        const firstBodyCharacter = codeBeforeBodyWithFirstCharacter.charAt(codeBeforeBodyWithFirstCharacter.length - 1)
+        const regex = new RegExp("\\S(?=\\s*[" + firstBodyCharacter + "]$)", 'm');
+        const lastNonSpaceIndex = codeBeforeBodyWithFirstCharacter.match(regex).index;
+        const lineCountNonSpaceToBrace = codeBeforeBodyWithFirstCharacter.substring(lastNonSpaceIndex + 1).split('\n').length - 1;
 
+        return {
+            offset: wholeStatementStart.offset + lastNonSpaceIndex,
+            line: bodyNodeStart.line - lineCountNonSpaceToBrace,
+            column: null
         }
 
+    }
+
+    function handleBraceNode(astNode, codeFile, bracePairs) {
         const braceScopeNode = new BraceScope(astNode);
 
         if (braceScopeNode.behaviorDefined) {
             const bodyNode = braceScopeNode.body;
-            const expressionNode = braceScopeNode.expression;
-            let locationBeforeBrace = expressionNode == null ? astNode.location.start : expressionNode.location.end;
+            //TODO: handle body == null case for ClassDeclaration and SwitchStatement
+            //if(bodyNode != null){
+            let locationBeforeBrace = findNonSpaceBeforeBody(astNode, bodyNode, codeFile);
+
+
 
             let codeLineBeforeBrace = codeFile.codeLines[astNode.location.start.line - 1];
             const statementStartColumn = getIndentationWidth(codeLineBeforeBrace);
