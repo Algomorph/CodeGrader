@@ -23,6 +23,7 @@
             numChars = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
         }
         let i = 0;
+
         let total = 0;
         for(; i < numChars; i++) {
             if (codeLine.charAt(i) === '\t') {
@@ -74,6 +75,7 @@
             }
         }
 
+
         let currentIndentation = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = getCodeFromTrCodeLine(trCodeLine);
@@ -116,6 +118,7 @@
             if (isComment) {
                 return;
             }
+
 
             if (codeText.trim().charAt(0) === "@") return;
 
