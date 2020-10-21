@@ -1,7 +1,12 @@
 let grade_server_module = {};
 
 (function() {
+/* Notes:
+Files to keep in mind: insert_grades,submit_server_ui
+Should aggregate comments and name them with line and class, and be able to assign and submit grade for respective student
+For testing, verify if the tab in the grades server that tracks changes has the update or if the page has the updated info
 
+*/
 this.initialize = function(uiPanel){
 	// report total score to grade server tab
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
