@@ -1,0 +1,57 @@
+{
+    "filesToCheck": [
+        "src/model/ClearCellGame.java",
+        "src/model/Game.java",
+        "ClearCellGame/src/main/java/model/ClearCellGame.java",
+        "ClearCellGame/src/main/java/model/Game.java"
+    ],
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": false,
+            "ignoredNames": {
+                "WebPage": [
+                    "findElem",
+                    "stats"
+                ],
+                "global": []
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        }
+    },
+    "module_options": {
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerProjectName": "Proj 3",
+    "year": "2020"
+}

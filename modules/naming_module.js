@@ -230,8 +230,8 @@ let naming_module = {};
                         ignoredNamesForType.push(...options.ignoredNames[typeName]);
                     }
                     ignoredNamesForType = new Set(ignoredNamesForType);
-
                     let declarationsForType = typeInformation.declarations.filter(declaration => !ignoredNamesForType.has(declaration.name));
+
                     for (const declaration of declarationsForType) {
                         switch (declaration.nameType) {
                             case code_analysis.NameType.VARIABLE:

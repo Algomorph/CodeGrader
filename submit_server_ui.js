@@ -12,6 +12,12 @@ function scrollToFirstFile(filesToCheck) {
     }
 }
 
+function recolorCheckedFileLinks(filesToCheck){
+    for(const filePath of filesToCheck){
+        $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
+    }
+}
+
 function getSourceFileContainer(filename) {
     return $("div.GMYHEHOCNK:contains('" + filename + "')").parent();
 }

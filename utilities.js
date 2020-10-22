@@ -5,10 +5,11 @@ class TypeInformation {
     constructor() {
         this.methodCalls = [];
         this.declarations = [];
+        this.scopes = [];
         this.ternaryExpressions = [];
         this.binaryExpressions = [];
         this.unaryExpressions = [];
-        this.assignments = []
+        this.assignments = [];
     }
 }
 
@@ -17,6 +18,17 @@ class CodeFile {
         this.filename = filename;
         this.sourceCode = sourceCode;
         this.codeLines = sourceCode.split("\n");
+        this.codeLineLengths = this.codeLines.map(codeLine => codeLine.length);
+        let offset = 0;
+        /** @type {Array.<Number>}*/
+        this.lineStartOffsets = [];
+        /** @type {Array.<Number>}*/
+        this.lineEndOffsets = [];
+        $.each(this.codeLineLengths, (iLine, length) => {
+            this.lineStartOffsets.push(offset);
+            offset += length;
+            this.lineEndOffsets.push(offset);
+        });
         this.trCodeLines = trCodeLines;
         this.abstractSyntaxTree = abstractSyntaxTree;
         this.parseError = parseError;
@@ -25,6 +37,12 @@ class CodeFile {
 
         /**@type {Map.<string, TypeInformation>}*/
         this.types = new Map();
+    }
+}
+
+function getLineIndexFromOffset(lineStartOffsets, offset) {
+    for (let iLine = 0; iLine < lineStartOffsets.length; iLine++) {
+
     }
 }
 
@@ -39,60 +57,6 @@ function parseJavaCode(fileCode) {
     }
     return [abstractSyntaxTree, parseError]
 }
-
-function getCurrentSemesterSeasonString() {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    let currentSeason = "winter";
-    if (currentMonth > 0 && currentMonth < 4) {
-        currentSeason = "spring";
-    } else if (currentMonth < 8) {
-        currentSeason = "summer";
-    } else {
-        currentSeason = "fall";
-    }
-    return currentSeason;
-}
-
-class Options {
-    /**
-     * Make an options object
-     * @param semesterSeason
-     * @param year
-     * @param submitServerProjectName
-     * @param {Array.<string>} filesToCheck
-     */
-    constructor(semesterSeason = getCurrentSemesterSeasonString(),
-                year = (new Date()).getFullYear().toString(),
-                submitServerProjectName = "",
-                filesToCheck = []) {
-        this.semesterSeason = semesterSeason;
-        this.year = year;
-        this.submitServerProjectName = submitServerProjectName;
-        this.filesToCheck = filesToCheck;
-        this.moduleOptions = {
-            "keywordModule": keyword_module.getDefaultOptions(),
-            "namingModule": naming_module.getDefaultOptions(),
-            "methodCallModule": method_call_module.getDefaultOptions(),
-            "indentationModule": indentation_module.getDefaultOptions(),
-            "spacingModule": spacing_module.getDefaultOptions(),
-            "braceStyleModule": brace_style_module.getDefaultOptions()
-        };
-    }
-}
-
-// Restores options based on values stored in chrome.storage.
-function restoreOptions(callback) {
-
-    let options = new Options();
-
-    chrome.storage.sync.get({
-        options: options
-    }, callback);
-}
-
-
-
 
 function readCodeFilesFromServer(fileDescriptors, callback) {
     const fileCount = fileDescriptors.length;
@@ -142,12 +106,58 @@ function getCheckedFileCode(filesToCheck) {
             const iEndLine = iLine;
             const fileCode = fileCodeLines.join("\n");
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
-
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
         }
     );
     return [fileDictionary, trCodeLines];
+}
+
+//TODO: use in indentation_module instead of countIndent after Matt is done working on it
+/**
+ * Gets width of indentation, in spaces or space-equivalents, for a given code line
+ * @param {string} codeLine
+ * @param {number} tabWidth assumed tab width
+ * @return {number} indentation character count
+ */
+let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
+function getIndentationWidth(codeLine, tabWidth = 4) {
+    let tabReplacement = " ".repeat(tabWidth);
+    return codeLine.match(indentationRegEx)[0].replace("\t", tabReplacement).length;
+}
+
+function removeIndentation(codeLine){
+    return codeLine.replace(indentationRegEx, "");
+}
+
+/**
+ * Retrieve the code associated with the provided AST node.
+ * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * @param {CodeFile} codeFile
+ * @param {boolean} tryClearingIndentation when true, will remove the same whitespace as the first line of the code fragment from every remaining line
+ */
+function getNodeCode(astNode, codeFile, tryClearingIndentation = true) {
+    let code = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
+    if (tryClearingIndentation) {
+        let codeLines = code.split("\n");
+        if (codeLines.length > 1) {
+            const indentationLength = codeFile.codeLines[astNode.location.start.line - 1].match(/^(\s*).*/)[1].length;
+            for (let iLine = 1; iLine < codeLines.length; iLine++) {
+                codeLines[iLine] = codeLines[iLine].substring(indentationLength);
+            }
+            code = codeLines.join("\n");
+        }
+    }
+    return code;
+}
+
+/**
+ * Logs the code associated with the provided AST node to console.
+ * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * @param {CodeFile} codeFile
+ */
+function logNodeCode(astNode, codeFile) {
+    console.log(getNodeCode(astNode, codeFile));
 }
 
 /**

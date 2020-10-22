@@ -28,8 +28,28 @@
 	background-color: #e35d10;
 }
 
+.inconsistent-brace-style-problem {
+	background-color: #0c5460;
+}
+
+.indentation-brace-style-problem {
+	background-color: #0c6045;
+}
+
+.line-brace-style-problem {
+	background-color: #0e9792;
+}
+
+.missing-brace-style-problem {
+	background-color: #0e7797;
+}
+
 .possibly-ignored-method-call {
 	background-color: #77929c;
+}
+
+.checked-file-link{
+	color: #2e6f05;
 }
 
 .ui-panel h3 {
