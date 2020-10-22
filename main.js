@@ -7,16 +7,31 @@ function main(optionItems) {
     // condition: URL contains 'instructor' keyword
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
-        let table_submissions = $("table:contains('last submission')");
-        let td_list = $(table_submissions).find("tr").find("td:nth-child(8)");
+        let tableSubmissions = $("table:contains('last submission')");
+        let onTimeColumn = $(tableSubmissions).find("tr").find("td:nth-child(8)");
+        let lateColumn = $(tableSubmissions).find("tr").find("td:nth-child(9)");
         let projectIndex = location.href.search(/projectPK=(\d+)/);
-        $.each(td_list, function (tdi, td) {
-            let aTag = $(td).find("a")[0];
-            if (!aTag) return;
-            let url = aTag.href;
-            let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
-            $(td).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW__</a>");
-        });
+        for (let iStudent = 0; iStudent < onTimeColumn.length; iStudent++) {
+            let onTimeTableCell = onTimeColumn[iStudent];
+            let onTimeAnchorTag = $(onTimeTableCell).find("a")[0];
+            let lateTableCell = lateColumn[iStudent];
+            let lateAnchorTag = $(lateTableCell).find("a")[0];
+            let anchorTagToUse = undefined;
+            let tableCellToUse = undefined;
+            if (onTimeAnchorTag) {
+                anchorTagToUse = onTimeAnchorTag;
+                tableCellToUse = onTimeTableCell;
+            } else {
+                anchorTagToUse = lateAnchorTag;
+                tableCellToUse = lateTableCell;
+            }
+            if (anchorTagToUse) {
+                let url = anchorTagToUse.href;
+                let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
+                $(tableCellToUse).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW</a>&nbsp;&nbsp;");
+            }
+        }
+
     }
 
     const semesterString = options.semesterSeason + options.year.toString();
@@ -69,7 +84,7 @@ function constructUiPanel(options) {
     } else {
         scrollToFirstFile(filesToCheck);
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
-        for(const codeFile of codeFileDictionary.values()){
+        for (const codeFile of codeFileDictionary.values()) {
             code_analysis.findEntitiesInCodeFileAst(codeFile);
         }
         for (const [fileName, codeFile] of codeFileDictionary.entries()) {
