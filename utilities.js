@@ -132,11 +132,11 @@ function removeIndentation(codeLine){
 
 /**
  * Retrieve the code associated with the provided AST node.
- * @param {CodeFile} codeFile
  * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * @param {CodeFile} codeFile
  * @param {boolean} tryClearingIndentation when true, will remove the same whitespace as the first line of the code fragment from every remaining line
  */
-function getNodeCode(codeFile, astNode, tryClearingIndentation = true) {
+function getNodeCode(astNode, codeFile, tryClearingIndentation = true) {
     let code = codeFile.sourceCode.substring(astNode.location.start.offset, astNode.location.end.offset);
     if (tryClearingIndentation) {
         let codeLines = code.split("\n");
@@ -153,11 +153,11 @@ function getNodeCode(codeFile, astNode, tryClearingIndentation = true) {
 
 /**
  * Logs the code associated with the provided AST node to console.
- * @param {CodeFile} codeFile
  * @param {{location : {offset: *, line: *, column: *}}} astNode
+ * @param {CodeFile} codeFile
  */
-function logNodeCode(codeFile, astNode) {
-    console.log(getNodeCode(codeFile, astNode));
+function logNodeCode(astNode, codeFile) {
+    console.log(getNodeCode(astNode, codeFile));
 }
 
 /**

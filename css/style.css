@@ -48,6 +48,10 @@
 	background-color: #77929c;
 }
 
+.checked-file-link{
+	color: #2e6f05;
+}
+
 .ui-panel h3 {
 	background-color:rgba(0,0,0,0.5);
 	padding:3px;

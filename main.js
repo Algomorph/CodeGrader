@@ -43,6 +43,8 @@ function main(optionItems) {
 
         // check if it's the right course & project
         if ($("h1").text().match(projectName)) {
+            recolorCheckedFileLinks(options.filesToCheck);
+            scrollToFirstFile(options.filesToCheck);
             constructUiPanel(options);
         }
     }
@@ -73,17 +75,13 @@ function constructUiPanel(options) {
     uiPanelContainer.appendChild(uiPanel);
     document.body.appendChild(uiPanelContainer);
 
-    //TODO: get rid of this global entirely, use getScrollableSourceFilePane() instead
-    paneToScroll = $(".GMYHEHOCJK");
     makeCodeFeedArrow();
 
-    const filesToCheck = options.filesToCheck;
-
-    if (filesToCheck.length === 0) {
+    if (options.filesToCheck.length === 0) {
         $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
     } else {
-        scrollToFirstFile(filesToCheck);
-        const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filesToCheck);
+
+        const [codeFileDictionary, trCodeLines] = getCheckedFileCode(options.filesToCheck);
         for (const codeFile of codeFileDictionary.values()) {
             code_analysis.findEntitiesInCodeFileAst(codeFile);
         }
