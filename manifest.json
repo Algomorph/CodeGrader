@@ -31,6 +31,7 @@
             "modules/method_call_module.js",
             "modules/indentation_module.js",
             "modules/us_english_dictionary.js",
+            "modules/unused_code_module.js",
             "main.js"
          ],
          "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*" ],

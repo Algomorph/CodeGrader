@@ -124,6 +124,20 @@ let code_analysis = {};
         }
     }
 
+    class Usage{
+        /**
+         * Define a usage instance
+         * @param {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}}} astNode
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {Declaration} declaration
+         */
+        constructor(astNode, trCodeLine, declaration){
+            this.astNode = astNode;
+            this.trCodeline = trCodeLine;
+            this.declaration = declaration;
+        }
+    }
+
 
     /**
      * Based on a type name and type arguments,
@@ -189,19 +203,19 @@ let code_analysis = {};
 
     /**
      * Attempts to determine the type (class, enum, etc.) of the given expression AST node.
-     * @param expressionNode the expression sub-node (field of the MethodInvocation node)
+     * @param expression the expression sub-node (field of the MethodInvocation node)
      * @param fullScopeStack the stack of scopes leading up to the method invocation within the file.
      * @param {CodeFile} codeFile the code file being examined.
-     * @return {null | DeclarationType}
+     * @return {null | Declaration}
      */
-    this.findTypeDeclaration = function (expressionNode, fullScopeStack, codeFile) {
+    this.findDeclaration = function (expression, fullScopeStack, codeFile) {
         let declaration = null;
-        switch (expressionNode.node) {
+        switch (expression.node) {
             case "QualifiedName":
-                declaration = this.searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
+                declaration = this.searchForDeclarationInStack(expression.name.identifier, fullScopeStack);
                 break;
             case "SimpleName":
-                declaration = this.searchForDeclarationInStack(expressionNode.identifier, fullScopeStack);
+                declaration = this.searchForDeclarationInStack(expression.identifier, fullScopeStack);
                 break;
             case "ThisExpression":
                 //TODO: probably, shouldn't be handling "this" as a special keyword, since this results in ambiguity between
@@ -209,15 +223,15 @@ let code_analysis = {};
                 declaration = this.searchForDeclarationInStack("this", fullScopeStack);
                 break;
             case "FieldAccess":
-                declaration = this.searchForDeclarationInStack(expressionNode.name.identifier, fullScopeStack);
+                declaration = this.searchForDeclarationInStack(expression.name.identifier, fullScopeStack);
                 break;
             case "CastExpression": {
-                const [typeName, typeArguments] = code_analysis.getTypeNameAndArgumentsFromTypeNode(expressionNode.type);
-                declaration = new Declaration(expressionNode.identifier, typeName, typeArguments, expressionNode, codeFile);
+                const [typeName, typeArguments] = code_analysis.getTypeNameAndArgumentsFromTypeNode(expression.type);
+                declaration = new Declaration(expression.identifier, typeName, typeArguments, expression, codeFile);
             }
                 break;
             case "ParenthesizedExpression":
-                declaration = this.findTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
+                declaration = this.findDeclaration(expression.expression, fullScopeStack, codeFile);
                 break;
             case "MethodInvocation":
                 //TODO: we're not yet able to infer the type in chain calls, e.g. for
@@ -228,7 +242,7 @@ let code_analysis = {};
                 // classes, e.g. cross-file analysis and some database of common API.
                 // Also, if the method invoked is a constructor, there is special syntax of the name to search for in the declaration stack, i.e. ClassName(...);
                 //
-                // let subDeclaration = findMethodCallTypeDeclaration(expressionNode.expression, fullScopeStack, codeFile);
+                // let subDeclaration = findMethodCallTypeDeclaration(expression.expression, fullScopeStack, codeFile);
                 // if (subDeclaration != null) {
                 //     if (subDeclaration.declarationType === DeclarationType.TYPE) {
                 //
@@ -255,7 +269,7 @@ let code_analysis = {};
         let name = "";
 
         if (methodCallNode.hasOwnProperty("expression") && methodCallNode.expression != null) {
-            const declaration = this.findTypeDeclaration(methodCallNode.expression, fullScopeStack, codeFile);
+            const declaration = this.findDeclaration(methodCallNode.expression, fullScopeStack, codeFile);
             if (declaration == null) {
                 if (methodCallNode.expression.node === "SimpleName") {
                     name = methodCallNode.expression.identifier + "." + methodCallNode.name.identifier;
@@ -335,6 +349,7 @@ let code_analysis = {};
         let branchScopes = [];
         let branchScopeDeclarations = [];
         let currentScopeFullyProcessed = true;
+        let fullScopeStack = scope.scopeStack.concat([scope]);
 
         function continueProcessingCurrentScope() {
             currentScopeFullyProcessed = false;
@@ -421,7 +436,6 @@ let code_analysis = {};
                 );
                 break;
             case "SwitchStatement":
-                //TODO: probably not 100%, switch statement cases can have scopes too
                 scope.setNextBatchOfChildAstNodes(astNode.statements.map(switchCase => switchCase.expression).concat([astNode.expression]));
                 continueProcessingCurrentScope();
                 break;
@@ -492,7 +506,6 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
-                let fullScopeStack = scope.scopeStack.concat([scope]);
                 let name = this.determineMethodOwningClassFromInvocation(astNode, fullScopeStack, codeFile);
                 enclosingTypeInformation.methodCalls.push(new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
@@ -528,6 +541,11 @@ let code_analysis = {};
                 break;
             default:
                 break;
+        }
+
+        const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);
+        if(possibleDeclarationForUsage != null){
+            enclosingTypeInformation.usages.push(new Usage(astNode, codeFile.trCodeLines[astNode.location.start.line-1], possibleDeclarationForUsage));
         }
 
         if (!currentScopeFullyProcessed) {
