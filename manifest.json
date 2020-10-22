@@ -8,9 +8,13 @@
    "content_scripts": [ 
       {
          "all_frames": false,
-         "css": [ "css/style.css"],
+         "css": [
+            "css/style.css",
+            "css/highlight.min.css"
+         ],
          "js": [
-            "third_party/javaparser7.min.js", 
+            "third_party/javaparser7.min.js",
+            "third_party/highlight.min.js",
             "third_party/jquery-3.5.1.min.js", 
             "third_party/underscore-min.js", 
             "third_party/mustache.js", 

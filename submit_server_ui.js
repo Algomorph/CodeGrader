@@ -2,32 +2,57 @@ function scrollToFirstFile(filesToCheck) {
     let found = false;
     let i_file = 0;
     let links = null;
-    while(!found && i_file < filesToCheck.length){
+    while (!found && i_file < filesToCheck.length) {
         links = $(".link.link-block:contains('" + filesToCheck[i_file] + "')");
         found = links.length > 0;
         i_file++;
     }
-    if(found){
+    if (found) {
         links[0].click();
     }
 }
 
-function recolorCheckedFileLinks(filesToCheck){
-    for(const filePath of filesToCheck){
+function recolorCheckedFileLinks(filesToCheck) {
+    for (const filePath of filesToCheck) {
         $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
     }
 }
 
-function getSourceFileContainer(filename) {
-    return $("div.GMYHEHOCNK:contains('" + filename + "')").parent();
+
+function highlightAllCheckedCode(filesToCheck) {
+    //TODO: code highlighting doesn't play nice with tables, since it actually has a parser of its own and requires
+    // the full code.
+    let preTags = $("table.code-grid").parent();
+    let filesToCheckSet = new Set(filesToCheck);
+    for (const preTag of preTags) {
+        const filePanelTitle = ($(preTag).parent().find("div.GMYHEHOCNK").text());
+        if(filesToCheckSet.has(filePanelTitle)){
+            const codeDivElements = $(preTag).find("tr").find(".gwt-Label");
+            for(const codeDiv of codeDivElements){
+                const preTag = document.createElement("pre");
+                const codeTag = document.createElement("code");
+                codeTag.textContent = $(codeDiv).text();
+                $(codeTag).addClass("java");
+                $(codeTag).addClass("hljs");
+                codeDiv.textContent = ""
+                preTag.appendChild(codeTag);
+                codeDiv.appendChild(preTag);
+            }
+        }
+    }
+}
+
+
+function getSourceFileContainer(filePath) {
+    return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
 }
 
 function getScrollableSourceFilePane() {
     return $(".GMYHEHOCJK");
 }
 
-function getTrCodesForCodeFile(filename) {
-    return $.makeArray(getSourceFileContainer(filename).find("tr"));
+function getTrCodesForCodeFile(filePath) {
+    return $.makeArray(getSourceFileContainer(filePath).find("tr"));
 }
 
 function getCodeFromTrCodeLine(trCodeLine) {
@@ -159,7 +184,7 @@ function highlightSection(tr, start, color) {
     $(codeNumber).css("border-left", "3px solid " + color);
     let codeLine = $(tr).find(".gwt-Label")[0];
 
-    if($(codeLine).find(".code").length > 0){
+    if ($(codeLine).find(".code").length > 0) {
         codeLine = $(codeLine).find(".code")[0];
     }
 

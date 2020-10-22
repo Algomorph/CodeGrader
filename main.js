@@ -1,6 +1,7 @@
 /*
  * Checks the URL or other property of the current web page and run allowed function
  */
+
 function main(optionItems) {
     let options = optionItems.options;
 
@@ -43,6 +44,9 @@ function main(optionItems) {
 
         // check if it's the right course & project
         if ($("h1").text().match(projectName)) {
+            //FIXME
+            // highlightAllCheckedCode(options.filesToCheck);
+            // hljs.initHighlightingOnLoad();
             recolorCheckedFileLinks(options.filesToCheck);
             scrollToFirstFile(options.filesToCheck);
             constructUiPanel(options);
