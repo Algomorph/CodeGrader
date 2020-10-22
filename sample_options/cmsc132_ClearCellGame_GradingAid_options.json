@@ -3,7 +3,7 @@
         "src/model/ClearCellGame.java",
         "src/model/Game.java",
         "ClearCellGame/src/main/java/model/ClearCellGame.java",
-        "ClearCellGame/src/main/java/model/Game.java",
+        "ClearCellGame/src/main/java/model/Game.java"
     ],
     "moduleOptions": {
         "brace_style_module": {

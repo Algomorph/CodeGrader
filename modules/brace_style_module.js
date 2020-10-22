@@ -16,6 +16,43 @@ let brace_style_module = {};
         return new Options();
     }
 
+
+    /**
+     * Represents location of a specific character in the code
+     */
+    class CharacterLocation {
+        /**
+         * Instantiate a character location descriptor
+         * @param {Number} line (1-based) line number where the character occurs
+         * @param {Number} column (0-based) visual column/indentation of the character
+         * (treats tab characters & comments inside indentation before code specially,
+         * see getIndentationWidth() in utilities)
+         * @param {Number} offsetInLine (0-based) index of character in code line
+         * @param {Number} offset (0-based) index of character in code
+         */
+        constructor(line, column, offsetInLine, offset) {
+            this.line = line;
+            this.column = column;
+            this.offsetInLine = offsetInLine;
+            this.offset = offset;
+        }
+    }
+
+    /**
+     * Represents location of a set of characters in the code
+     */
+    class CodeSegmentLocation {
+        /**
+         *
+         * @param {CharacterLocation} start
+         * @param {CharacterLocation} end
+         */
+        constructor(start, end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+
     const BracePairLocationType = {
         IF_BODY: "if statement body",
         ELSE_CLAUSE: "else clause",
@@ -107,13 +144,15 @@ let brace_style_module = {};
          * control statement (potentially with clauses), such as 'if', 'try', etc. or declaration (including the signature).
          * * @param {{location : {start : {offset : Number, line : Number, column : Number},
          * end :  {offset : Number, line : Number, column : Number}}}} braceAstNode the AST node of the actual scope the brace opens
+         * @param {CodeSegmentLocation} bracedCodeLocation exacted location of the braced code (including braces themselves)
          * @param {Array.<string>} matchingStyles the list of styles the brace pair satisfies (see BraceStyle)
          * @param {Array.<BraceStyleError>} braceStyleErrors the detected brace style errors  (if any)
          * @param {string} locationType brace location type
          */
-        constructor(rootAstNode, braceAstNode, matchingStyles, braceStyleErrors, locationType) {
+        constructor(rootAstNode, braceAstNode, bracedCodeLocation, matchingStyles, braceStyleErrors, locationType) {
             this.rootAstNode = rootAstNode;
             this.braceAstNode = braceAstNode;
+            this.bracedCodeLocation = bracedCodeLocation;
             this.braceStyles = matchingStyles;
             this.braceStyleErrors = braceStyleErrors;
             this.braceLocationType = locationType;
@@ -235,6 +274,27 @@ let brace_style_module = {};
         }
     }
 
+    /**
+     * Finds the exact code segment location of braced body for a root node involving braces that doesn't have its body
+     * explicitly defined by the parser, e.g. a switch statement or a class body.
+     * @param {{location : {start: {offset, line, column}, end : {offset, line, column}}}} rootBraceNode
+     * @param {CodeFile} codeFile
+     */
+    function getNonNodeBody(rootBraceNode, codeFile){
+        let nodeCode = getNodeCode(codeFile, rootBraceNode);
+        const openingBraceRegex = /^[^{]*/m;
+
+    }
+
+
+    /**
+     * Find the exact code segment location of a braced statement body or clause, such as an if statement,
+     * for statement, etc., or just the code if the body is unbraced (applicable to if, while, for statement bodies
+     * consisting of a single statement/expression).
+     * @param {{location : {start: {offset, line, column}, end : {offset, line, column}}}} clauseOrBodyNode
+     * @param {CodeFile} codeFile the code file where the clauseOrBodyNode came from
+     * @return {CodeSegmentLocation} location of the entire body/clause cause, including braces if present
+     */
     function getBodyOrClauseStartAndEnd(clauseOrBodyNode, codeFile) {
         const startLine = clauseOrBodyNode.location.start.line;
         const startCodeLine = codeFile.codeLines[startLine - 1];
@@ -250,31 +310,35 @@ let brace_style_module = {};
                 iFinalBodyCodeLine--;
                 lastBodyLine = bodyCodeLines[iFinalBodyCodeLine];
             }
-            return {
-                start: {
-                    line: startLine,
-                    column: getIndentationWidth(startCodeLine) + removeIndentation(startCodeLine).width - removeIndentation(bodyCodeLines[0]).width,
-                    offsetInLine: clauseOrBodyNode.location.start.column - 1
-                },
-                end: {
-                    line: clauseOrBodyNode.location.start.line + iFinalBodyCodeLine,
-                    column: getIndentationWidth(lastBodyLine),
-                    offsetInLine: lastBodyLine.length - 1
-                }
-            };
+            return new CodeSegmentLocation(
+                new CharacterLocation(
+                    startLine,
+                    getIndentationWidth(startCodeLine) + removeIndentation(startCodeLine).width - removeIndentation(bodyCodeLines[0]).width,
+                    clauseOrBodyNode.location.start.column - 1,
+                    clauseOrBodyNode.location.start.offset
+                ),
+                new CharacterLocation(
+                    clauseOrBodyNode.location.start.line + iFinalBodyCodeLine,
+                    getIndentationWidth(lastBodyLine),
+                    lastBodyLine.length - 1,
+                    codeFile.lineStartOffsets[clauseOrBodyNode.location.start.line + iFinalBodyCodeLine - 1] + lastBodyLine.length - 1
+                )
+            );
         } else {
-            return {
-                start: {
-                    line: startLine,
-                    column: getIndentationWidth(startCodeLine),
-                    offsetInLine: clauseOrBodyNode.location.start.column - 1
-                },
-                end: {
-                    line: clauseOrBodyNode.location.end.line,
-                    column: clauseOrBodyNode.location.end.column,
-                    offsetInLine: clauseOrBodyNode.location.end.column - 1
-                }
-            };
+            return new CodeSegmentLocation(
+                new CharacterLocation(
+                    startLine,
+                    getIndentationWidth(startCodeLine),
+                    clauseOrBodyNode.location.start.column - 1,
+                    clauseOrBodyNode.location.start.offset
+                ),
+                new CharacterLocation(
+                    clauseOrBodyNode.location.end.line,
+                    clauseOrBodyNode.location.end.column,
+                    clauseOrBodyNode.location.end.column - 1,
+                    clauseOrBodyNode.location.end.offset
+                )
+            );
         }
     }
 
@@ -283,7 +347,7 @@ let brace_style_module = {};
      * @param {Object} rootNode
      * @param {Object} bodyOrClauseNode
      * @param {Number} statementStartColumn
-     * @param {{start: {line: Number, column: Number}, end: {line: Number, column: Number}}} bracedCodeLocation
+     * @param {CodeSegmentLocation} bracedCodeLocation
      * @param {{line: Number, column: Number}} locationBeforeBrace
      * @param {string} bracePairLocationType
      * @param {CodeFile} codeFile
@@ -326,7 +390,7 @@ let brace_style_module = {};
                 }
             }
         }
-        return new BracePair(rootNode, bodyOrClauseNode, matchedBraceStyles, braceErrors, bracePairLocationType);
+        return new BracePair(rootNode, bodyOrClauseNode, bracedCodeLocation, matchedBraceStyles, braceErrors, bracePairLocationType);
     }
 
     /**
@@ -361,13 +425,12 @@ let brace_style_module = {};
             //TODO: handle body == null case for ClassDeclaration and SwitchStatement
             //if(bodyNode != null){
             let locationBeforeBrace = findNonSpaceBeforeBody(astNode, bodyNode, codeFile);
-
-
+            let bracedCodeStartAndEnd = getBodyOrClauseStartAndEnd(bodyNode, codeFile);
 
             let codeLineBeforeBrace = codeFile.codeLines[astNode.location.start.line - 1];
             const statementStartColumn = getIndentationWidth(codeLineBeforeBrace);
 
-            let bracedCodeStartAndEnd = getBodyOrClauseStartAndEnd(bodyNode, codeFile);
+
             let bracePair = getBracePair(astNode, bodyNode, statementStartColumn, bracedCodeStartAndEnd,
                 locationBeforeBrace, braceScopeNode.bodyLocation, codeFile);
             bracePairs.push(bracePair);

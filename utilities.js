@@ -20,8 +20,12 @@ class CodeFile {
         this.codeLines = sourceCode.split("\n");
         this.codeLineLengths = this.codeLines.map(codeLine => codeLine.length);
         let offset = 0;
+        /** @type {Array.<Number>}*/
+        this.lineStartOffsets = [];
+        /** @type {Array.<Number>}*/
         this.lineEndOffsets = [];
         $.each(this.codeLineLengths, (iLine, length) => {
+            this.lineStartOffsets.push(offset);
             offset += length;
             this.lineEndOffsets.push(offset);
         });
@@ -109,7 +113,6 @@ function getCheckedFileCode(filesToCheck) {
     return [fileDictionary, trCodeLines];
 }
 
-
 //TODO: use in indentation_module instead of countIndent after Matt is done working on it
 /**
  * Gets width of indentation, in spaces or space-equivalents, for a given code line
@@ -117,26 +120,7 @@ function getCheckedFileCode(filesToCheck) {
  * @param {number} tabWidth assumed tab width
  * @return {number} indentation character count
  */
-function getIndentationWidth2(codeLine, tabWidth = 4) {
-
-    let whitespaceCharacterCount = codeLine.length - codeLine.trimStart().length;
-    if (codeLine.indexOf("*/") !== -1) {
-        whitespaceCharacterCount = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
-    }
-    let iWhitespaceCharacter = 0;
-    let width = 0;
-    for (; iWhitespaceCharacter < whitespaceCharacterCount; iWhitespaceCharacter++) {
-        if (codeLine.charAt(iWhitespaceCharacter) === '\t') {
-            width = (Math.floor(width / tabWidth) + 1) * tabWidth;
-        } else {
-            width++;
-        }
-    }
-    return width;
-}
-
 let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
-
 function getIndentationWidth(codeLine, tabWidth = 4) {
     let tabReplacement = " ".repeat(tabWidth);
     return codeLine.match(indentationRegEx)[0].replace("\t", tabReplacement).length;

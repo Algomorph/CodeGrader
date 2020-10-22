@@ -79,6 +79,9 @@ let code_analysis = {};
             this.typeArguments = typeArguments;
             this.astNode = astNode;
             this.declarationType = DeclarationTypeByNode[astNode.node];
+            if(this.declarationType === DeclarationType.METHOD && astNode.hasOwnProperty("constructor") && astNode.constructor){
+                this.declarationType = DeclarationType.CONSTRUCTOR;
+            }
             this.final = false;
             if (astNode.hasOwnProperty("location")) {
                 this.trCodeLine = codeFile.trCodeLines[astNode.location.start.line - 1];
