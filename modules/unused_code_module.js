@@ -5,7 +5,8 @@ let unused_code_module = {};
         /**
          * Build default options
          * @param {boolean} enabled whether the module is enabled.
-         * @param {boolean} markAllUsages whether to mark every single type/method/variable usage in the code, regardless of detected errors.
+         * @param {boolean} markAllUsages whether to mark every single type/method/variable usage in the code, regardless
+         * of detected errors, except for those in ignoredNames.
          * @param {boolean} checkVariables check usage of constants, fields, parameters, and local variables
          * @param {boolean} checkMethods check usage of methods and constructors
          * @param {boolean} checkTypes check usage of classes/enums/interfaces
@@ -86,14 +87,22 @@ let unused_code_module = {};
             declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT);
         }
 
+        const globalIgnoredNames = options.ignoredNames.global;
+
         for (const codeFile of codeFileDictionary.values()) {
             // compile identifier usage set
             for (const [typeName, typeInformation] of codeFile.types) {
+                let ignoredNamesForType = [...globalIgnoredNames];
+                if (options.ignoredNames.hasOwnProperty(typeName)) {
+                    ignoredNamesForType.push(...options.ignoredNames[typeName]);
+                }
+                ignoredNamesForType = new Set(ignoredNamesForType);
+
                 /**@type {Set.<string>}*/
                 const usageSet = new Set();
 
                 for (const usage of typeInformation.usages) {
-                    if (!declarationTypesToIgnore.has(usage.declaration.declarationType)) {
+                    if (!declarationTypesToIgnore.has(usage.declaration.declarationType) && !ignoredNamesForType.has(usage.declaration.name)) {
                         usageSet.add(usage.declaration.name);
                         if (options.markAllUsages) {
                             let usageMarkerText =
@@ -105,7 +114,7 @@ let unused_code_module = {};
                     }
                 }
                 for (const declaration of typeInformation.declarations) {
-                    if (!declarationTypesToIgnore.has(declaration.declarationType) && !usageSet.has(declaration.name)) {
+                    if (!declarationTypesToIgnore.has(declaration.declarationType) && !usageSet.has(declaration.name) && !ignoredNamesForType.has(declaration.name)) {
                         const unusedDeclarationMessage =
                             "Unused" + UsageTypeByDeclarationType.get(declaration.declarationType)
                             + ": \"" + declaration.name + "\".";

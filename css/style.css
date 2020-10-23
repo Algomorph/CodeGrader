@@ -76,10 +76,6 @@
 	margin:3px;
 }
 
-body{
-	overflow: hidden;
-}
-
 .ui-panel-container {
     position: absolute;
     padding-left: 220px;
@@ -137,6 +133,7 @@ body{
 	border-radius:2px;
     z-index: 5;
 }
+
 
 .has-tooltip {
     position: relative;
