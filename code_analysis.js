@@ -79,7 +79,7 @@ let code_analysis = {};
             this.typeArguments = typeArguments;
             this.astNode = astNode;
             this.declarationType = DeclarationTypeByNode[astNode.node];
-            if(this.declarationType === DeclarationType.METHOD && astNode.hasOwnProperty("constructor") && astNode.constructor){
+            if (this.declarationType === DeclarationType.METHOD && astNode.hasOwnProperty("constructor") && astNode.constructor) {
                 this.declarationType = DeclarationType.CONSTRUCTOR;
             }
             this.final = false;
@@ -106,14 +106,28 @@ let code_analysis = {};
         }
     }
 
+    /**
+     * Represents a single scope (stack) in the code.
+     */
     class Scope {
         constructor(astNode, declarations, children, scopeStack) {
+            /** @type {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}}}
+             * @description the AST node that encompasses the entire scope (and, possibly, other scopes if it has body
+             * and, potentially, multiple scoped clauses, such as an if statement with else-if/else clauses) */
             this.astNode = astNode;
             this.declarations = new Map();
             for (const declaration of declarations) {
                 this.declarations.set(declaration.name, declaration);
             }
+            /**
+             * @description At the end of entity search, contains a flattened array of all nodes within the current node
+             * ("Flattened" meaning, e.g. for an ArrayAccess node, the node within its .array property is also in this
+             * array along with the parent.)
+             */
             this.childAstNodes = children;
+            /**
+             * @description used, in some cases, for temporary results during the entity search
+             */
             this.unprocessedChildAstNodes = children;
             this.scopeStack = scopeStack;
         }
@@ -124,14 +138,14 @@ let code_analysis = {};
         }
     }
 
-    class Usage{
+    class Usage {
         /**
          * Define a usage instance
          * @param {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}}} astNode
          * @param {HTMLTableRowElement} trCodeLine
          * @param {Declaration} declaration
          */
-        constructor(astNode, trCodeLine, declaration){
+        constructor(astNode, trCodeLine, declaration) {
             this.astNode = astNode;
             this.trCodeline = trCodeLine;
             this.declaration = declaration;
@@ -475,6 +489,10 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes([astNode.operand]);
                 continueProcessingCurrentScope();
                 break;
+            case "ArrayAccess":
+                scope.setNextBatchOfChildAstNodes([astNode.array, astNode.index]);
+                continueProcessingCurrentScope();
+                break;
             case "Assignment":
                 scope.setNextBatchOfChildAstNodes([astNode.leftHandSide, astNode.rightHandSide]);
                 enclosingTypeInformation.assignments.push(astNode);
@@ -544,8 +562,8 @@ let code_analysis = {};
         }
 
         const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);
-        if(possibleDeclarationForUsage != null){
-            enclosingTypeInformation.usages.push(new Usage(astNode, codeFile.trCodeLines[astNode.location.start.line-1], possibleDeclarationForUsage));
+        if (possibleDeclarationForUsage != null) {
+            enclosingTypeInformation.usages.push(new Usage(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], possibleDeclarationForUsage));
         }
 
         if (!currentScopeFullyProcessed) {

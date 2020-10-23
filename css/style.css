@@ -44,6 +44,18 @@
 	background-color: #0e7797;
 }
 
+.unused-variable-problem {
+	background-color: #802400;
+}
+
+.unused-method-problem {
+	background-color: #5c4303;
+}
+
+.unused-type-problem {
+	background-color: #994500;
+}
+
 .possibly-ignored-method-call {
 	background-color: #77929c;
 }

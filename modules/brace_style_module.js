@@ -550,6 +550,7 @@ let brace_style_module = {};
 
     }
 
+
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
      * @param {HTMLDivElement} uiPanel main panel where to add controls

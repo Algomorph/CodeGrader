@@ -11,6 +11,10 @@ input.hidden-active {
     top: 0;
 }
 
+body{
+    overflow: hidden;
+}
+
 html, body, .container {
     height: 100%;
     margin-left: 0;
