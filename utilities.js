@@ -10,6 +10,7 @@ class TypeInformation {
         this.binaryExpressions = [];
         this.unaryExpressions = [];
         this.assignments = [];
+        /** @type {Array.<Usage>}*/
         this.usages = [];
     }
 }

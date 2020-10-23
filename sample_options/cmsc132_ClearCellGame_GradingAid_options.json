@@ -7,10 +7,11 @@
     ],
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true
+            "enabled": true,
+            "markAllBraces": false
         },
         "indentation_module": {
-            "enabled": false
+            "enabled": true
         },
         "keyword_module": {
             "enabled": false,
@@ -28,7 +29,7 @@
                 "min",
                 "max"
             ],
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
                 "WebPage": [
                     "findElem",
@@ -36,13 +37,17 @@
                 ],
                 "global": []
             },
-            "numbersAllowedInNames": true,
+            "numbersAllowedInNames": false,
             "showUniqueOnly": true
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
-            "enabled": false
+            "enabled": true
+        },
+        "unused_code_module": {
+            "enabled": true,
+            "markAllUsages": false
         }
     },
     "module_options": {

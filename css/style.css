@@ -64,16 +64,29 @@
 	margin:3px;
 }
 
+body{
+	overflow: hidden;
+}
+
 .ui-panel-container {
     position: absolute;
     padding-left: 220px;
     width: 450px;
     right: 0px;
     top:0px;
-    overflow: scroll;
+    overflow-y: auto;
+	overflow-x: visible;
     height:100%;
     pointer-events: none;
+	/*IE/Edge/Firefox -- hide scrollbar*/
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
 }
+/* Hide scrollbar for Chrome, Safari and Opera */
+.ui-panel-container::-webkit-scrollbar{
+	display: none;
+}
+
 
 .ui-panel {
 	z-index:10;
