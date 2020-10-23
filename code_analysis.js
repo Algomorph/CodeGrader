@@ -362,11 +362,14 @@ let code_analysis = {};
 
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
-            case "TypeDeclaration":
-                branchScopes.push(new Scope(astNode,
+            case "TypeDeclaration": {
+                const typeScope = new Scope(astNode,
                     [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
                         new Declaration(astNode.name.identifier, "type", [], astNode, codeFile)],
-                    astNode.bodyDeclarations, scope.scopeStack.concat([scope])));
+                    astNode.bodyDeclarations, scope.scopeStack.concat([scope]));
+                branchScopes.push(typeScope);
+                enclosingTypeInformation.typeScope = typeScope;
+            }
                 break;
             case "MethodDeclaration": {
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
@@ -516,9 +519,6 @@ let code_analysis = {};
                 break;
             case "MethodInvocation": {
                 let methodCallIdentifier = this.determineMethodCallIdentifier(astNode, fullScopeStack, codeFile);
-                if(astNode.name.identifier === "gameBoard2"){
-                    console.log(astNode, this.findDeclaration(astNode, fullScopeStack, codeFile), fullScopeStack);
-                }
                 enclosingTypeInformation.methodCalls.push(new MethodCall(methodCallIdentifier,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
                 {
@@ -560,7 +560,6 @@ let code_analysis = {};
 
         const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);
         if (possibleDeclarationForUsage != null) {
-
             enclosingTypeInformation.usages.push(new Usage(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], possibleDeclarationForUsage));
         }
 
@@ -596,6 +595,19 @@ let code_analysis = {};
                 for (const scope of typeInformation.scopes) {
                     typeInformation.declarations.push(...scope.declarations.values());
                 }
+
+                //method invocations occur before definitions sometimes, account for those.
+                const methodUsageSet = new Set(typeInformation.usages.filter(usage => usage.declaration.declarationType === DeclarationType.METHOD ||
+                    usage.declaration.declarationType === DeclarationType.CONSTRUCTOR).map(usage => usage.astNode));
+                for (const methodCall of typeInformation.methodCalls) {
+                    if (!methodUsageSet.has(methodCall.astNode)) {
+                        const possibleDeclarationForUsage = this.findDeclaration(methodCall.astNode, [typeInformation.typeScope], codeFile);
+                        if (possibleDeclarationForUsage != null) {
+                            typeInformation.usages.push(new Usage(methodCall.astNode, codeFile.trCodeLines[methodCall.astNode.location.start.line - 1], possibleDeclarationForUsage));
+                        }
+                    }
+                }
+
                 codeFile.types.set(typeNode.name.identifier, typeInformation);
             }
         }

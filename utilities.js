@@ -3,6 +3,7 @@
 
 class TypeInformation {
     constructor() {
+        /** @type {Array.<MethodCall>}*/
         this.methodCalls = [];
         this.declarations = [];
         this.scopes = [];
@@ -12,6 +13,7 @@ class TypeInformation {
         this.assignments = [];
         /** @type {Array.<Usage>}*/
         this.usages = [];
+        this.typeScope = null;
     }
 }
 
