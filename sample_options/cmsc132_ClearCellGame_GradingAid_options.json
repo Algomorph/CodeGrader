@@ -46,7 +46,34 @@
             "enabled": true
         },
         "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
             "enabled": true,
+            "ignoredNames": {
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
+                ],
+                "global": []
+            },
             "markAllUsages": false
         }
     },
