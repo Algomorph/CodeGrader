@@ -599,6 +599,7 @@ let code_analysis = {};
                 //method invocations occur before definitions sometimes, account for those.
                 const methodUsageSet = new Set(typeInformation.usages.filter(usage => usage.declaration.declarationType === DeclarationType.METHOD ||
                     usage.declaration.declarationType === DeclarationType.CONSTRUCTOR).map(usage => usage.astNode));
+                //TODO: somehow, also account for fields in a similar way
                 for (const methodCall of typeInformation.methodCalls) {
                     if (!methodUsageSet.has(methodCall.astNode)) {
                         const possibleDeclarationForUsage = this.findDeclaration(methodCall.astNode, [typeInformation.typeScope], codeFile);
