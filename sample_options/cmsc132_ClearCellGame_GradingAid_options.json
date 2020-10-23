@@ -31,9 +31,26 @@
             ],
             "enabled": true,
             "ignoredNames": {
-                "WebPage": [
-                    "findElem",
-                    "stats"
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
                 ],
                 "global": []
             },
