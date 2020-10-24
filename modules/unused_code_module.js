@@ -115,8 +115,9 @@ let unused_code_module = {};
                 }
                 for (const declaration of typeInformation.declarations) {
                     if (!declarationTypesToIgnore.has(declaration.declarationType) && !usageSet.has(declaration.name) && !ignoredNamesForType.has(declaration.name)) {
+
                         const unusedDeclarationMessage =
-                            "Unused" + UsageTypeByDeclarationType.get(declaration.declarationType)
+                            "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
                             + ": \"" + declaration.name + "\".";
                         const trCodeLine = codeFile.trCodeLines[declaration.astNode.location.start.line - 1];
                         const buttonClass = ButtonClassByDeclarationType.get(declaration.declarationType);

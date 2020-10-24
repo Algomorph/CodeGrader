@@ -493,6 +493,10 @@ let code_analysis = {};
                 enclosingTypeInformation.assignments.push(astNode);
                 continueProcessingCurrentScope();
                 break;
+            case "ArrayCreation":
+                scope.setNextBatchOfChildAstNodes(astNode.dimensions);
+                continueProcessingCurrentScope();
+                break;
             case "SuperMethodInvocation":
                 enclosingTypeInformation.methodCalls.push(new MethodCall("super.",
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD));

@@ -36,7 +36,8 @@
                     "getScore",
                     "isGameOver",
                     "nextAnimationStep",
-                    "processCell"
+                    "processCell",
+"strategy"
                 ],
                 "Game": [
                     "Game",
@@ -73,7 +74,8 @@
                     "getScore",
                     "isGameOver",
                     "nextAnimationStep",
-                    "processCell"
+                    "processCell",
+                    "strategy"
                 ],
                 "Game": [
                     "Game",
