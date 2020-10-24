@@ -127,7 +127,7 @@ function getCheckedFileCode(filesToCheck) {
 let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
 function getIndentationWidth(codeLine, tabWidth = 4) {
     let tabReplacement = " ".repeat(tabWidth);
-    return codeLine.match(indentationRegEx)[0].replace("\t", tabReplacement).length;
+    return codeLine.match(indentationRegEx)[0].replaceAll("\t", tabReplacement).length;
 }
 
 function removeIndentation(codeLine){

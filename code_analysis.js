@@ -444,16 +444,21 @@ let code_analysis = {};
                 );
                 break;
             case "SwitchStatement":
-                scope.setNextBatchOfChildAstNodes(astNode.statements.map(switchCase => switchCase.expression).concat([astNode.expression]));
+                scope.setNextBatchOfChildAstNodes(astNode.statements.concat([astNode.expression]));
+                continueProcessingCurrentScope();
+                break;
+            case "PrefixExpression":
+            case "PostfixExpression":
+                enclosingTypeInformation.unaryExpressions.push(astNode);
+                scope.setNextBatchOfChildAstNodes([astNode.operand]);
                 continueProcessingCurrentScope();
                 break;
             case "ExpressionStatement":
-                if (astNode.hasOwnProperty("expression") && (astNode.expression.node === "PostfixExpression" || astNode.expression.node !== "PrefixExpression")) {
-                    enclosingTypeInformation.unaryExpressions.push(astNode);
-                }
             case "ParenthesizedExpression":
             case "ReturnStatement":
             case "ThrowStatement":
+            case "SwitchCase":
+            case "FieldAccess":
                 if (astNode.expression != null) {
                     scope.setNextBatchOfChildAstNodes([astNode.expression]);
                     continueProcessingCurrentScope();
@@ -477,10 +482,6 @@ let code_analysis = {};
             case "InfixExpression":
                 scope.setNextBatchOfChildAstNodes([astNode.leftOperand, astNode.rightOperand]);
                 enclosingTypeInformation.binaryExpressions.push(astNode);
-                continueProcessingCurrentScope();
-                break;
-            case "PrefixExpression":
-                scope.setNextBatchOfChildAstNodes([astNode.operand]);
                 continueProcessingCurrentScope();
                 break;
             case "ArrayAccess":
@@ -511,10 +512,6 @@ let code_analysis = {};
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR));
             }
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
-                continueProcessingCurrentScope();
-                break;
-            case "FieldAccess":
-                scope.setNextBatchOfChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
