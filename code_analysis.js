@@ -543,6 +543,7 @@ let code_analysis = {};
                 break;
             case "VariableDeclarationFragment":
                 if (astNode.initializer !== null) {
+                    enclosingTypeInformation.assignments.push(astNode);
                     scope.setNextBatchOfChildAstNodes([astNode.initializer]);
                     continueProcessingCurrentScope();
                 }
