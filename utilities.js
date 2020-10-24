@@ -134,6 +134,11 @@ function removeIndentation(codeLine){
     return codeLine.replace(indentationRegEx, "");
 }
 
+
+function trimRightWhitespaceAndComments(codeText){
+    return codeText.replace(/\s*(?:\s*\/\/.*|\s*\/\*.*\*\/)*(?:\/\*.*)?$/, "");
+}
+
 /**
  * Retrieve the code associated with the provided AST node.
  * @param {{location : {offset: *, line: *, column: *}}} astNode

@@ -272,6 +272,7 @@ let brace_style_module = {};
         }
     }
 
+
     /**
      * For a given code segment, find the line that ends in a closing brace (and, potentially, whitespace).
      * Assumes the line exists in the code.
@@ -280,10 +281,10 @@ let brace_style_module = {};
      */
     function findLastLineWithClosingBrace(codeLines) {
         let iLineWithClosingBrace = codeLines.length - 1;
-        let lineWithClosingBrace = codeLines[iLineWithClosingBrace];
-        while (!lineWithClosingBrace.trim().endsWith('}')) {
+        let lineWithClosingBrace = trimRightWhitespaceAndComments(codeLines[iLineWithClosingBrace]);
+        while (!lineWithClosingBrace.endsWith('}')) {
             iLineWithClosingBrace--;
-            lineWithClosingBrace = codeLines[iLineWithClosingBrace];
+            lineWithClosingBrace = trimRightWhitespaceAndComments(codeLines[iLineWithClosingBrace]);
         }
         return [lineWithClosingBrace, iLineWithClosingBrace];
     }
@@ -432,6 +433,7 @@ let brace_style_module = {};
                 // starting brace is on the same line with "if", assume 1TBS
                 matchedBraceStyles = [BraceStyle.ONE_TBS];
                 if (statementStartColumn !== bracedCodeLocation.end.column) {
+                    logNodeCode(rootNode, codeFile);
                     braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                 }
             } else if (locationBeforeBrace.line === bodyOrClauseNode.location.start.line - 1) {
