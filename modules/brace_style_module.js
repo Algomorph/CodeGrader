@@ -92,7 +92,7 @@ let brace_style_module = {};
 
     const BraceStyleErrorTypeShortDescription = new Map([
         [BraceStyleErrorType.BRACES_MISSING, "braces missing"],
-        [BraceStyleErrorType.WRONG_BRACE_INDENTATION, "Unmatched brace"],
+        [BraceStyleErrorType.WRONG_BRACE_INDENTATION, "brace not matching indent"],
         [BraceStyleErrorType.WRONG_BRACE_LINE, "brace on wrong line"],
         [BraceStyleErrorType.WRONG_CLAUSE_INDENTATION, "clause not aligned"],
         [BraceStyleErrorType.WRONG_CLAUSE_LINE, "clause on wrong line"]
@@ -312,10 +312,11 @@ let brace_style_module = {};
         let [lastBodyLine, iFinalBodyCodeLine] = findLastLineWithClosingBrace(nodeCodeLines);
         const closingBraceOffsetInLine = lastBodyLine.trim().length - 1;
         const closingBraceLineNumber = openingBraceLineNumber + iFinalBodyCodeLine;
+        const openingBraceColumn = getIndentationWidth(codeFile.codeLines[openingBraceLineNumber - 1]) + removeIndentation(codeBeforeBraceLines[codeBeforeBraceLines.length - 1]).length;
         let nonNodeBodyLocation = new CodeSegmentLocation(
             new CharacterLocation(
                 openingBraceLineNumber,
-                getIndentationWidth(codeFile.codeLines[openingBraceLineNumber - 1]) + removeIndentation(codeBeforeBraceLines[codeBeforeBraceLines.length - 1]).length - 1,
+                openingBraceColumn,
                 codeBeforeBraceLines[codeBeforeBraceLines.length - 1].length,
                 rootBraceNode.location.start.offset + openingMatches[1].length + 1 + openingMatches[3].length
             ),
@@ -374,10 +375,11 @@ let brace_style_module = {};
             const bodyCode = getNodeCode(clauseOrBodyNode, codeFile, false);
             const bodyCodeLines = bodyCode.split('\n');
             let [lastBodyLine, iFinalBodyCodeLine] = findLastLineWithClosingBrace(bodyCodeLines);
+            const openingBraceColumn = getIndentationWidth(bodyStartLine) + removeIndentation(bodyStartLine).length - removeIndentation(bodyCodeLines[0]).length;
             return new CodeSegmentLocation(
                 new CharacterLocation(
                     bodyStartLineNumber,
-                    getIndentationWidth(bodyStartLine) + removeIndentation(bodyStartLine).width - removeIndentation(bodyCodeLines[0]).width,
+                    openingBraceColumn,
                     clauseOrBodyNode.location.start.column - 1,
                     clauseOrBodyNode.location.start.offset
                 ),
@@ -433,12 +435,12 @@ let brace_style_module = {};
                     braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                 }
             } else if (locationBeforeBrace.line === bodyOrClauseNode.location.start.line - 1) {
-                if (statementStartColumn === bracedCodeLocation.start.column || bracedCodeLocation.start.column === bracedCodeLocation.end.column) {
+                if (statementStartColumn === bracedCodeLocation.start.column || statementStartColumn === bracedCodeLocation.end.column) {
                     // starting brace and/or ending brace are on the next line from "if" and have no extra indent, assume Allman
                     matchedBraceStyles = [BraceStyle.ALLMAN];
                     if (statementStartColumn !== bracedCodeLocation.start.column) {
                         braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.start.line));
-                    } else if (bracedCodeLocation.start.column !== bracedCodeLocation.end.column) {
+                    } else if (statementStartColumn !== bracedCodeLocation.end.column) {
                         braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                     }
                 } else {
