@@ -530,9 +530,9 @@ let brace_style_module = {};
                         bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_LINE, expectedLineOfClauseKeyword, clause));
                     } else {
                         if (expectedColumnOfClauseKeyword != null) {
-                            const columnOfKeyword = getIndentationWidth(codeLineWhereKeywordIsExpected) + segmentWhereKeywordIsExpected.indexOf(clause.keyword);
+                            const columnOfKeyword = getIndentationWidth(codeLineWhereKeywordIsExpected) + removeIndentation(segmentWhereKeywordIsExpected).indexOf(clause.keyword);
                             if (columnOfKeyword !== expectedColumnOfClauseKeyword) {
-                                bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_LINE, expectedLineOfClauseKeyword, clause));
+                                bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_INDENTATION, expectedLineOfClauseKeyword, clause));
                             }
                         }
                     }
