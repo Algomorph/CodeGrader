@@ -417,7 +417,7 @@ let code_analysis = {};
                 branchScopes.push(
                     new Scope(
                         astNode, branchScopeDeclarations,
-                        astNode.updaters.concat([astNode.expression], astNode.initializers, astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]),
+                        astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body]),
                         scope.scopeStack.concat([scope])
                     )
                 );
