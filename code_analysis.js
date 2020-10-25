@@ -497,6 +497,10 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes(astNode.dimensions);
                 continueProcessingCurrentScope();
                 break;
+            case "ConditionalExpression":
+                scope.setNextBatchOfChildAstNodes([astNode.expression, astNode.thenExpression]);
+                continueProcessingCurrentScope();
+                break;
             case "LabeledStatement":
                 scope.setNextBatchOfChildAstNodes([astNode.body]);
                 continueProcessingCurrentScope();
