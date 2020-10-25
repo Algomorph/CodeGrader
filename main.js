@@ -51,23 +51,25 @@ function main(optionItems) {
             scrollToFirstFile(options.filesToCheck);
             constructUiPanel(options);
         }
+
+        // assign click event to predefined comment buttons
+        $(".tip").click(function () {
+            eventFire($(this).parent()[0], 'dblclick');
+            let self = this;
+            setTimeout(function () {
+                $(self).parent().parent().find("input[type='checkbox']").prop("checked", false);
+                let textBox = $(self).parent().parent().find("textarea");
+                textBox.attr("aria-hidden", "false");
+                if ($(self).attr('msg') !== "") {
+                    $(textBox).val($(self).attr('msg'));
+                    eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
+                } else {
+                    $(textBox).val("");
+                }
+            }, 500);
+        });
     }
-    // assign click event to predefined comment buttons
-    $(".tip").click(function () {
-        eventFire($(this).parent()[0], 'dblclick');
-        let self = this;
-        setTimeout(function () {
-            $(self).parent().parent().find("input[type='checkbox']").prop("checked", false);
-            let textBox = $(self).parent().parent().find("textarea");
-            textBox.attr("aria-hidden", "false");
-            if ($(self).attr('msg') !== "") {
-                $(textBox).val($(self).attr('msg'));
-                eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
-            } else {
-                $(textBox).val("");
-            }
-        }, 500);
-    });
+
 } // MAIN ENDS
 
 function constructUiPanel(options) {

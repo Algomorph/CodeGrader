@@ -564,6 +564,7 @@ function peg$parse(input, options) {
       peg$c75 = function(expr, then, alt) {
             return {
               node:          'ConditionalExpression',
+              location:       location(),
               expression:     expr,
               thenExpression: then,
               elseExpression: alt
