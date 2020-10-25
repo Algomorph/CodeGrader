@@ -11,14 +11,37 @@ this.initialize = function(uiPanel){
 	// report total score to grade server tab
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
 		console.log("report");
-		var studentId = $("h1").text().match(/cs131.../);
-		reportScore({
+
+		let directoryId = $("h1").text().split("(")[1].split(")")[0]
+		console.log(directoryId)
+		let finalComment = ""
+		// Using CSS selectors for majority of filtering
+		let classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)")
+		classes.each(function(){
+			let className = $(this).find("div.GMYHEHOCNK").text().split('/').slice(-1)[0]
+			console.log("className: "+ className)
+			finalComment += className + "\n"
+			let rowsWithComments = $(this).find("tr.modified-code-row:has(div.gwt-HTML.comment-text:visible)")
+			rowsWithComments.each(function(){
+				let lineNumber = $(this).find("td.line-number").text() //line numbers end with colons, eg 15:
+				let comments = $(this).find(".gwt-HTML.comment-text")
+				//Although unlikely, one row can have multiple comments
+				comments.each(function(){
+					let commentText = this.textContent
+					finalComment += lineNumber + commentText+"\n"
+				})
+			})
+		})
+		console.log(finalComment)
+		scores = 
+		/*reportScore({
 			studentId: studentId[0],
 			scores: [
 				{ column:'JUnit', score: $("input#score_JUnit").val() },
 				{ column:'Style', score: $("input#score_style").val() },
 			]
-		});
+		});*/
+
 	}).appendTo(uiPanel);
 }
 
