@@ -92,7 +92,7 @@ let brace_style_module = {};
 
     const BraceStyleErrorTypeShortDescription = new Map([
         [BraceStyleErrorType.BRACES_MISSING, "braces missing"],
-        [BraceStyleErrorType.WRONG_BRACE_INDENTATION, "Unmatched brace"],
+        [BraceStyleErrorType.WRONG_BRACE_INDENTATION, "brace not matching indent"],
         [BraceStyleErrorType.WRONG_BRACE_LINE, "brace on wrong line"],
         [BraceStyleErrorType.WRONG_CLAUSE_INDENTATION, "clause not aligned"],
         [BraceStyleErrorType.WRONG_CLAUSE_LINE, "clause on wrong line"]
@@ -272,6 +272,7 @@ let brace_style_module = {};
         }
     }
 
+
     /**
      * For a given code segment, find the line that ends in a closing brace (and, potentially, whitespace).
      * Assumes the line exists in the code.
@@ -280,10 +281,10 @@ let brace_style_module = {};
      */
     function findLastLineWithClosingBrace(codeLines) {
         let iLineWithClosingBrace = codeLines.length - 1;
-        let lineWithClosingBrace = codeLines[iLineWithClosingBrace];
-        while (!lineWithClosingBrace.trim().endsWith('}')) {
+        let lineWithClosingBrace = trimRightWhitespaceAndComments(codeLines[iLineWithClosingBrace]);
+        while (!lineWithClosingBrace.endsWith('}')) {
             iLineWithClosingBrace--;
-            lineWithClosingBrace = codeLines[iLineWithClosingBrace];
+            lineWithClosingBrace = trimRightWhitespaceAndComments(codeLines[iLineWithClosingBrace]);
         }
         return [lineWithClosingBrace, iLineWithClosingBrace];
     }
@@ -312,10 +313,11 @@ let brace_style_module = {};
         let [lastBodyLine, iFinalBodyCodeLine] = findLastLineWithClosingBrace(nodeCodeLines);
         const closingBraceOffsetInLine = lastBodyLine.trim().length - 1;
         const closingBraceLineNumber = openingBraceLineNumber + iFinalBodyCodeLine;
+        const openingBraceColumn = getIndentationWidth(codeFile.codeLines[openingBraceLineNumber - 1]) + removeIndentation(codeBeforeBraceLines[codeBeforeBraceLines.length - 1]).length;
         let nonNodeBodyLocation = new CodeSegmentLocation(
             new CharacterLocation(
                 openingBraceLineNumber,
-                getIndentationWidth(codeFile.codeLines[openingBraceLineNumber - 1]) + removeIndentation(codeBeforeBraceLines[codeBeforeBraceLines.length - 1]).length - 1,
+                openingBraceColumn,
                 codeBeforeBraceLines[codeBeforeBraceLines.length - 1].length,
                 rootBraceNode.location.start.offset + openingMatches[1].length + 1 + openingMatches[3].length
             ),
@@ -374,10 +376,11 @@ let brace_style_module = {};
             const bodyCode = getNodeCode(clauseOrBodyNode, codeFile, false);
             const bodyCodeLines = bodyCode.split('\n');
             let [lastBodyLine, iFinalBodyCodeLine] = findLastLineWithClosingBrace(bodyCodeLines);
+            const openingBraceColumn = getIndentationWidth(bodyStartLine) + removeIndentation(bodyStartLine).length - removeIndentation(bodyCodeLines[0]).length;
             return new CodeSegmentLocation(
                 new CharacterLocation(
                     bodyStartLineNumber,
-                    getIndentationWidth(bodyStartLine) + removeIndentation(bodyStartLine).width - removeIndentation(bodyCodeLines[0]).width,
+                    openingBraceColumn,
                     clauseOrBodyNode.location.start.column - 1,
                     clauseOrBodyNode.location.start.offset
                 ),
@@ -430,15 +433,16 @@ let brace_style_module = {};
                 // starting brace is on the same line with "if", assume 1TBS
                 matchedBraceStyles = [BraceStyle.ONE_TBS];
                 if (statementStartColumn !== bracedCodeLocation.end.column) {
+                    logNodeCode(rootNode, codeFile);
                     braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                 }
             } else if (locationBeforeBrace.line === bodyOrClauseNode.location.start.line - 1) {
-                if (statementStartColumn === bracedCodeLocation.start.column || bracedCodeLocation.start.column === bracedCodeLocation.end.column) {
+                if (statementStartColumn === bracedCodeLocation.start.column || statementStartColumn === bracedCodeLocation.end.column) {
                     // starting brace and/or ending brace are on the next line from "if" and have no extra indent, assume Allman
                     matchedBraceStyles = [BraceStyle.ALLMAN];
                     if (statementStartColumn !== bracedCodeLocation.start.column) {
                         braceErrors.push(new BraceStyleError(BraceType.OPENING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.start.line));
-                    } else if (bracedCodeLocation.start.column !== bracedCodeLocation.end.column) {
+                    } else if (statementStartColumn !== bracedCodeLocation.end.column) {
                         braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                     }
                 } else {
@@ -501,6 +505,7 @@ let brace_style_module = {};
                 bracedCodeStartAndEnd = getBodyOrClauseStartAndEnd(clause.astNode, codeFile);
                 let expectedLineOfClauseKeyword = -1;
                 let expectedColumnOfClauseKeyword = null;
+
                 if (bracePair.braceStyles.includes(BraceStyle.ONE_TBS)) {
                     expectedLineOfClauseKeyword = previousClosingBraceLocation.line;
                 } else if (bracePair.braceStyles.includes(BraceStyle.ALLMAN)) {
@@ -508,6 +513,7 @@ let brace_style_module = {};
                     expectedColumnOfClauseKeyword = previousClosingBraceLocation.column;
                 }
                 if (expectedLineOfClauseKeyword !== -1) {
+
                     const codeLineWhereKeywordIsExpected = codeFile.codeLines[expectedLineOfClauseKeyword - 1];
                     let startFrom = 0;
                     let endAt = codeLineWhereKeywordIsExpected.length;
@@ -526,9 +532,9 @@ let brace_style_module = {};
                         bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_LINE, expectedLineOfClauseKeyword, clause));
                     } else {
                         if (expectedColumnOfClauseKeyword != null) {
-                            const columnOfKeyword = getIndentationWidth(codeLineWhereKeywordIsExpected) + segmentWhereKeywordIsExpected.indexOf(clause.keyword);
+                            const columnOfKeyword = getIndentationWidth(codeLineWhereKeywordIsExpected) + removeIndentation(segmentWhereKeywordIsExpected).indexOf(clause.keyword);
                             if (columnOfKeyword !== expectedColumnOfClauseKeyword) {
-                                bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_LINE, expectedLineOfClauseKeyword, clause));
+                                bracePair.braceStyleErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_CLAUSE_INDENTATION, expectedLineOfClauseKeyword, clause));
                             }
                         }
                     }
@@ -549,6 +555,7 @@ let brace_style_module = {};
 
 
     }
+
 
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
@@ -572,77 +579,77 @@ let brace_style_module = {};
                     handleBraceNode(astNode, codeFile, bracePairs);
                 }
             }
-            if (codeFile.filename === "src/model/WebPage.java") {
-                // try to obtain dominating brace style
 
-                let braceStyleCounts = new Map();
-                braceStyleCounts.set(BraceStyle.ALLMAN, 0);
-                braceStyleCounts.set(BraceStyle.ONE_TBS, 0);
-                braceStyleCounts.set(BraceStyle.UNKNOWN, 0);
-                for (const bracePair of bracePairs) {
-                    let braceStyle = bracePair.braceStyles[0];
-                    braceStyleCounts.set(braceStyle, braceStyleCounts.get(braceStyle) + 1);
-                }
-                let dominantBraceStyle = BraceStyle.UNKNOWN;
-                let dominantBraceStyleCount = 0;
-                for (const [braceStyle, count] of braceStyleCounts.entries()) {
-                    if (dominantBraceStyleCount < count) {
-                        dominantBraceStyle = braceStyle;
-                        dominantBraceStyleCount = count;
-                    }
-                }
+            // try to obtain dominating brace style
 
-                for (const bracePair of bracePairs) {
-                    let bracesMissing = bracePair.braceStyleErrors.filter(error => error.errorType === BraceStyleErrorType.BRACES_MISSING).length > 0;
-                    if (!bracesMissing && dominantBraceStyle !== BraceStyle.UNKNOWN) {
-                        if (!bracePair.braceStyles.includes(dominantBraceStyle)) {
-                            let defaultMessageText = null;
-                            if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
-                                defaultMessageText = "Brace pair seems to use the " + bracePair.braceStyles[0] + " brace style, while the dominant brace style is " + dominantBraceStyle;
-                            } else {
-                                defaultMessageText = "Brace pair doesn't follow any of the allowed styles.";
-                            }
-                            let trCodeLine = codeFile.trCodeLines[bracePair.braceAstNode.location.start.line - 1];
-                            let color = "#0c5460";
-                            $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, "inconsistent-brace-style-problem", defaultMessageText));
-                            addButtonComment(
-                                trCodeLine,
-                                "Inconsistent brace style",
-                                defaultMessageText, color
-                            );
-                        }
-                    }
-
-                    for (const braceStyleError of bracePair.braceStyleErrors) {
-                        let defaultMessageText = null;
-                        let adjective = "";
-                        if (braceStyleError.clause == null) {
-                            adjective = capitalize(braceStyleError.braceType);
-                            defaultMessageText = adjective + " " + braceStyleError.description + "(" + bracePair.braceLocationType + ").";
-                        } else {
-                            adjective = capitalize(braceStyleError.clause.keyword);
-                            defaultMessageText = adjective + " " + braceStyleError.description + ".";
-                        }
-
-                        let buttonClass = BraceButtonClassByErrorType.get(braceStyleError.errorType);
-                        let trCodeLine = codeFile.trCodeLines[braceStyleError.line - 1];
-                        let color = "#0c5460";
-                        $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, buttonClass, defaultMessageText));
-                        addButtonComment(
-                            trCodeLine,
-                            adjective + " " + braceStyleError.shortDescription,
-                            defaultMessageText, color
-                        );
-
-                    }
-                    if(options.markAllBraces){
-                        addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], "{", "",
-                            "#0c5460");
-                        addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], "}", "",
-                            "#0c5460");
-                    }
+            let braceStyleCounts = new Map();
+            braceStyleCounts.set(BraceStyle.ALLMAN, 0);
+            braceStyleCounts.set(BraceStyle.ONE_TBS, 0);
+            braceStyleCounts.set(BraceStyle.UNKNOWN, 0);
+            for (const bracePair of bracePairs) {
+                let braceStyle = bracePair.braceStyles[0];
+                braceStyleCounts.set(braceStyle, braceStyleCounts.get(braceStyle) + 1);
+            }
+            let dominantBraceStyle = BraceStyle.UNKNOWN;
+            let dominantBraceStyleCount = 0;
+            for (const [braceStyle, count] of braceStyleCounts.entries()) {
+                if (dominantBraceStyleCount < count) {
+                    dominantBraceStyle = braceStyle;
+                    dominantBraceStyleCount = count;
                 }
             }
+
+            for (const bracePair of bracePairs) {
+                let bracesMissing = bracePair.braceStyleErrors.filter(error => error.errorType === BraceStyleErrorType.BRACES_MISSING).length > 0;
+                if (!bracesMissing && dominantBraceStyle !== BraceStyle.UNKNOWN) {
+                    if (!bracePair.braceStyles.includes(dominantBraceStyle)) {
+                        let defaultMessageText = null;
+                        if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
+                            defaultMessageText = "Brace pair seems to use the " + bracePair.braceStyles[0] + " brace style, while the dominant brace style is " + dominantBraceStyle;
+                        } else {
+                            defaultMessageText = "Brace pair doesn't follow any of the allowed styles.";
+                        }
+                        let trCodeLine = codeFile.trCodeLines[bracePair.braceAstNode.location.start.line - 1];
+                        let color = "#0c5460";
+                        $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, "inconsistent-brace-style-problem", defaultMessageText));
+                        addButtonComment(
+                            trCodeLine,
+                            "Inconsistent brace style",
+                            defaultMessageText, color
+                        );
+                    }
+                }
+
+                for (const braceStyleError of bracePair.braceStyleErrors) {
+                    let defaultMessageText = null;
+                    let adjective = "";
+                    if (braceStyleError.clause == null) {
+                        adjective = capitalize(braceStyleError.braceType);
+                        defaultMessageText = adjective + " " + braceStyleError.description + "(" + bracePair.braceLocationType + ").";
+                    } else {
+                        adjective = capitalize(braceStyleError.clause.keyword);
+                        defaultMessageText = adjective + " " + braceStyleError.description + ".";
+                    }
+
+                    let buttonClass = BraceButtonClassByErrorType.get(braceStyleError.errorType);
+                    let trCodeLine = codeFile.trCodeLines[braceStyleError.line - 1];
+                    let color = "#0c5460";
+                    $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, buttonClass, defaultMessageText));
+                    addButtonComment(
+                        trCodeLine,
+                        adjective + " " + braceStyleError.shortDescription,
+                        defaultMessageText, color
+                    );
+
+                }
+                if (options.markAllBraces) {
+                    addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], "{", "",
+                        "#0c5460");
+                    addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], "}", "",
+                        "#0c5460");
+                }
+            }
+
         }
 
     }

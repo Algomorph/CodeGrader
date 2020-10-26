@@ -328,6 +328,7 @@ function peg$parse(input, options) {
       peg$c30 = function(dims, init) {
               return {
                 node:           'VariableDeclarationFragment',
+                location:        location(),
                 extraDimensions: dims.length,
                 initializer:     init
             };
@@ -373,6 +374,7 @@ function peg$parse(input, options) {
       peg$c37 = function(name, dims, init) {
             return {
               node:           'VariableDeclarationFragment',
+              location:        location(),
               name:            name,
               extraDimensions: dims.length,
               initializer:     extractOptional(init, 1)
@@ -562,6 +564,7 @@ function peg$parse(input, options) {
       peg$c75 = function(expr, then, alt) {
             return {
               node:          'ConditionalExpression',
+              location:       location(),
               expression:     expr,
               thenExpression: then,
               elseExpression: alt

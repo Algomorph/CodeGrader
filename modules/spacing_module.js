@@ -20,7 +20,6 @@ let spacing_module = {};
         return new Options();
     }
 
-
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
      * @param {HTMLDivElement} uiPanel main panel where to add controls
@@ -44,16 +43,24 @@ let spacing_module = {};
                     expressionsToIterateOver.push(...typeInformation.assignments);
                 }
                 for (const expression of expressionsToIterateOver) {
-                    let leftHandSide = null;
-                    let rightHandSide = null;
+                    let leftHandSide;
+                    let rightHandSide;
+                    let operator;
                     switch (expression.node) {
                         case "InfixExpression":
                             leftHandSide = expression.leftOperand;
                             rightHandSide = expression.rightOperand;
+                            operator = expression.operator;
                             break;
                         case "Assignment":
                             leftHandSide = expression.leftHandSide;
                             rightHandSide = expression.rightHandSide;
+                            operator = expression.operator;
+                            break;
+                        case "VariableDeclarationFragment":
+                            leftHandSide = expression.name;
+                            rightHandSide = expression.initializer;
+                            operator = "=";
                             break;
                     }
 
@@ -78,15 +85,15 @@ let spacing_module = {};
                     }
 
                     let textBetweenOperands = codeFile.sourceCode.substring(textBetweenOperandsStart.offset, textBetweenOperandsEnd.offset);
-                    const newKeywordMatch = textBetweenOperands.match(/.*(new\s*)$/);
-                    if (newKeywordMatch) {
-                        textBetweenOperands = textBetweenOperands.replace(newKeywordMatch[1], "");
-                        textBetweenOperandsEnd.column -= newKeywordMatch[1];
-                        textBetweenOperandsEnd.offset -= newKeywordMatch[1];
+                    const keywordMatch = textBetweenOperands.match(/.*(new\s*|super\s*)$/);
+                    if (keywordMatch) {
+                        textBetweenOperands = textBetweenOperands.replace(keywordMatch[1], "");
+                        textBetweenOperandsEnd.column -= keywordMatch[1];
+                        textBetweenOperandsEnd.offset -= keywordMatch[1];
                         endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
                     }
 
-                    const operator = expression.operator;
+
                     const operatorRegexPart = operator.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
                     let checkSpacesBefore = true;
                     let checkSpacesAfter = true;

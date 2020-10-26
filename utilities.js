@@ -3,6 +3,7 @@
 
 class TypeInformation {
     constructor() {
+        /** @type {Array.<MethodCall>}*/
         this.methodCalls = [];
         this.declarations = [];
         this.scopes = [];
@@ -10,6 +11,9 @@ class TypeInformation {
         this.binaryExpressions = [];
         this.unaryExpressions = [];
         this.assignments = [];
+        /** @type {Array.<Usage>}*/
+        this.usages = [];
+        this.typeScope = null;
     }
 }
 
@@ -104,7 +108,12 @@ function getCheckedFileCode(filesToCheck) {
                 }
             );
             const iEndLine = iLine;
+            if(fileCodeLines.length > 0){
+                // parser doesn't like comments after closing brace at the end of the last line of file for whatever reason
+                fileCodeLines[fileCodeLines.length-1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length-1]);
+            }
             const fileCode = fileCodeLines.join("\n");
+
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
@@ -123,11 +132,16 @@ function getCheckedFileCode(filesToCheck) {
 let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
 function getIndentationWidth(codeLine, tabWidth = 4) {
     let tabReplacement = " ".repeat(tabWidth);
-    return codeLine.match(indentationRegEx)[0].replace("\t", tabReplacement).length;
+    return codeLine.match(indentationRegEx)[0].replaceAll("\t", tabReplacement).length;
 }
 
 function removeIndentation(codeLine){
     return codeLine.replace(indentationRegEx, "");
+}
+
+
+function trimRightWhitespaceAndComments(codeText){
+    return codeText.replace(/\s*(?:\s*\/\/.*|\s*\/\*.*\*\/)*(?:\/\*.*)?$/, "");
 }
 
 /**

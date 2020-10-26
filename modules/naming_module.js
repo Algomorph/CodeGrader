@@ -218,7 +218,7 @@ let naming_module = {};
         let constantNames = [];
         let typeNames = [];
 
-        let globalIgnoredNames = options.ignoredNames.global;
+        const globalIgnoredNames = options.ignoredNames.global;
 
         for (const codeFile of fileDictionary.values()) {
             if (codeFile.abstractSyntaxTree !== null) {

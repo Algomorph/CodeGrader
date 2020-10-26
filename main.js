@@ -1,6 +1,7 @@
 /*
  * Checks the URL or other property of the current web page and run allowed function
  */
+
 function main(optionItems) {
     let options = optionItems.options;
 
@@ -43,27 +44,32 @@ function main(optionItems) {
 
         // check if it's the right course & project
         if ($("h1").text().match(projectName)) {
+            //FIXME
+            // highlightAllCheckedCode(options.filesToCheck);
+            // hljs.initHighlightingOnLoad();
             recolorCheckedFileLinks(options.filesToCheck);
             scrollToFirstFile(options.filesToCheck);
             constructUiPanel(options);
         }
+
+        // assign click event to predefined comment buttons
+        $(".tip").click(function () {
+            eventFire($(this).parent()[0], 'dblclick');
+            let self = this;
+            setTimeout(function () {
+                $(self).parent().parent().find("input[type='checkbox']").prop("checked", false);
+                let textBox = $(self).parent().parent().find("textarea");
+                textBox.attr("aria-hidden", "false");
+                if ($(self).attr('msg') !== "") {
+                    $(textBox).val($(self).attr('msg'));
+                    eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
+                } else {
+                    $(textBox).val("");
+                }
+            }, 500);
+        });
     }
-    // assign click event to predefined comment buttons
-    $(".tip").click(function () {
-        eventFire($(this).parent()[0], 'dblclick');
-        let self = this;
-        setTimeout(function () {
-            $(self).parent().parent().find("input[type='checkbox']").prop("checked", false);
-            let textBox = $(self).parent().parent().find("textarea");
-            textBox.attr("aria-hidden", "false");
-            if ($(self).attr('msg') !== "") {
-                $(textBox).val($(self).attr('msg'));
-                eventFire($(textBox).parent().find("a:contains('Save')")[0], 'click');
-            } else {
-                $(textBox).val("");
-            }
-        }, 500);
-    });
+
 } // MAIN ENDS
 
 function constructUiPanel(options) {
@@ -98,6 +104,7 @@ function constructUiPanel(options) {
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
+        unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 

@@ -7,10 +7,11 @@
     ],
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true
+            "enabled": true,
+            "markAllBraces": false
         },
         "indentation_module": {
-            "enabled": false
+            "enabled": true
         },
         "keyword_module": {
             "enabled": false,
@@ -28,21 +29,71 @@
                 "min",
                 "max"
             ],
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
-                "WebPage": [
-                    "findElem",
-                    "stats"
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+"strategy"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
                 ],
                 "global": []
             },
-            "numbersAllowedInNames": true,
+            "numbersAllowedInNames": false,
             "showUniqueOnly": true
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
-            "enabled": false
+            "enabled": true
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "strategy"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
+                ],
+                "global": []
+            },
+            "markAllUsages": false
         }
     },
     "module_options": {
