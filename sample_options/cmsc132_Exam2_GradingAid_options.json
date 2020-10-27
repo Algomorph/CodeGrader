@@ -1,0 +1,61 @@
+{
+    "filesToCheck": [
+        "src/sysImplementation/Pair.java",
+        "src/sysImplementation/Utilities.java",
+        "src/sysImplementation/SoftwareCompany.java",
+        "src/sysImplementation/SCComparator.java"
+    ],
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "global": [],
+                "Pair":[ "$U$.getClass", "$T$.getClass", "$U$.equals", "$T$.equals", "$U$.toString", "$T$.toString"],
+                "Utilities":["ArrayList<>()","$ArrayList$.add", "$T$.compareTo" ],
+                "SoftwareCompany":["ArrayList<>()", "$ArrayList$.add", "$ArrayList$.size", "$ArrayList$.remove", "$ArrayList$.get", "$String$.equals","$String$.charAt", "$Object$.clone", "$Programmer$.clone", "this.clone", "Integer.toString", "printStackTrace"]
+            },
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerProjectName": "Exam2",
+    "year": "2020"
+}
