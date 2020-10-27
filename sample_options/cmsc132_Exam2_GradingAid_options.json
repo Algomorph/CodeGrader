@@ -23,7 +23,7 @@
                 "global": [],
                 "Pair":[ "$U$.getClass", "$T$.getClass", "$U$.equals", "$T$.equals", "$U$.toString", "$T$.toString"],
                 "Utilities":["ArrayList<>()","$ArrayList$.add", "$T$.compareTo" ],
-                "SoftwareCompany":["Programmer()", "$Programmer$.nextProject", "ArrayList<>()", "$ArrayList$.add", "$ArrayList$.size", "$ArrayList$.remove", "$ArrayList$.get", "$String$.equals","$String$.charAt", "$Object$.clone", "$Programmer$.clone", "this.clone", "Integer.toString", "$CloneNotSupportedException$.printStackTrace", "Iterator<>()", "$SoftwareCompany$.addProgrammer", "SoftwareCompany()", "programmer.projectList.get", "programmer.projectList.size"],
+                "SoftwareCompany":["Programmer()", "$Programmer$.nextProject", "ArrayList<>()", "$ArrayList$.add", "$ArrayList$.size", "$ArrayList$.remove", "$ArrayList$.get", "$String$.equals","$String$.charAt", "$Object$.clone", "$Programmer$.clone", "this.clone", "Integer.toString", "$CloneNotSupportedException$.printStackTrace", "Iterator<>()", "$SoftwareCompany$.addProgrammer", "SoftwareCompany()", "programmer.projectList.get", "programmer.projectList.size", "$SoftwareCompany$.numberOfProgrammers", "$SoftwareCompany$.newProject"],
                 "SCComparator":["$SoftwareCompany$.numberOfProgrammers"]
             },
             "showUniqueOnly": true
