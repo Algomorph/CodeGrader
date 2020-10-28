@@ -71,7 +71,7 @@ let unused_code_module = {};
         }
         $(uiPanel).append("<h3 style='color:#5c1a00'>Unused Code</h3>");
 
-        // configure ignored delcaration types
+        // configure ignored declaration types
         const declarationTypesToIgnore = new Set([code_analysis.DeclarationType.CAST, code_analysis.DeclarationType.THIS]);
         if(!options.checkTypes){
             declarationTypesToIgnore.add(code_analysis.DeclarationType.TYPE);

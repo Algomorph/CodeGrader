@@ -24,7 +24,8 @@
     ],
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true
+            "enabled": true,
+            "markAllBraces": false
         },
         "indentation_module": {
             "enabled": true
@@ -60,6 +61,16 @@
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
             "enabled": true
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
         }
     },
     "module_options": {

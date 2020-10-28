@@ -1,5 +1,6 @@
 {
    "name": "Code Style Grading Aid",
+   "short_name": "Grading Aid",
    "manifest_version": 2,
    "background": {
       "scripts": [ "background.js" ],
@@ -51,7 +52,8 @@
       "default_icon": "icons/grading-19.png",
       "default_title": "A plugin to ease code style grading  of student project submissions at UMD/CP CS department."
    },
-   "permissions": [ "tabs", "bookmarks", "contextMenus", "notifications", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
+   "permissions": [ "tabs", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "3.0"
+   "version": "3.0",
+   "version_name": "3.0 alpha"
 }
