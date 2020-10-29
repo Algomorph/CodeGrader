@@ -1,6 +1,11 @@
 # CodeStyleGradingAid
 A Chrome browser plugin for aiding the teaching assistants grade code style on student's homework project submissions at the CS department of University of Maryland, College Park.
 
+Screenshots (seeing is believing):
+
+![Screenshot 1](https://raw.githubusercontent.com/Algomorph/CodeStyleGradingAid/master/screenshots/GraidingAidScreenshot1.png)
+![Screenshot 2](https://raw.githubusercontent.com/Algomorph/CodeStyleGradingAid/master/screenshots/GraidingAidScreenshot2.png)
+
 Current basic usage (before this is published):
 
 1) Clone this repository.
