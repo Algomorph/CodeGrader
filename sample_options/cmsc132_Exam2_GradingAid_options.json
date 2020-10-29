@@ -3,7 +3,11 @@
         "src/sysImplementation/Pair.java",
         "src/sysImplementation/Utilities.java",
         "src/sysImplementation/SoftwareCompany.java",
-        "src/sysImplementation/SCComparator.java"
+        "src/sysImplementation/SCComparator.java",
+        "sysImplementation/Pair.java",
+        "sysImplementation/Utilities.java",
+        "sysImplementation/SoftwareCompany.java",
+        "sysImplementation/SCComparator.java"
     ],
     "moduleOptions": {
         "brace_style_module": {
@@ -20,11 +24,56 @@
         "method_call_module": {
             "enabled": true,
             "ignoredMethods": {
-                "global": [],
-                "Pair":[ "$U$.getClass", "$T$.getClass", "$U$.equals", "$T$.equals", "$U$.toString", "$T$.toString"],
-                "Utilities":["ArrayList<>()","$ArrayList$.add", "$T$.compareTo" ],
-                "SoftwareCompany":["Programmer()", "$Programmer$.nextProject", "ArrayList<>()", "$ArrayList$.add", "$ArrayList$.size", "$ArrayList$.remove", "$ArrayList$.get", "$String$.equals","$String$.charAt", "$Object$.clone", "$Programmer$.clone", "this.clone", "Integer.toString", "$CloneNotSupportedException$.printStackTrace", "Iterator<>()", "$SoftwareCompany$.addProgrammer", "SoftwareCompany()", "programmer.projectList.get", "programmer.projectList.size", "$SoftwareCompany$.numberOfProgrammers", "$SoftwareCompany$.newProject"],
-                "SCComparator":["$SoftwareCompany$.numberOfProgrammers"]
+                "Pair": [
+                    "$U$.getClass",
+                    "$T$.getClass",
+                    "$U$.equals",
+                    "$T$.equals",
+                    "$U$.toString",
+                    "$T$.toString"
+                ],
+                "SCComparator": [
+                    "$SoftwareCompany$.numberOfProgrammers",
+                    "$SoftwareCompany$.compareTo"
+                ],
+                "SoftwareCompany": [
+                    "Programmer()",
+                    "$Programmer$.nextProject",
+                    "ArrayList<>()",
+                    "ArrayList()",
+                    "$Programmer$.equals",
+                    "$ArrayList$.add",
+                    "$ArrayList$.size",
+                    "$ArrayList$.remove",
+                    "$ArrayList$.get",
+                    "$String$.equals",
+                    "$String$.charAt",
+                    "$Object$.clone",
+                    "$Programmer$.clone",
+                    "$SoftwareCompany$.equals",
+                    "this.clone",
+                    "Integer.toString",
+                    "$CloneNotSupportedException$.printStackTrace",
+                    "$Throwable$.printStackTrace",
+                    "$Exception$.printStackTrace",
+                    "Iterator<>()",
+                    "$SoftwareCompany$.addProgrammer",
+                    "SoftwareCompany()",
+                    "programmer.projectList.get",
+                    "programmer.projectList.size",
+                    "$SoftwareCompany$.numberOfProgrammers",
+                    "$SoftwareCompany$.newProject",
+                    "this.numberOfProgrammers",
+                    ".nextProject",
+                    "this.countProjects"
+                ],
+                "Utilities": [
+                    "ArrayList<>()",
+                    "ArrayList()",
+                    "$ArrayList$.add",
+                    "$T$.compareTo"
+                ],
+                "global": []
             },
             "showUniqueOnly": true
         },
