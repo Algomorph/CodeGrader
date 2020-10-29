@@ -288,10 +288,10 @@ function loadURL(url, domResponseHandler) {
 
 function reportScore(options) {
     chrome.runtime.sendMessage({
-        action: "report",
+        action: "reportGrades",
         options: options
     }, function (response) {
-        //
+        console.log(response)
     });
 }
 

@@ -30,9 +30,17 @@ function init() {
 				xhttp.open(method, request.url, true);
 				xhttp.send(request.data);
 				// end of cross domain loading
-			} else if(request.action =="report") {
-				chrome.tabs.query({url:"https://grades.cs.umd.edu/*"},function(tabs) {
-					var tab = tabs[0];
+			} else if(request.action =="reportGrades") {
+				// change to GET request approach instead of looking at Chrome tabs opened.
+				let gradesUrl = "https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=*"
+				let semesterString = request.options.semesterSeason + " " + request.options.year
+				// uses open class grades page
+				chrome.tabs.query({url:gradesUrl},function(tabs) {
+					if(tabs > 1){
+						alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
+					}
+					let tab = tabs[0];
+					console.log(tabs)
 					insertGrades(tab,request.options);
 				});
 			}
@@ -41,13 +49,17 @@ function init() {
 }
 
 
-function insertGrades(tab,option) {
-	chrome.tabs.executeScript(tab.id, {file:"jquery.min.js"}, function() {
-		chrome.tabs.executeScript(tab.id, {file:"insert_grades.js"}, function() {
-			chrome.tabs.sendMessage(tab.id, {options: option}, function() {
-				
+function insertGrades(tab,options) {
+	// not sure if we need this script
+	chrome.tabs.executeScript(tab.id, {file:"third_party/jquery-3.5.1.js"}, function() {
+		//file:"/insert_grades.js"
+		chrome.tabs.executeScript(tab.id, {file:"/insert_grades.js"}, function() {
+			// use send message to send content to
+			chrome.tabs.sendMessage(tab.id, {options: options}, function(response) {
+				console.log(response)
 			});
 		});
+	console.log("got to end of insert grades")
 	});
 
 }

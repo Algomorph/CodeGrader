@@ -108,8 +108,12 @@ function constructUiPanel(options) {
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 
-
-    grade_server_module.initialize(uiPanel);
+    let gradeServerOptions = {
+        semesterSeason: options.semesterSeason, 
+        year: options.year.toString(),
+        projName: options.submitServerProjectName,
+    }
+    grade_server_module.initialize(uiPanel, gradeServerOptions);    
 }
 
 $(document).ready(function () {
