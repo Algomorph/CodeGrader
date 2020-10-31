@@ -12,7 +12,7 @@ Current basic usage (before this is published):
 2) In chrome://extensions, enable developer mode.
 3) In chrome://extensions, click "Load Unpacked", navigate to repo root and accept.
 4) Right-click the extension icon in Chrome (in the upper-right corner) go to "Options", and fill these out or load from disk. Example options can be found in the `sample_options` folder. 
-5) On the submit server, hit "Overview" next to the desired project / exam / assignment. You will see "REVIEW" links being generated in the "on time" column (or "late" column if there are no on time submissions).
+5) On the Submit Server, hit "Overview" next to the desired project / exam / assignment. You will see "REVIEW" links being generated in the "on time" column (or "late" column if there are no on-time submissions).
 6) Click on the REVIEW links as necessary.
 
 Coming soon: 
