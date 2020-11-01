@@ -9,6 +9,8 @@ Current basic usage (before this is published):
 4) Right-click the extension icon in Chrome (in the upper-right corner) go to "Options", and fill these out or load from disk. Example options can be found in the `sample_options` folder. 
 5) On the submit server, hit "Overview" next to the desired project / exam / assignment. You will see "REVIEW" links being generated in the "on time" column (or "late" column if there are no on time submissions).
 6) Click on the REVIEW links as necessary.
+7) To make a comment double click on a line, type the comment and click "Save" OR double click on one of the colored box suggestions and it will autogenerate a comment. Make sure "Request Reply?" is unticked or this will email a student with the comment(automatically unchecked). 
+8) You need to have your grades server open in a chrome tab to submit grades. It should look like: `https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=****`. After typing in their final score on the plugin, click "REPORT TO GRADE SERVER" and it will open up a the students grade page with the score and comments you provided. Finally, submit the form by clicking "Save Changes".
 
 Coming soon: 
 
