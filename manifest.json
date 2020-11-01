@@ -33,12 +33,21 @@
             "modules/indentation_module.js",
             "modules/us_english_dictionary.js",
             "modules/unused_code_module.js",
-            "insert_grades.js",
             "main.js"
          ],
-         "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*", "https://grades.cs.umd.edu/classWeb/*" ],
+         "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*"],
          "run_at": "document_idle"
-      } 
+      },
+      {
+         "all_frames": false,
+         "js": [
+            "third_party/jquery-3.5.1.min.js", 
+            "insert_grades.js",
+            "mainGrades.js"
+         ],
+         "matches": ["https://grades.cs.umd.edu/classWeb/*"],
+         "run_at": "document_idle"
+      }
    ],
    "options_page": "options_ui.html",
    "description": "A plugin to ease code style grading of student project submissions at UMD/CP CS department.",

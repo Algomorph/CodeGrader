@@ -53,10 +53,8 @@ function insertGrades(tab, options) {
     chrome.tabs.sendMessage(tab.id, {options: options}, function (url) {
         chrome.tabs.create({url:url}, function(newTab){
             options.action = "insertGrades"
-            // Wait for 8 seconds for listener/content script to set up
-            setTimeout(function(){chrome.tabs.sendMessage(newTab.id, {options: options}, function (url) { })},7000)
-            
-            //chrome.tabs.executeScript(newTab.id,{file: 'insert_grades_exec.js'},function(){})
+            // Wait for 3 seconds for listener/content script to set up
+            setTimeout(function(){chrome.tabs.sendMessage(newTab.id, {options: options}, function (url) { })},3000)
         })
     });
 
