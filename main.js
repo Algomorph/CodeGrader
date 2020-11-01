@@ -68,6 +68,14 @@ function main(optionItems) {
                 }
             }, 500);
         });
+
+        $(".code").click(function () {
+            eventFire($(this).parent()[0], 'dblclick');
+            let self = this;
+            setTimeout(function () {
+                $(self).parent().find("input[type='checkbox']").prop("checked", false);
+            },500)
+        });
     }
 
 } // MAIN ENDS
