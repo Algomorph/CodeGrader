@@ -38,9 +38,6 @@ this.initialize = function(uiPanel, gradeServerOptions){
 					})
 				})
 			})
-			// use background.js and insert_grades.js
-			// need 3 things: subPartOf=166721&courseID=1322&stuID=30418
-			// get courseID from https://grades.cs.umd.edu/classWeb/viewGrades.cgi
 			options = {
 				directoryId: directoryId,
 				score: score,

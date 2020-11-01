@@ -2,28 +2,47 @@
 function setupGradesServer() {
     chrome.runtime.onMessage.addListener(
         function (message, sender, sendResponse) {
-            console.log(message.options)
-            console.log("inser_grades why u no work")
+            // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=1322
+            // this if block only returns the link of the page where you insert grades
+            if (message.options.action == "reportGrades"){
+                options = message.options.options
+                studentTR = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:has(td:contains('"+options.directoryId+"'))")
+                headersTD = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:first td")
+                
+                if(studentTR.length != 1){
+                    alert("Error: More than one student with that directory ID found")
+                    return
+                }
 
-            sendResponse("this is the insert grades callback")
-            /*
-            studentTD = $("td:contains('"+request.options.studentId+"')").filter(function() {
-                    return $(this).text() === request.options.studentId;
-            });
-            studentTR = $($(studentTD).get(0)).parent();
-            console.log(studentTR);
-            scoreTD = [];
-            $.each(request.options.scores, function(i,score) {
-                console.log(score);
-                var columnTD = $("td:contains('"+score.column+"')").filter(function() {
-                    return $(this).text() == score.column;
-                }).get(0);
-                console.log(columnTD);
-                var columnIndex = $($(columnTD).parent().children()).index(columnTD)+1;
-                console.log(columnIndex);
-                console.log($("td:nth-child("+columnIndex+")",studentTR));
-                $("td:nth-child("+columnIndex+")",studentTR).find("input").val(score.score);
-            });*/
+                // maps assignment name provided in Extension Options, Eg. Proj 2 -> P2
+                assignmentName = options.projName[0] + options.projName[options.projName.length - 1]
+                // find index of assignment in headers
+                index = 0
+                headersTD.each(function(){
+                    if($(this).text() === assignmentName){
+                        return false
+                    }
+                    else{
+                        index += 1
+                    }
+                })
+                assignmentLink = $(studentTR).find("td:nth-of-type(" + index + ") a").prop("href")
+                sendResponse(assignmentLink)
+            // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?subPartOf=166356&courseID=1322&stuID=30000
+            // this if block fills in the style points and the comment section
+            } else if (message.options.action == "insertGrades"){
+                options = message.options.options
+                let styleRow = "form table tr:has(td:contains(Style)) td>input"
+                let commentBox = "textarea[name='block_comment']"
+                $(commentBox).val(options.comments)
+                // first input box is score
+                let inputColumns = $(styleRow)
+                let styleScoreInput = inputColumns[0]
+                console.log(styleScoreInput)
+                $(styleScoreInput).val(options.score)
+            }
         }
     );
+
+    
 }

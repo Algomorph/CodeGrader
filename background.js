@@ -36,13 +36,11 @@ function init() {
                 let gradesUrl = "https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=*"
                 let semesterString = request.options.semesterSeason + " " + request.options.year
                 // uses open class grades page
-                console.log(gradesUrl)
                 chrome.tabs.query({url: gradesUrl}, function (tabs) {
                     if (tabs > 1) {
                         alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
                     }
                     let tab = tabs[0];
-                    console.log(tabs)
                     insertGrades(tab, request.options);
                 });
             }
@@ -52,23 +50,15 @@ function init() {
 
 
 function insertGrades(tab, options) {
-    chrome.tabs.sendMessage(tab.id, {options: options}, function (response) {
-        console.log(response)
+    chrome.tabs.sendMessage(tab.id, {options: options}, function (url) {
+        chrome.tabs.create({url:url}, function(newTab){
+            options.action = "insertGrades"
+            // Wait for 8 seconds for listener/content script to set up
+            setTimeout(function(){chrome.tabs.sendMessage(newTab.id, {options: options}, function (url) { })},7000)
+            
+            //chrome.tabs.executeScript(newTab.id,{file: 'insert_grades_exec.js'},function(){})
+        })
     });
-    console.log("got to end of insert grades (Greg's take)")
-
-    // not sure if we need this script
-    // FIXME (Greg:) no, we don't need this script, remove dead code please
-    // chrome.tabs.executeScript(tab.id, {file:"third_party/jquery-3.5.1.js"}, function() {
-    // 	//file:"/insert_grades.js"
-    // 	chrome.tabs.executeScript(tab.id, {file:"/insert_grades.js"}, function() {
-    // 		// use send message to send content to
-    // 		chrome.tabs.sendMessage(tab.id, {options: options}, function(response) {
-    // 			console.log(response)
-    // 		});
-    // 	});
-    // console.log("got to end of insert grades")
-    // });
 
     //TODO: (Greg:) you will still need to investigate how to get the response. I'm sure it's possible.
     // but be careful, it might take printing things to the background console like this (2nd answer), I'm not sure:
