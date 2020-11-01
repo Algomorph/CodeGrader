@@ -1,6 +1,9 @@
 
-if(location.href.includes("viewGrades.cgi")){
-    setupGradesServer();
-    //__DEBUG
-    console.log("Hi, I am Grades server");
-}
+if(location.href.includes("viewGrades.cgi") && location.href.includes("courseID=")){
+   
+    if(location.href.includes("stuID=")){
+        setupInsertGrades();
+    } else{
+        setupGradesServer();
+    }
+} 
