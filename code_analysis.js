@@ -447,15 +447,19 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes(astNode.statements.concat([astNode.expression]));
                 continueProcessingCurrentScope();
                 break;
+            case "QualifiedName":
+                scope.setNextBatchOfChildAstNodes([astNode.qualifier]);
+                continueProcessingCurrentScope();
+                break;
             case "PrefixExpression":
             case "PostfixExpression":
                 enclosingTypeInformation.unaryExpressions.push(astNode);
                 scope.setNextBatchOfChildAstNodes([astNode.operand]);
                 continueProcessingCurrentScope();
                 break;
+            case "ReturnStatement":
             case "ExpressionStatement":
             case "ParenthesizedExpression":
-            case "ReturnStatement":
             case "ThrowStatement":
             case "SwitchCase":
             case "FieldAccess":
