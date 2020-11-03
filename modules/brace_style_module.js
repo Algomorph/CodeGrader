@@ -433,7 +433,6 @@ let brace_style_module = {};
                 // starting brace is on the same line with "if", assume 1TBS
                 matchedBraceStyles = [BraceStyle.ONE_TBS];
                 if (statementStartColumn !== bracedCodeLocation.end.column) {
-                    logNodeCode(rootNode, codeFile);
                     braceErrors.push(new BraceStyleError(BraceType.CLOSING, BraceStyleErrorType.WRONG_BRACE_INDENTATION, bracedCodeLocation.end.line));
                 }
             } else if (locationBeforeBrace.line === bodyOrClauseNode.location.start.line - 1) {

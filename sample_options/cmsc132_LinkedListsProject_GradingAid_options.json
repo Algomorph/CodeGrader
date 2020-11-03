@@ -1,0 +1,70 @@
+{
+    "filesToCheck": [
+        "src/listClasses/BasicLinkedList.java",
+        "src/listClasses/SortedLinkedList.java",
+        "src/tests/StudentTests.java",
+        "LinkedLists/src/main/java/listClasses/BasicLinkedList.java",
+        "LinkedLists/src/main/java/listClasses/SortedLinkedList.java",
+        "LinkedLists/src/main/java/tests/StudentTests.java"
+    ],
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": true,
+            "ignoredNames": {
+                "BasicLinkedList": [],
+                "SortedLinkedList": [],
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "BasicLinkedList": [],
+                "SortedLinkedList": [],
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "module_options": {
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerProjectName": "Proj 4",
+    "year": "2020"
+}

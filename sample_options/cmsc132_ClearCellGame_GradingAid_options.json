@@ -96,12 +96,6 @@
             "markAllUsages": false
         }
     },
-    "module_options": {
-        "keyword_module": {
-            "enabled": false,
-            "keywords": []
-        }
-    },
     "semesterSeason": "fall",
     "submitServerProjectName": "Proj 3",
     "year": "2020"
