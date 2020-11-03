@@ -16,8 +16,8 @@
             "enabled": true
         },
         "keyword_module": {
-            "enabled": false,
-            "keywords": []
+            "enabled": true,
+            "keywords": ["ArrayList"]
         },
         "method_call_module": {
             "enabled": false,
@@ -46,7 +46,7 @@
             "enabled": true
         },
         "unused_code_module": {
-            "checkMethods": true,
+            "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
             "enabled": true,
