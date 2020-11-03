@@ -301,7 +301,7 @@ let brace_style_module = {};
      * @return {[CodeSegmentLocation, {offset: Number, line: Number}]}
      */
     function getNonNodeBody(rootBraceNode, codeFile) {
-        const nodeCode = getNodeCode(rootBraceNode, codeFile);
+        const nodeCode = getNodeCode(rootBraceNode, codeFile, false);
         const openingMatches = nodeCode.match(/(^[^{]*)([a-z)>^{])(\s*)({)/m);
         // codeBeforeBrace = <code before the last non-whitespace character before opening brace> +
         //                      <last non-whitespace character before opening brace> +
