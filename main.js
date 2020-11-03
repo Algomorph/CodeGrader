@@ -68,6 +68,14 @@ function main(optionItems) {
                 }
             }, 500);
         });
+
+        $(".code").click(function () {
+            eventFire($(this).parent()[0], 'dblclick');
+            let self = this;
+            setTimeout(function () {
+                $(self).parent().find("input[type='checkbox']").prop("checked", false);
+            },500)
+        });
     }
 
 } // MAIN ENDS
@@ -108,8 +116,12 @@ function constructUiPanel(options) {
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 
-
-    grade_server_module.initialize(uiPanel);
+    let gradeServerOptions = {
+        semesterSeason: options.semesterSeason, 
+        year: options.year.toString(),
+        projName: options.submitServerProjectName,
+    }
+    grade_server_module.initialize(uiPanel, gradeServerOptions);    
 }
 
 $(document).ready(function () {

@@ -1,26 +1,22 @@
-console.log("insert grading injected");
 
+function setupInsertGrades() {
+    chrome.runtime.onMessage.addListener(
+        function (message, sender, sendResponse) { 
+            // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?subPartOf=166356&courseID=1322&stuID=30000
+            // this if block fills in the style points and the comment section
+            if (message.options.action == "insertGrades"){
+                options = message.options.options
+                let styleRow = "form table tr:has(td:contains(Style)) td>input"
+                let commentBox = "textarea[name='block_comment']"
+                $(commentBox).val(options.comments)
+                // first input box is score
+                let inputColumns = $(styleRow)
+                let styleScoreInput = inputColumns[0]
+                console.log(styleScoreInput)
+                $(styleScoreInput).val(options.score)
+            }
+        }
+    );
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-	console.log("message received");
-    console.log(request.options);
-    studentTD = $("td:contains('"+request.options.studentId+"')").filter(function() {
-			return $(this).text() === request.options.studentId;
-	});
-	studentTR = $($(studentTD).get(0)).parent();
-    console.log(studentTR);
-    scoreTD = [];
-    $.each(request.options.scores, function(i,score) {
-		console.log(score);
-		var columnTD = $("td:contains('"+score.column+"')").filter(function() {
-			return $(this).text() == score.column;
-		}).get(0);
-		console.log(columnTD);
-		var columnIndex = $($(columnTD).parent().children()).index(columnTD)+1;
-		console.log(columnIndex);
-		console.log($("td:nth-child("+columnIndex+")",studentTR));
-		$("td:nth-child("+columnIndex+")",studentTR).find("input").val(score.score);
-    });
-  }
-);
+    
+}
