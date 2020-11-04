@@ -12,7 +12,6 @@ function setupInsertGrades() {
                 // first input box is score
                 let inputColumns = $(styleRow)
                 let styleScoreInput = inputColumns[0]
-                console.log(styleScoreInput)
                 $(styleScoreInput).val(options.score)
             }
         }
