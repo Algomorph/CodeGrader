@@ -346,9 +346,9 @@ let code_analysis = {};
 
     /**
      * If the scope stack contains a scope with a MethodDeclaration astNode.node, return the most inner (last) scope
-     * with a MethodDeclaration astNode.node
+     * with a MethodDeclaration astNode.node, otherwise, return the last scope
      * @param {Array.<Scope>} scopeStack
-     * @return {null|Scope}
+     * @return {Scope}
      */
     function getEnclosingMethodFromScopeStack(scopeStack){
         let iScope ;
@@ -357,7 +357,7 @@ let code_analysis = {};
                 return scopeStack[iScope];
             }
         }
-        return null;
+        return scopeStack[scopeStack.length - 1];
     }
 
     /**
