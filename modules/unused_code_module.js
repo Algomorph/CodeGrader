@@ -19,7 +19,7 @@ let unused_code_module = {};
                     checkVariables = true,
                     checkMethods = false,
                     checkTypes = false,
-                    ignoredNames= {"global": []}) {
+                    ignoredNames = {"global": []}) {
             this.enabled = enabled;
             this.markAllUsages = markAllUsages;
             this.checkVariables = checkVariables;
@@ -73,14 +73,14 @@ let unused_code_module = {};
 
         // configure ignored declaration types
         const declarationTypesToIgnore = new Set([code_analysis.DeclarationType.CAST, code_analysis.DeclarationType.THIS]);
-        if(!options.checkTypes){
+        if (!options.checkTypes) {
             declarationTypesToIgnore.add(code_analysis.DeclarationType.TYPE);
         }
-        if(!options.checkMethods){
+        if (!options.checkMethods) {
             declarationTypesToIgnore.add(code_analysis.DeclarationType.METHOD);
             declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTRUCTOR);
         }
-        if(!options.checkVariables){
+        if (!options.checkVariables) {
             declarationTypesToIgnore.add(code_analysis.DeclarationType.FIELD);
             declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT_FIELD);
             declarationTypesToIgnore.add(code_analysis.DeclarationType.VARIABLE);
@@ -122,7 +122,7 @@ let unused_code_module = {};
                         const trCodeLine = codeFile.trCodeLines[declaration.astNode.location.start.line - 1];
                         const buttonClass = ButtonClassByDeclarationType.get(declaration.declarationType);
                         $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, trCodeLine, buttonClass, unusedDeclarationMessage));
-                        addButtonComment(trCodeLine,  "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
+                        addButtonComment(trCodeLine, "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
                             "#5c1a00");
                     }
                 }

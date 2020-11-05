@@ -17,7 +17,9 @@
         },
         "keyword_module": {
             "enabled": true,
-            "keywords": ["ArrayList"]
+            "keywords": [
+                "ArrayList"
+            ]
         },
         "method_call_module": {
             "enabled": false,
@@ -38,12 +40,17 @@
                 "global": []
             },
             "numbersAllowedInNames": false,
-            "showUniqueOnly": true
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
             "enabled": true
+        },
+        "test_module": {
+            "enabled": true,
+            "methodExpectedToTested": ["$BasicLinkedList$.addToFront", "$BasicLinkedList$.addToEnd", "$BasicLinkedList$.getFirst", "$BasicLinkedList$.getLast", "$BasicLinkedList$.getReverseArrayList", "$BasicLinkedList$.getReverseList", "$BasicLinkedList$.getSize","$BasicLinkedList$.remove","$BasicLinkedList$.retrieveFirstElement","$BasicLinkedList$.retrieveLastElement","$BasicLinkedList$.iterator", "$SortedLinkedList$.add", "$SortedLinkedList$.remove", "$SortedLinkedList$.addToFront", "$SortedLinkedList$.addToEnd"]
         },
         "unused_code_module": {
             "checkMethods": false,
@@ -52,16 +59,12 @@
             "enabled": true,
             "ignoredNames": {
                 "BasicLinkedList": [],
-                "SortedLinkedList": [],
+                "SortedLinkedList": [
+                    "data"
+                ],
                 "global": []
             },
             "markAllUsages": false
-        }
-    },
-    "module_options": {
-        "keyword_module": {
-            "enabled": false,
-            "keywords": []
         }
     },
     "semesterSeason": "fall",

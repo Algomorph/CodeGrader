@@ -110,11 +110,12 @@ let code_analysis = {};
      * Represents a single scope (stack) in the code.
      */
     class Scope {
-        constructor(astNode, declarations, children, scopeStack) {
+        constructor(astNode, declarations, children, scopeStack, isTest = false) {
             /** @type {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}}}
              * @description the AST node that encompasses the entire scope (and, possibly, other scopes if it has body
              * and, potentially, multiple scoped clauses, such as an if statement with else-if/else clauses) */
             this.astNode = astNode;
+
             this.declarations = new Map();
             for (const declaration of declarations) {
                 this.declarations.set(declaration.name, declaration);
@@ -128,6 +129,9 @@ let code_analysis = {};
             //used, in some cases, for temporary results during the entity search
             this.unprocessedChildAstNodes = children;
             this.scopeStack = scopeStack;
+            this.isTest = isTest;
+            /** @type{Array.<MethodCall>}*/
+            this.methodCalls = [];
         }
 
         setNextBatchOfChildAstNodes(children) {
@@ -340,6 +344,21 @@ let code_analysis = {};
         return ["", typeArguments];
     }
 
+    /**
+     * If the scope stack contains a scope with a MethodDeclaration astNode.node, return the most inner (last) scope
+     * with a MethodDeclaration astNode.node
+     * @param {Array.<Scope>} scopeStack
+     * @return {null|Scope}
+     */
+    function getEnclosingMethodFromScopeStack(scopeStack){
+        let iScope ;
+        for(iScope = scopeStack.length - 1; iScope >= 0; iScope--){
+            if(scopeStack[iScope].astNode.node === "MethodDeclaration"){
+                return scopeStack[iScope];
+            }
+        }
+        return null;
+    }
 
     /**
      * Recursively traverse Abstract Syntax Tree node in search for entities, append results to the
@@ -383,7 +402,11 @@ let code_analysis = {};
                 }
                 // body will be null if it's an abstract or interface method.
                 if (astNode.body != null) {
-                    branchScopes.push(new Scope(astNode, branchScopeDeclarations, astNode.body.statements, scope.scopeStack.concat([scope])));
+                    // this captures whether the method has a "Test" annotation above it
+                    const isTest = astNode.hasOwnProperty("modifiers") && astNode.modifiers.reduce(function (isTest, modifier) {
+                        return isTest |= modifier.node === "MarkerAnnotation" && modifier.typeName.identifier === "Test"
+                    }, false);
+                    branchScopes.push(new Scope(astNode, branchScopeDeclarations, astNode.body.statements, scope.scopeStack.concat([scope]), isTest));
                 }
                 break;
             case "Block":
@@ -469,6 +492,10 @@ let code_analysis = {};
                 }
                 break;
             case "TryStatement":
+                //__DEBUG
+                if(astNode.location.start.line === 292){
+                    logNodeCode(astNode);
+                }
                 branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
                 if (astNode.catchClauses !== null) {
                     for (const catchClause of astNode.catchClauses) {
@@ -509,38 +536,46 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes([astNode.body]);
                 continueProcessingCurrentScope();
                 break;
-            case "SuperMethodInvocation":
-                enclosingTypeInformation.methodCalls.push(new MethodCall("super.",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD));
+            case "SuperMethodInvocation": {
+                const methodCall = new MethodCall("super.",
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD);
+                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                enclosingTypeInformation.methodCalls.push(methodCall);
+            }
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "SuperConstructorInvocation":
-                enclosingTypeInformation.methodCalls.push(new MethodCall("super(...)",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR));
+            case "SuperConstructorInvocation": {
+                const methodCall = new MethodCall("super(...)",
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR);
+                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                enclosingTypeInformation.methodCalls.push(methodCall);
+            }
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
-                let [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
-                enclosingTypeInformation.methodCalls.push(new MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR));
+                const methodCall = new MethodCall(name,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR);
+                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                enclosingTypeInformation.methodCalls.push(methodCall);
             }
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
-                let methodCallIdentifier = this.determineMethodCallIdentifier(astNode, fullScopeStack, codeFile);
-                enclosingTypeInformation.methodCalls.push(new MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD));
-                {
-                    const unprocessedChildAstNodes = astNode.arguments;
-                    if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                        unprocessedChildAstNodes.push(astNode.expression);
-                    }
-                    scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
+                const methodCallIdentifier = this.determineMethodCallIdentifier(astNode, fullScopeStack, codeFile);
+                const methodCall = new MethodCall(methodCallIdentifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD)
+                enclosingTypeInformation.methodCalls.push(methodCall);
+                const unprocessedChildAstNodes = astNode.arguments;
+                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                    unprocessedChildAstNodes.push(astNode.expression);
                 }
+                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
                 continueProcessingCurrentScope();
             }
                 break;

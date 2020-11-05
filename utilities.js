@@ -5,6 +5,7 @@ class TypeInformation {
     constructor() {
         /** @type {Array.<MethodCall>}*/
         this.methodCalls = [];
+        /** @type {Array.<Declaration>}*/
         this.declarations = [];
         this.scopes = [];
         this.ternaryExpressions = [];
@@ -184,9 +185,9 @@ function capitalize(string) {
 }
 
 /**
- * Compiles an array containing only the CodeName / MethodCall objects with unique "name" field from the input array
- * @param {Array.<CodeName>|Array.<MethodCall>} namesOrCallsArray
- * @return {Array.<CodeName>|Array.<MethodCall>}
+ * Compiles an array containing only the Declaration / MethodCall objects with unique "name" field from the input array
+ * @param {Array.<Declaration>|Array.<MethodCall>} namesOrCallsArray
+ * @return {Array.<Declaration>|Array.<MethodCall>}
  */
 function uniqueNames(namesOrCallsArray) {
     let uniqueNamesMap = new Map();

@@ -60,6 +60,10 @@
 	background-color: #77929c;
 }
 
+.untested-method-problem {
+	background-color: #b16238;
+}
+
 .checked-file-link{
 	color: #2e6f05;
 }
