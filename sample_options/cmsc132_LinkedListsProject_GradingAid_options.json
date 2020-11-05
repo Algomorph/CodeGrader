@@ -50,7 +50,23 @@
         },
         "test_module": {
             "enabled": true,
-            "methodExpectedToTested": ["$BasicLinkedList$.addToFront", "$BasicLinkedList$.addToEnd", "$BasicLinkedList$.getFirst", "$BasicLinkedList$.getLast", "$BasicLinkedList$.getReverseArrayList", "$BasicLinkedList$.getReverseList", "$BasicLinkedList$.getSize","$BasicLinkedList$.remove","$BasicLinkedList$.retrieveFirstElement","$BasicLinkedList$.retrieveLastElement","$BasicLinkedList$.iterator", "$SortedLinkedList$.add", "$SortedLinkedList$.remove", "$SortedLinkedList$.addToFront", "$SortedLinkedList$.addToEnd"]
+            "methodExpectedToTested": [
+                "$BasicLinkedList$.addToFront",
+                "$BasicLinkedList$.addToEnd",
+                "$BasicLinkedList$.getFirst",
+                "$BasicLinkedList$.getLast",
+                "$BasicLinkedList$.getReverseArrayList",
+                "$BasicLinkedList$.getReverseList",
+                "$BasicLinkedList$.getSize",
+                "$BasicLinkedList$.remove",
+                "$BasicLinkedList$.retrieveFirstElement",
+                "$BasicLinkedList$.retrieveLastElement",
+                "$BasicLinkedList$.iterator",
+                "$SortedLinkedList$.add",
+                "$SortedLinkedList$.remove",
+                "$SortedLinkedList$.addToFront",
+                "$SortedLinkedList$.addToEnd"
+            ]
         },
         "unused_code_module": {
             "checkMethods": false,
