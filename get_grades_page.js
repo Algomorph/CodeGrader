@@ -26,7 +26,7 @@ function setupGradesServer() {
                         index += 1
                     }
                 })
-                assignmentLink = $(studentTR).find("td:nth-of-type(" + index + ") a").prop("href")
+                assignmentLink = $(studentTR).find("td").eq(index).find("a").prop("href")
                 sendResponse(assignmentLink)
             // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?subPartOf=166356&courseID=1322&stuID=30000
             // this if block fills in the style points and the comment section
