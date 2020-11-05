@@ -19,9 +19,13 @@ this.initialize = function(uiPanel, gradeServerOptions){
 			alert("You must enter a number.")
 		} else if (parseInt(score, 10) < 0){
 			alert("You must enter a non-negative number.")
+		} else if (gradeServerOptions.gradersName.length < 4){
+			alert("You must enter a graders name longer than 3 characters in options(Don't use initials)")
 		} else {
 			let directoryId = $("h1").text().split("(")[1].split(")")[0]
 			let finalComment = ""
+			// add graders name
+			finalComment += "Grader: " + gradeServerOptions.gradersName + "\n"
 			// Using CSS selectors for majority of filtering
 			let classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)")
 			classes.each(function(){
@@ -44,7 +48,9 @@ this.initialize = function(uiPanel, gradeServerOptions){
 				comments: finalComment,
 				semesterSeason: gradeServerOptions.semesterSeason,
 				year: gradeServerOptions.year,
-				projName: gradeServerOptions.projName
+				projName: gradeServerOptions.projName,
+				gradeServerAssignmentID: gradeServerOptions.gradeServerAssignmentID,
+        		gradersName: gradeServerOptions.gradersFullName
 			}
 			reportScore({
 				action: "reportGrades",
