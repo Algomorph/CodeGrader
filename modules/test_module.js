@@ -50,7 +50,7 @@ let test_module = {};
                         if (untestedMethods.has(call.name)) {
                             const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
                             $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "",
-                                "The method '" + call.astNode.name.identifier + " appears in test code (click to scroll)."));
+                                "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
                             addButtonComment(trCodeLine, "Method call from test: " + call.name,
                                 "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
                             untestedMethods.delete(call.name);
