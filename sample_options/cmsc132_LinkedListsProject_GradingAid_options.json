@@ -40,7 +40,7 @@
                 "global": []
             },
             "numbersAllowedInNames": false,
-            "showUniqueOnly": true,
+            "showUniqueOnly": false,
             "sortAlphabetically": false
         },
         "spacing_module": {
