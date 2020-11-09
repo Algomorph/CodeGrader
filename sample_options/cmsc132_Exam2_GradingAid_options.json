@@ -106,6 +106,9 @@
         }
     },
     "semesterSeason": "fall",
+    "year": "2020",
     "submitServerProjectName": "Exam2",
-    "year": "2020"
+    "gradeServerAssignmentID": "E2",
+    "gradersFullName":""
+    
 }
