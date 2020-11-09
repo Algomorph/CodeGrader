@@ -3,7 +3,6 @@ function logMessage(msg) {
 }
 
 chrome.runtime.onInstalled.addListener(function () {
-    console.log("Loaded Code Style Grading Aid plug-in.");
     init();
 });
 

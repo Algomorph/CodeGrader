@@ -1,6 +1,6 @@
 {
-   "name": "Code Style Grading Aid",
-   "short_name": "Grading Aid",
+   "name": "CodeGrader",
+   "short_name": "CodeGrader",
    "manifest_version": 2,
    "background": {
       "scripts": [ "background.js" ],
@@ -66,6 +66,6 @@
    },
    "permissions": [ "tabs", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "3.0",
-   "version_name": "3.0 alpha"
+   "version": "1.0",
+   "version_name": "1.0 alpha"
 }
