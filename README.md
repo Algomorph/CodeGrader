@@ -1,5 +1,5 @@
-# CodeStyleGradingAid
-A Chrome browser plugin for aiding the teaching assistants grade code style on student's homework project submissions at the CS department of University of Maryland, College Park.
+# CodeGrader
+A Chrome browser plugin for aiding the teaching assistants grade code, in terms of style and other things, on student's homework project submissions at the CS department of University of Maryland, College Park.
 
 Screenshots (seeing is believing):
 

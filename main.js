@@ -124,7 +124,8 @@ function constructUiPanel(options) {
     let gradeServerOptions = {
         semesterSeason: options.semesterSeason, 
         year: options.year.toString(),
-        projName: options.submitServerProjectName,
+        gradeServerAssignmentID: options.gradeServerAssignmentID,
+        gradersName: options.gradersFullName
     }
     grade_server_module.initialize(uiPanel, gradeServerOptions);    
 }

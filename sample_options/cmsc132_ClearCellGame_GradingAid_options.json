@@ -97,6 +97,8 @@
         }
     },
     "semesterSeason": "fall",
+    "year": "2020",
     "submitServerProjectName": "Proj 3",
-    "year": "2020"
+    "gradeServerAssignmentID": "P3",
+    "gradersFullName":""
 }
