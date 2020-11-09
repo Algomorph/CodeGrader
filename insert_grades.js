@@ -1,4 +1,6 @@
-
+/*
+* Copyright 2020 Gregory Kramida, William Siew
+* */
 function setupInsertGrades() {
     chrome.runtime.onMessage.addListener(
         function (message, sender, sendResponse) { 

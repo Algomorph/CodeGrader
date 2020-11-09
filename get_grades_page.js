@@ -1,4 +1,6 @@
-
+/*
+* Copyright 2020 William Siew
+* */
 function setupGradesServer() {
     chrome.runtime.onMessage.addListener(
         function (message, sender, sendResponse) {

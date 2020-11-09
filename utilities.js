@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida, William Siew, Matthew Simmons
+* */
+
 // UTILITY FUNCTIONS & CLASSES
 
 
@@ -67,7 +71,7 @@ function readCodeFilesFromServer(fileDescriptors, callback) {
     const fileCount = fileDescriptors.length;
     let processedCount = 0;
     let codeFiles = new Map();
-
+    x = /(?=cmsc.*)[.]/
     for (const descriptor of fileDescriptors) {
         $.get(
             descriptor.url,

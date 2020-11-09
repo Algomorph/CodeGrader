@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 let test_module = {};
 
 (function () {
@@ -38,7 +42,12 @@ let test_module = {};
         }
         const untestedMethods = new Set(options.methodExpectedToTested);
         let codefileToPlaceLackOfTestLabels = null;
+        let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
+            if(codeFile.parseError != null){
+                continue;
+            }
+            parsedCodeFiles.push(codeFile);
             for (const typeInformation of codeFile.types.values()) {
                 /** @type {Array.<Scope>} */
                 const testScopes = typeInformation.scopes.filter(scope => scope.isTest);
@@ -59,9 +68,12 @@ let test_module = {};
                 }
             }
         }
+        if(parsedCodeFiles.length === 0){
+            return;
+        }
         for (const untestedMethod of untestedMethods) {
             if (codefileToPlaceLackOfTestLabels === null) {
-                codefileToPlaceLackOfTestLabels = codeFileDictionary.values()[0];
+                codefileToPlaceLackOfTestLabels = parsedCodeFiles[0];
             }
             const trCodeLine = codefileToPlaceLackOfTestLabels.trCodeLines[0];
             let shortName = untestedMethod;

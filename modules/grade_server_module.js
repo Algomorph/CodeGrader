@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 William Siew
+* */
+
 let grade_server_module = {};
 
 (function() {

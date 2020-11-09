@@ -1,4 +1,7 @@
-﻿let indentation_module = {};
+﻿/*
+* Copyright 2020 Matthew Simmons
+* */
+let indentation_module = {};
 
 (function () {
 

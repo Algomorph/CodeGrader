@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 let code_analysis = {};
 
 (function () {

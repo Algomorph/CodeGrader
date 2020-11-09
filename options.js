@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();

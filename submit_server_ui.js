@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 function scrollToFirstFile(filesToCheck) {
     let found = false;
     let i_file = 0;

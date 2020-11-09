@@ -1,7 +1,11 @@
 /*
- * Checks the URL or other property of the current web page and run allowed function
- */
+* Copyright 2020 Gregory Kramida, William Siew, Matthew Simmons
+* */
 
+/**
+ * Checks the URL or other property of the current web page and runs the allowed functions
+ * @param optionItems
+ */
 function main(optionItems) {
     let options = optionItems.options;
 
