@@ -1,18 +1,23 @@
 {
     "filesToCheck": [
-        "src/sysImplementation/Pair.java",
-        "src/sysImplementation/Utilities.java",
-        "src/sysImplementation/SoftwareCompany.java",
-        "src/sysImplementation/SCComparator.java",
-        "sysImplementation/Pair.java",
-        "sysImplementation/Utilities.java",
-        "sysImplementation/SoftwareCompany.java",
-        "sysImplementation/SCComparator.java"
+        "src/sysImplementation/Pair.java|sysImplementation/Pair.java",
+        "src/sysImplementation/Utilities.java|sysImplementation/Utilities.java",
+        "src/sysImplementation/SoftwareCompany.java|sysImplementation/SoftwareCompany.java",
+        "src/sysImplementation/SCComparator.java|sysImplementation/SCComparator.java"
     ],
+    "lateScoreAdjustment": 0,
     "moduleOptions": {
         "brace_style_module": {
             "enabled": false,
             "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "E2",
+            "gradersName": "",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -100
         },
         "indentation_module": {
             "enabled": false
@@ -82,17 +87,26 @@
                 "min",
                 "max"
             ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
             "enabled": false,
             "ignoredNames": {
                 "global": []
             },
             "numbersAllowedInNames": false,
-            "showUniqueOnly": true
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
             "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodExpectedToTested": []
         },
         "unused_code_module": {
             "checkMethods": true,
@@ -106,9 +120,6 @@
         }
     },
     "semesterSeason": "fall",
-    "year": "2020",
     "submitServerAssignmentName": "Exam2",
-    "gradeServerAssignmentID": "E2",
-    "gradersName":""
-    
+    "year": "2020"
 }

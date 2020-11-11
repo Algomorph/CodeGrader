@@ -1,16 +1,22 @@
 {
     "filesToCheck": [
-        "src/listClasses/BasicLinkedList.java",
-        "src/listClasses/SortedLinkedList.java",
-        "src/tests/StudentTests.java",
-        "LinkedLists/src/main/java/listClasses/BasicLinkedList.java",
-        "LinkedLists/src/main/java/listClasses/SortedLinkedList.java",
-        "LinkedLists/src/main/java/tests/StudentTests.java"
+        "src/listClasses/BasicLinkedList.java|LinkedLists/src/main/java/listClasses/BasicLinkedList.java",
+        "src/listClasses/SortedLinkedList.java|LinkedLists/src/main/java/listClasses/SortedLinkedList.java",
+        "src/tests/StudentTests.java|LinkedLists/src/main/java/tests/StudentTests.java"
     ],
+    "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
             "enabled": true,
             "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P4",
+            "gradersName": "",
+            "maximumCodeStyleScore": 12,
+            "maximumStudentTestsScore": 15,
+            "minimumScoreAdjustment": -35
         },
         "indentation_module": {
             "enabled": true
@@ -33,6 +39,10 @@
                 "min",
                 "max"
             ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
                 "BasicLinkedList": [],
@@ -84,9 +94,6 @@
         }
     },
     "semesterSeason": "fall",
-    "year": "2020",
     "submitServerAssignmentName": "Proj 4",
-    "gradeServerAssignmentID": "P4",
-    "gradersName":""
-    
+    "year": "2020"
 }

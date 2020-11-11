@@ -2,9 +2,19 @@
     "filesToCheck": [
         "src/blackjack/Blackjack.java"
     ],
+    "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P1",
+            "gradersName": "",
+            "maximumCodeStyleScore": 10,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": 0
         },
         "indentation_module": {
             "enabled": true
@@ -25,6 +35,10 @@
                 "min",
                 "max"
             ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
                 "WebPage": [
@@ -34,18 +48,30 @@
                 "global": []
             },
             "numbersAllowedInNames": true,
-            "showUniqueOnly": true
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
             "enabled": true
+        },
+        "test_module": {
+            "enabled": false,
+            "methodExpectedToTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
         }
     },
     "semesterSeason": "fall",
-    "year": "2020",
     "submitServerAssignmentName": "Proj 1",
-    "gradeServerAssignmentID": "P1",
-    "gradersName":""
-    
+    "year": "2020"
 }
