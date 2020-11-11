@@ -1,0 +1,60 @@
+{
+    "filesToCheck": [
+        "src/sysImplementation/LinkedList.java",
+        "src/sysImplementation/SampleDriver.java",
+        "src/sysImplementation/Student.java"
+    ],
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": true
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "year": "2020",
+    "submitServerProjectName": "Quiz 3",
+    "gradeServerAssignmentID": "Q3",
+    "gradersFullName":""
+    
+}
