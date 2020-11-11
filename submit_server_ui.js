@@ -49,7 +49,16 @@ function scrollToFirstFile(filesPathsToCheck) {
     let i_file = 0;
     let links = null;
     while (!found && i_file < filesPathsToCheck.length) {
-        links = $(".link.link-block:contains('" + filesPathsToCheck[i_file] + "')");
+        let filePath = filesPathsToCheck[i_file];
+        if(filePath.includes("|")){
+            const paths = filePath.split("|");
+            for (const path of paths) {
+                if($(".link.link-block:contains('" + path + "')").length){
+                    filePath = path;
+                }
+            }
+        }
+        links = $(".link.link-block:contains('" + filePath + "')");
         found = links.length > 0;
         i_file++;
     }
@@ -60,7 +69,14 @@ function scrollToFirstFile(filesPathsToCheck) {
 
 function recolorCheckedFileLinks(filesToCheck) {
     for (const filePath of filesToCheck) {
-        $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
+        if (filePath.includes("|")) {
+            const paths = filePath.split("|");
+            for (const path of paths) {
+                $(".link.link-block:contains('" + path + "')").addClass("checked-file-link")
+            }
+        } else {
+            $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
+        }
     }
 }
 
@@ -92,9 +108,9 @@ function highlightAllCheckedCode(filesToCheck) {
 function getSourceFileContainer(filePath) {
     if (filePath.includes("|")) {
         const paths = filePath.split("|");
-        for(const path of paths){
+        for (const path of paths) {
             const container = $("div.GMYHEHOCNK:contains('" + path + "')");
-            if(container.length){
+            if (container.length) {
                 return container.parent();
             }
         }
