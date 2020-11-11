@@ -13,7 +13,6 @@ window.addEventListener('load', function () {
 function init() {
     chrome.runtime.onMessage.addListener(
         function (request, sender, callback) {
-            console.log(request.action);
             if (request.action === "xhttp") {
                 let xhttpRequest = new XMLHttpRequest(),
                     method = request.method ? request.method.toUpperCase() : 'GET';
@@ -39,8 +38,8 @@ function init() {
                         if (tabs > 1) {
                             alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
                         }
-                        let tab = tabs[0];
-                        insertReport(tab, request.report);
+                        let gradesServerOverviewTab = tabs[0];
+                        sendReportToGradesServer(gradesServerOverviewTab, request.report);
                     }
                 );
             }
@@ -49,20 +48,20 @@ function init() {
 }
 
 
-function insertReport(tab, report) {
-    // chrome.tabs.sendMessage(tab.id, {payload: report}, function (url) {
-    chrome.tabs.create({url: url}, function (newTab) {
-        report.action = "insertReport"
-        // Wait for 3 seconds for listener/content script to set up
-        setTimeout(
-            function () {
-                chrome.tabs.sendMessage(newTab.id, {payload: report}, function (url) {
-                })
-            },
-            3000
-        );
-    })
-    // });
+function sendReportToGradesServer(gradesServerOverviewTab, report) {
+
+    chrome.tabs.sendMessage(gradesServerOverviewTab.id, {"action": "openStudentGradesPage", report: report}, function (url) {
+        chrome.tabs.create({url: url}, function (newTab) {
+            // Wait for 3 seconds for listener/content script to set up
+            setTimeout(
+                function () {
+                    chrome.tabs.sendMessage(newTab.id, {"action": "insertGradingReport", report: report}, function (url) {
+                    })
+                },
+                3000
+            );
+        })
+    });
 }
 
 function loadURL(url) {

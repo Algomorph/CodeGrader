@@ -59,9 +59,14 @@ function restoreOptions(callback) {
 
 // Saves options to chrome.storage
 function saveOptions() {
+    let needsReload = false;
     try {
         let options = JSON.parse(document.getElementById("optionsTextArea").value);
-
+        if(options.lateScoreAdjustment > 0){
+            alert("Late score adjustment has to be negative. Defaulting the value to 0.");
+            options.lateScoreAdjustment = 0;
+            needsReload = true;
+        }
         chrome.storage.sync.set(
             options
             , function () {
@@ -88,6 +93,9 @@ function saveOptions() {
             }, 3000);
             throw error;
         }
+    }
+    if(needsReload){
+        restoreOptionsLocal();
     }
 }
 

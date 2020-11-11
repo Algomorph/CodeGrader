@@ -4,8 +4,6 @@
         "src/sysImplementation/SampleDriver.java",
         "src/sysImplementation/Student.java"
     ],
-    "gradeServerAssignmentID": "Q3",
-    "gradersFullName": "",
     "lateScoreAdjustment": -5,
     "moduleOptions": {
         "brace_style_module": {
@@ -14,8 +12,11 @@
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "",
-            "gradersName": ""
+            "gradeServerAssignmentName": "Q3",
+            "gradersName": "Greg K.",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -25
         },
         "indentation_module": {
             "enabled": false
@@ -70,6 +71,5 @@
     },
     "semesterSeason": "fall",
     "submitServerAssignmentName": "",
-    "submitServerProjectName": "Quiz 3",
     "year": "2020"
 }

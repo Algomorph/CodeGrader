@@ -296,7 +296,7 @@ function reportToGradeServer(report) {
         action: "reportGradingResult",
         report: report
     }, function (response) {
-        console.log(response)
+        //TODO
     });
 }
 
@@ -363,4 +363,29 @@ function stripCommentsFromCode(text) {
 
 function stripGenericArgumentsFromCode(text) {
     return text.replace(/<\s*\w*\s*>/g, "");
+}
+
+/**
+ * Validate whether text is a valid number in the provided range
+ * @param numberText text, expected to be the number
+ * @param minimumValue minimum of the range (inclusive)
+ * @param maximumValue maximum of the range (inclusive)
+ * @return {[boolean, number]}
+ */
+function validateNumericInput(numberText, minimumValue, maximumValue) {
+    if (numberText.length === 0) {
+        alert("You need to enter a score.");
+        return [false, 0];
+    } else if (isNaN(numberText)) {
+        alert("You must enter a number.");
+        return [false, 0];
+    } else {
+        const score = parseInt(numberText);
+        if (score < minimumValue || score > maximumValue) {
+            alert("You must enter a number between ");
+            return [false, 0];
+        } else{
+            return [true, score];
+        }
+    }
 }

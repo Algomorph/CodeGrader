@@ -34,7 +34,7 @@
             "modules/us_english_dictionary.js",
             "modules/unused_code_module.js",
             "modules/test_module.js",
-            "main.js"
+            "submit_server_main.js"
          ],
          "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*"],
          "run_at": "document_idle"
@@ -42,10 +42,8 @@
       {
          "all_frames": false,
          "js": [
-            "third_party/jquery-3.5.1.min.js", 
-            "get_grades_page.js",
-            "insert_grades.js",
-            "mainGrades.js"
+            "third_party/jquery-3.5.1.min.js",
+            "grades_server_main.js"
          ],
          "matches": ["https://grades.cs.umd.edu/classWeb/*"],
          "run_at": "document_idle"

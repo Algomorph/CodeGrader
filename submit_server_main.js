@@ -115,7 +115,7 @@ function constructUiPanel(options) {
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 
-    // grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year);
+    grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);
 }
 
 $(document).ready(function () {
