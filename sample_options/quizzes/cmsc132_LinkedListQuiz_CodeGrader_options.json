@@ -1,11 +1,8 @@
 {
     "filesToCheck": [
-        "src/sysImplementation/LinkedList.java",
-        "src/sysImplementation/SampleDriver.java",
-        "src/sysImplementation/Student.java",
-        "sysImplementation/LinkedList.java",
-        "sysImplementation/SampleDriver.java",
-        "sysImplementation/Student.java"
+        "src/sysImplementation/LinkedList.java|sysImplementation/LinkedList.java",
+        "src/sysImplementation/SampleDriver.java|sysImplementation/SampleDriver.java",
+        "src/sysImplementation/Student.java|sysImplementation/Student.java"
     ],
     "lateScoreAdjustment": -5,
     "moduleOptions": {
