@@ -6,10 +6,16 @@
     ],
     "gradeServerAssignmentID": "Q3",
     "gradersFullName": "",
+    "lateScoreAdjustment": -5,
     "moduleOptions": {
         "brace_style_module": {
             "enabled": false,
             "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "",
+            "gradersName": ""
         },
         "indentation_module": {
             "enabled": false
@@ -63,6 +69,7 @@
         }
     },
     "semesterSeason": "fall",
+    "submitServerAssignmentName": "",
     "submitServerProjectName": "Quiz 3",
     "year": "2020"
 }

@@ -156,7 +156,7 @@ function cs131project7(uiPanel) {
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
 		console.log("report");
 		var studentId = $("h1").text().match(/cs131.../);
-		reportScore({
+		reportToGradeServer({
 			studentId: studentId[0],
 			scores: [
 				{ column:'Style', score: $("input#score_style").val() }
@@ -321,7 +321,7 @@ function cs131project6(uiPanel) {
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
 		console.log("report");
 		var studentId = $("h1").text().match(/cs131.../);
-		reportScore({
+		reportToGradeServer({
 			studentId: studentId[0],
 			scores: [
 				{ column:'Style', score: $("input#score_style").val() }
@@ -487,7 +487,7 @@ function cs131project5(uiPanel) {
 	$("<button>REPORT TO GRADE SERVER</button>").click(function() {
 		console.log("report");
 		var studentId = $("h1").text().match(/cs131.../);
-		reportScore({
+		reportToGradeServer({
 			studentId: studentId[0],
 			scores: [
 				{ column:'JUnit', score: $("input#score_JUnit").val() },

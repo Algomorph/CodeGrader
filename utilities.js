@@ -291,10 +291,10 @@ function loadURL(url, domResponseHandler) {
     });
 }
 
-function reportScore(options) {
+function reportToGradeServer(report) {
     chrome.runtime.sendMessage({
-        action: "reportGrades",
-        options: options
+        action: "reportGradingResult",
+        report: report
     }, function (response) {
         console.log(response)
     });

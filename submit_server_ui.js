@@ -2,12 +2,54 @@
 * Copyright 2020 Gregory Kramida
 * */
 
-function scrollToFirstFile(filesToCheck) {
+
+function hasSubmissionInOverviewTableCell(overviewTableCell){
+    return $(overviewTableCell).find("a")[0] !== undefined;
+}
+
+/**
+ * Add a single review link to a Submit-Server overview table cell containing a link to the submission view
+ * Assumes that if the passed-in cell has a link, it is the link to the project submission.
+ * @param {HTMLTableCellElement} overviewTableCell
+ */
+function addReviewLinkToOverviewTableCell(overviewTableCell){
+    const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
+    if (linkToProjectSubmission) {
+        let url = linkToProjectSubmission.href;
+        let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
+        $(overviewTableCell).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW</a>&nbsp;&nbsp;");
+    }
+}
+
+/**
+ * Calculate the score from automatic tests run on the submit server based on the information in the provided overview
+ * table cell.
+ * Assumes that if the passed-in cell has a link, it is the link to the project submission, formatted as
+ *  numbers delimited with the "|" (pipe) character, whose sum is the actual automated test score.
+ * @param {HTMLTableCellElement} overviewTableCell
+ */
+function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell){
+    const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
+    let score = 0;
+    if(linkToProjectSubmission){
+        const matches = linkToProjectSubmission.textContent.matchAll(/\d+/g);
+        for (const match of matches){
+            score += parseInt(match[0]);
+        }
+    }
+    return score;
+}
+
+/**
+ * Navigate to first file in the provided lists that's present in the student's submission (review view) on the submit server (if any)
+ * @param {Array.<string>} filesPathsToCheck list of file paths to check
+ */
+function scrollToFirstFile(filesPathsToCheck) {
     let found = false;
     let i_file = 0;
     let links = null;
-    while (!found && i_file < filesToCheck.length) {
-        links = $(".link.link-block:contains('" + filesToCheck[i_file] + "')");
+    while (!found && i_file < filesPathsToCheck.length) {
+        links = $(".link.link-block:contains('" + filesPathsToCheck[i_file] + "')");
         found = links.length > 0;
         i_file++;
     }

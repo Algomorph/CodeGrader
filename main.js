@@ -2,12 +2,12 @@
 * Copyright 2020 Gregory Kramida, William Siew, Matthew Simmons
 * */
 
+
 /**
  * Checks the URL or other property of the current web page and runs the allowed functions
- * @param optionItems
+ * @param {Options} options
  */
-function main(optionItems) {
-    let options = optionItems.options;
+function main(options) {
 
     // condition: URL contains 'instructor' keyword
     // add 'review' buttons next to last submission date for directly going to review page
@@ -15,25 +15,19 @@ function main(optionItems) {
         let tableSubmissions = $("table:contains('last submission')");
         let onTimeColumn = $(tableSubmissions).find("tr").find("td:nth-child(8)");
         let lateColumn = $(tableSubmissions).find("tr").find("td:nth-child(9)");
-        let projectIndex = location.href.search(/projectPK=(\d+)/);
+        // let projectIndex = location.href.search(/projectPK=(\d+)/);
         for (let iStudent = 0; iStudent < onTimeColumn.length; iStudent++) {
             let onTimeTableCell = onTimeColumn[iStudent];
-            let onTimeAnchorTag = $(onTimeTableCell).find("a")[0];
             let lateTableCell = lateColumn[iStudent];
-            let lateAnchorTag = $(lateTableCell).find("a")[0];
-            let anchorTagToUse = undefined;
-            let tableCellToUse = undefined;
-            if (onTimeAnchorTag) {
-                anchorTagToUse = onTimeAnchorTag;
-                tableCellToUse = onTimeTableCell;
-            } else {
-                anchorTagToUse = lateAnchorTag;
-                tableCellToUse = lateTableCell;
-            }
-            if (anchorTagToUse) {
-                let url = anchorTagToUse.href;
-                let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
-                $(tableCellToUse).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW</a>&nbsp;&nbsp;");
+            if (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell)) {
+                let onTimeAutomaticTestScore = getAutomaticTestsScoreFromOverviewTableCell(onTimeTableCell);
+                let lateAutomaticTestScoreWithAdjustment =
+                    getAutomaticTestsScoreFromOverviewTableCell(lateTableCell) + options.lateScoreAdjustment;
+                if (onTimeAutomaticTestScore > lateAutomaticTestScoreWithAdjustment) {
+                    addReviewLinkToOverviewTableCell(onTimeTableCell)
+                } else {
+                    addReviewLinkToOverviewTableCell(lateTableCell)
+                }
             }
         }
 
@@ -44,10 +38,10 @@ function main(optionItems) {
 
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
-        const projectName = options.submitServerProjectName;
+        const assignmentName = options.submitServerAssignmentName;
 
         // check if it's the right course & project
-        if ($("h1").text().match(projectName)) {
+        if ($("h1").text().match(assignmentName)) {
             //FIXME
             // highlightAllCheckedCode(options.filesToCheck);
             // hljs.initHighlightingOnLoad();
@@ -78,7 +72,7 @@ function main(optionItems) {
             let self = this;
             setTimeout(function () {
                 $(self).parent().find("input[type='checkbox']").prop("checked", false);
-            },500)
+            }, 500)
         });
     }
 
@@ -121,13 +115,7 @@ function constructUiPanel(options) {
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
     }
 
-    let gradeServerOptions = {
-        semesterSeason: options.semesterSeason, 
-        year: options.year.toString(),
-        gradeServerAssignmentID: options.gradeServerAssignmentID,
-        gradersName: options.gradersFullName
-    }
-    grade_server_module.initialize(uiPanel, gradeServerOptions);    
+    // grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year);
 }
 
 $(document).ready(function () {

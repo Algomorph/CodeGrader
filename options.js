@@ -21,17 +21,20 @@ class Options {
      * Make an options object
      * @param semesterSeason
      * @param year
-     * @param submitServerProjectName
+     * @param submitServerAssignmentName
      * @param {Array.<string>} filesToCheck
+     * @param {number} lateScoreAdjustment a score adjustment that the student receives for a late submission of the assignment
      */
     constructor(semesterSeason = getCurrentSemesterSeasonString(),
                 year = (new Date()).getFullYear().toString(),
-                submitServerProjectName = "",
-                filesToCheck = []) {
+                submitServerAssignmentName = "",
+                filesToCheck = [],
+                lateScoreAdjustment = -12) {
         this.semesterSeason = semesterSeason;
         this.year = year;
-        this.submitServerProjectName = submitServerProjectName;
+        this.submitServerAssignmentName = submitServerAssignmentName;
         this.filesToCheck = filesToCheck;
+        this.lateScoreAdjustment = -12;
         this.moduleOptions = {
             "keyword_module": keyword_module.getDefaultOptions(),
             "naming_module": naming_module.getDefaultOptions(),
@@ -40,7 +43,8 @@ class Options {
             "brace_style_module": brace_style_module.getDefaultOptions(),
             "test_module": test_module.getDefaultOptions(),
             "unused_code_module": unused_code_module.getDefaultOptions(),
-            "indentation_module": indentation_module.getDefaultOptions()
+            "indentation_module": indentation_module.getDefaultOptions(),
+            "grade_server_module": grade_server_module.getDefaultOptions()
         };
     }
 }
@@ -50,9 +54,7 @@ function restoreOptions(callback) {
 
     let options = new Options();
 
-    chrome.storage.sync.get({
-        options: options
-    }, callback);
+    chrome.storage.sync.get(options, callback);
 }
 
 // Saves options to chrome.storage
@@ -60,18 +62,18 @@ function saveOptions() {
     try {
         let options = JSON.parse(document.getElementById("optionsTextArea").value);
 
-        chrome.storage.sync.set({
-            options: options
-        }, function () {
-            // Update status to let user know options were saved.
-            let status = document.getElementById('status');
-            status.textContent = 'Options saved.';
-            setTimeout(function () {
-                status.textContent = '';
-            }, 750);
-        });
+        chrome.storage.sync.set(
+            options
+            , function () {
+                // Update status to let user know options were saved.
+                let status = document.getElementById('status');
+                status.textContent = 'Options saved.';
+                setTimeout(function () {
+                    status.textContent = '';
+                }, 750);
+            });
     } catch (error) {
-        if (error instanceof SyntaxError){
+        if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
             status.textContent = 'JSON Syntax Error(check console)';
             setTimeout(function () {
@@ -92,8 +94,8 @@ function saveOptions() {
 // Restores options based on values stored in chrome.storage.
 function restoreOptionsLocal() {
     restoreOptions(
-        function (items) {
-            document.getElementById('optionsTextArea').value = JSON.stringify(items.options, null, 4);
+        function (options) {
+            document.getElementById('optionsTextArea').value = JSON.stringify(options, null, 4);
         }
     );
 }
