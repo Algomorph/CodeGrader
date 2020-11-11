@@ -3,7 +3,7 @@
 * */
 
 
-function hasSubmissionInOverviewTableCell(overviewTableCell){
+function hasSubmissionInOverviewTableCell(overviewTableCell) {
     return $(overviewTableCell).find("a")[0] !== undefined;
 }
 
@@ -12,7 +12,7 @@ function hasSubmissionInOverviewTableCell(overviewTableCell){
  * Assumes that if the passed-in cell has a link, it is the link to the project submission.
  * @param {HTMLTableCellElement} overviewTableCell
  */
-function addReviewLinkToOverviewTableCell(overviewTableCell){
+function addReviewLinkToOverviewTableCell(overviewTableCell) {
     const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
     if (linkToProjectSubmission) {
         let url = linkToProjectSubmission.href;
@@ -28,12 +28,12 @@ function addReviewLinkToOverviewTableCell(overviewTableCell){
  *  numbers delimited with the "|" (pipe) character, whose sum is the actual automated test score.
  * @param {HTMLTableCellElement} overviewTableCell
  */
-function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell){
+function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
     const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
     let score = 0;
-    if(linkToProjectSubmission){
+    if (linkToProjectSubmission) {
         const matches = linkToProjectSubmission.textContent.matchAll(/\d+/g);
-        for (const match of matches){
+        for (const match of matches) {
             score += parseInt(match[0]);
         }
     }
@@ -72,9 +72,9 @@ function highlightAllCheckedCode(filesToCheck) {
     let filesToCheckSet = new Set(filesToCheck);
     for (const preTag of preTags) {
         const filePanelTitle = ($(preTag).parent().find("div.GMYHEHOCNK").text());
-        if(filesToCheckSet.has(filePanelTitle)){
+        if (filesToCheckSet.has(filePanelTitle)) {
             const codeDivElements = $(preTag).find("tr").find(".gwt-Label");
-            for(const codeDiv of codeDivElements){
+            for (const codeDiv of codeDivElements) {
                 const preTag = document.createElement("pre");
                 const codeTag = document.createElement("code");
                 codeTag.textContent = $(codeDiv).text();
@@ -90,7 +90,19 @@ function highlightAllCheckedCode(filesToCheck) {
 
 
 function getSourceFileContainer(filePath) {
-    return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
+    if (filePath.includes("|")) {
+        const paths = filePath.split("|");
+        for(const path of paths){
+            const container = $("div.GMYHEHOCNK:contains('" + path + "')");
+            if(container.length){
+                return container.parent();
+            }
+        }
+        return $("div.GMYHEHOCNK:contains('" + paths[0] + "')").parent();
+    } else {
+        return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
+    }
+
 }
 
 function getScrollableSourceFilePane() {

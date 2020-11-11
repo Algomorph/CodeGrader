@@ -496,10 +496,6 @@ let code_analysis = {};
                 }
                 break;
             case "TryStatement":
-                //__DEBUG
-                if(astNode.location.start.line === 292){
-                    logNodeCode(astNode);
-                }
                 branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
                 if (astNode.catchClauses !== null) {
                     for (const catchClause of astNode.catchClauses) {
@@ -563,6 +559,7 @@ let code_analysis = {};
                 const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
                 const methodCall = new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR);
+
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
