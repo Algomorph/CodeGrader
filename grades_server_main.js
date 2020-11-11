@@ -71,16 +71,16 @@ function addListenerForOpeningStudentGradePage() {
                 let assignmentName = report.gradeServerAssignmentName;
                 // find index of assignment in headers
                 let index = 0;
-                let assignmentIDFound = false;
+                let assignmentNameFound = false;
                 headersTableCell.each(function () {
                     if ($(this).text() === assignmentName) {
-                        assignmentIDFound = true;
+                        assignmentNameFound = true;
                         return false;
                     } else {
                         index += 1
                     }
                 })
-                if (!assignmentIDFound) {
+                if (!assignmentNameFound) {
                     alert("Error: Assignment " + assignmentName + " not found");
                     return;
                 }

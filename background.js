@@ -51,7 +51,7 @@ function init() {
 function sendReportToGradesServer(gradesServerOverviewTab, report) {
 
     chrome.tabs.sendMessage(gradesServerOverviewTab.id, {"action": "openStudentGradesPage", report: report}, function (url) {
-        chrome.tabs.create({url: url}, function (newTab) {
+        chrome.tabs.create({url: url, windowId: gradesServerOverviewTab.windowId}, function (newTab) {
             // Wait for 3 seconds for listener/content script to set up
             setTimeout(
                 function () {
