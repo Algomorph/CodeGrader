@@ -4,6 +4,8 @@
         "src/sysImplementation/SampleDriver.java",
         "src/sysImplementation/Student.java"
     ],
+    "gradeServerAssignmentID": "Q3",
+    "gradersFullName": "",
     "moduleOptions": {
         "brace_style_module": {
             "enabled": false,
@@ -28,17 +30,26 @@
                 "min",
                 "max"
             ],
-            "enabled": false,
+            "checkConstants": false,
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariablesAndFields": false,
+            "enabled": true,
             "ignoredNames": {
                 "global": []
             },
             "numbersAllowedInNames": false,
-            "showUniqueOnly": true
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
             "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodExpectedToTested": []
         },
         "unused_code_module": {
             "checkMethods": true,
@@ -52,9 +63,6 @@
         }
     },
     "semesterSeason": "fall",
-    "year": "2020",
     "submitServerProjectName": "Quiz 3",
-    "gradeServerAssignmentID": "Q3",
-    "gradersFullName":""
-    
+    "year": "2020"
 }

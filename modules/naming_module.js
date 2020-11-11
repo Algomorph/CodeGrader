@@ -18,19 +18,31 @@ let naming_module = {};
          * @param {boolean} numbersAllowedInNames whether arbitrary integral numbers are considered fair-game for variable names
          * @param {boolean} sortAlphabetically sort the UI buttons for code names alphabetically instead of by line they
          * were were encountered in
+         * @param {boolean} checkVariablesAndFields check variables and non-constant fields in the code
+         * @param {boolean} checkMethods check methods in the code
+         * @param {boolean} checkConstants check constants and constant fields in the code
+         * @param {boolean} checkTypes check types (classes/enums/interfaces) in the code
          */
         constructor(enabled = false,
                     allowedSpecialWords = ["min", "max"],
                     ignoredNames = {"global": []},
                     showUniqueOnly = true,
                     numbersAllowedInNames = true,
-                    sortAlphabetically = false) {
+                    sortAlphabetically = false,
+                    checkVariablesAndFields = true,
+                    checkMethods = true,
+                    checkConstants = true,
+                    checkTypes = true) {
             this.enabled = enabled;
             this.allowedSpecialWords = allowedSpecialWords;
             this.ignoredNames = ignoredNames;
             this.showUniqueOnly = showUniqueOnly;
             this.numbersAllowedInNames = numbersAllowedInNames;
-            this.sortAlphabetically = sortAlphabetically
+            this.sortAlphabetically = sortAlphabetically;
+            this.checkVariablesAndFields = checkVariablesAndFields;
+            this.checkMethods = checkMethods;
+            this.checkConstants = checkConstants;
+            this.checkTypes = checkTypes;
         }
     }
 
@@ -273,11 +285,18 @@ let naming_module = {};
                 }
             }
         }
-
-        processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes &amp; Enums", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        if(options.checkVariablesAndFields){
+            processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
+        if(options.checkMethods){
+            processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
+        if(options.checkConstants){
+            processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
+        if(options.checkTypes){
+            processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes, Interfaces, &amp; Enums", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
 
     }
 
