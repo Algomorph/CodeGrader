@@ -2,7 +2,10 @@
     "filesToCheck": [
         "src/sysImplementation/LinkedList.java",
         "src/sysImplementation/SampleDriver.java",
-        "src/sysImplementation/Student.java"
+        "src/sysImplementation/Student.java",
+        "sysImplementation/LinkedList.java",
+        "sysImplementation/SampleDriver.java",
+        "sysImplementation/Student.java"
     ],
     "lateScoreAdjustment": -5,
     "moduleOptions": {
@@ -16,7 +19,7 @@
             "gradersName": "Greg K.",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": -25
+            "minimumScoreAdjustment": -30
         },
         "indentation_module": {
             "enabled": false
@@ -30,7 +33,7 @@
             "ignoredMethods": {
                 "global": []
             },
-            "showUniqueOnly": true
+            "showUniqueOnly": false
         },
         "naming_module": {
             "allowedSpecialWords": [
