@@ -58,6 +58,7 @@
                     "$TreeMap$.isEmpty",
                     "$TreeMap$.firstKey",
                     "TreeMap<>()",
+"TreeMap()",
                     "$T$.equals",
                     "this.compressAux",
                     "$LinkedList$.compressAux",
@@ -85,7 +86,10 @@
                     "this.insert",
                     "this.remove",
                     "this.loadFactor",
-                    "$String$.equals"
+                    "$String$.equals",
+                     "$String$.hashCode",
+                     "Math.abs",
+                     "Arrays.toString"
                 ]
             },
             "ignoredTypes": [

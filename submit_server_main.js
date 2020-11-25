@@ -69,9 +69,11 @@ function main(options) {
 
         $(".code").click(function () {
             eventFire($(this).parent()[0], 'dblclick');
-            let self = this;
+
             setTimeout(function () {
-                $(self).parent().find("input[type='checkbox']").prop("checked", false);
+                const checkboxes = $(this).parent().find("input[type='checkbox']");
+                checkboxes.prop("checked", false);
+                checkboxes.prop("disabled", true);
             }, 500)
         });
     }

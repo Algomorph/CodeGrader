@@ -17,13 +17,17 @@ let code_analysis = {};
         SUPER_CONSTRUCTOR: "super constructor",
     }
 
+    this.MethodCallType = MethodCallType;
+
     class MethodCall {
-        constructor(name, trCodeLine, astNode, callType) {
+        constructor(name, trCodeLine, astNode, callType, methodName, nameOfCalledType) {
             this.name = name;
             this.possiblyIgnored = false;
             this.trCodeLine = trCodeLine;
             this.astNode = astNode;
             this.callType = callType;
+            this.methodName = methodName;
+            this.nameOfCalledType = nameOfCalledType;
         }
     }
 
@@ -361,10 +365,11 @@ let code_analysis = {};
      * @param {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}, name: {identifier: string}}} methodInvocationNode
      * @param {Array.<Scope>} fullScopeStack
      * @param {CodeFile} codeFile
-     * @return {string}
+     * @return {[string, null|string]}
      */
-    this.determineMethodCallIdentifier = function (methodInvocationNode, fullScopeStack, codeFile) {
+    this.determineMethodCallIdentifierAndCalledType = function (methodInvocationNode, fullScopeStack, codeFile) {
         let name = "";
+        let calledType = null;
 
         if (methodInvocationNode.hasOwnProperty("expression") && methodInvocationNode.expression != null) {
             const calledDeclaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
@@ -388,6 +393,7 @@ let code_analysis = {};
                     }
                 }
             } else {
+                calledType = calledDeclaration.typeName;
                 name = this.generateMethodStringIdentifier(calledDeclaration.typeName,
                     methodInvocationNode.name.identifier,
                     calledDeclaration.declarationType === DeclarationType.TYPE);
@@ -395,7 +401,7 @@ let code_analysis = {};
         } else {
             name = "this." + methodInvocationNode.name.identifier;
         }
-        return name;
+        return [name, calledType];
     }
 
 
@@ -619,8 +625,8 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "SuperMethodInvocation": {
-                const methodCall = new MethodCall("super.",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD);
+                const methodCall = new MethodCall("super." + astNode.name.identifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD, astNode.name.identifier, null);
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -629,7 +635,7 @@ let code_analysis = {};
                 break;
             case "SuperConstructorInvocation": {
                 const methodCall = new MethodCall("super(...)",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR, "super", null);
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -640,7 +646,7 @@ let code_analysis = {};
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
                 const methodCall = new MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, methodReturnTypeName, methodReturnTypeName);
 
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
@@ -649,9 +655,9 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
-                const methodCallIdentifier = this.determineMethodCallIdentifier(astNode, fullScopeStack, codeFile);
+                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
                 const methodCall = new MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD)
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
                 enclosingTypeInformation.methodCalls.push(methodCall);
                 const unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
