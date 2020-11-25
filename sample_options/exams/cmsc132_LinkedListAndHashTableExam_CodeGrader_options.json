@@ -65,7 +65,9 @@
                     "this.mapListAux",
                     "$LinkedList$.mapListAux",
                     "LinkedList<>()",
-                    "$LinkedList$.add"
+                    "LinkedList()",
+                    "$LinkedList$.add",
+"UnsupportedOperationException()"
                 ],
                 "global": [],
                 "myHashTable": [
@@ -90,7 +92,8 @@
                     "$String$.hashCode",
                     "Math.abs",
                     "Arrays.toString",
-                    "IllegalArgumentException()"
+                    "IllegalArgumentException()",
+"UnsupportedOperationException()"
                 ]
             },
             "ignoredTypes": [

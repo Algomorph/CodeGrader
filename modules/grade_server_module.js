@@ -100,24 +100,24 @@ let grade_server_module = {};
             if (options.gradersName.length < 4) {
                 alert("Please enter a graders name longer than 3 characters in the CodeGrader plugin options (initials may be ambiguous)");
             } else if (fieldValidationSuccessful) {
-                let directoryId = $("h1").text().split("(")[1].split(")")[0]
+                const directoryId = $("h1").text().split("(")[1].split(")")[0]
                 let finalComment = ""
                 // add graders name
                 finalComment += "Grader: " + options.gradersName + "\n\n"
                 // Using CSS selectors for majority of filtering
-                let classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
+                const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
                 classes.each(function () {
-                    let className = $(this).find("div.GMYHEHOCNK").text().split('/').slice(-1)[0]
+                    const className = $(this).find("div.GMYHEHOCNK").text().split('/').slice(-1)[0]
                     finalComment += className + "\n";
-                    let rowsWithComments = $(this).find("tr.modified-code-row:has(div.gwt-HTML.comment-text:visible)");
+                    const rowsWithComments = $(this).find("tr.modified-code-row:has(div.gwt-HTML.comment-text:visible)");
                     rowsWithComments.each(function () {
                         //line numbers end with colons, eg 15:
-                        let lineNumber = $(this).find("td.line-number").text();
-                        let comments = $(this).find(".gwt-HTML.comment-text");
+                        const lineNumber = $(this).find("td.line-number").text();
+                        const comments = $(this).find(".gwt-HTML.comment-text");
                         //Although unlikely, one row can have multiple comments
                         comments.each(function () {
                             let commentText = this.textContent;
-                            finalComment += lineNumber + commentText + "\n";
+                            finalComment += lineNumber + " " + commentText + "\n";
                         })
                     })
                 })
