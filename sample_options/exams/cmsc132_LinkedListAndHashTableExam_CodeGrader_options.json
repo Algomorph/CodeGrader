@@ -59,7 +59,9 @@
                     "$TreeMap$.firstKey",
                     "TreeMap()",
                     "$T$.equals",
-                    "this.compressAux", "$LinkedList$.compressAux", "LinkedList<>()"
+                    "this.compressAux",
+                    "$LinkedList$.compressAux",
+                    "LinkedList<>()"
                 ],
                 "global": [],
                 "myHashTable": [
@@ -87,7 +89,7 @@
                 "SampleDriver",
                 "Student"
             ],
-            "showUniqueOnly": false
+            "showUniqueOnly": true
         },
         "naming_module": {
             "allowedSpecialWords": [
