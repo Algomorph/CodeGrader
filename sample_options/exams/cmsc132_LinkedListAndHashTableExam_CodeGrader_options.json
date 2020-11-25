@@ -57,7 +57,7 @@
                     "$TreeMap$.remove",
                     "$TreeMap$.isEmpty",
                     "$TreeMap$.firstKey",
-                    "TreeMap()",
+                    "TreeMap<>()",
                     "$T$.equals",
                     "this.compressAux",
                     "$LinkedList$.compressAux",
