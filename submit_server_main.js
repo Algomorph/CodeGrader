@@ -113,6 +113,7 @@ function constructUiPanel(options) {
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
+        loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
 
     grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);
