@@ -7,7 +7,7 @@ let test_module = {};
 (function () {
 
     class Options {
-        methodExpectedToTested;
+        methodsExpectedToBeTested;
 
         /**
          * Build default options
@@ -19,7 +19,7 @@ let test_module = {};
          */
         constructor(enabled = false, methodsExpectedToBeTested = []) {
             this.enabled = enabled;
-            this.methodExpectedToTested = methodsExpectedToBeTested;
+            this.methodsExpectedToBeTested = methodsExpectedToBeTested;
         }
     }
 
@@ -40,7 +40,7 @@ let test_module = {};
         if (!options.enabled || codeFileDictionary.size === 0) {
             return;
         }
-        const untestedMethods = new Set(options.methodExpectedToTested);
+        const untestedMethods = new Set(options.methodsExpectedToBeTested);
         let codefileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
