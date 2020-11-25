@@ -35,7 +35,6 @@ let loop_module = {};
     }
 
 
-
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel, add highlights and
      * buttons in the code.
@@ -65,7 +64,7 @@ let loop_module = {};
                 const otherLoops = typeInformation.loops.filter(loop => !methodSet.has(loop.methodIdentifier));
                 let disallowedLoops = [];
                 let allowedLoops = [];
-                switch (options.methodListUsage){
+                switch (options.methodListUsage) {
                     case "allowed":
                         disallowedLoops = otherLoops;
                         allowedLoops = loopsInListedMethods;
@@ -77,18 +76,24 @@ let loop_module = {};
                     default:
                         break;
                 }
-                for (const loop of disallowedLoops){
+                for (const loop of disallowedLoops) {
                     const problemDescription = "Loops were not allowed here."
-                    $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}", loop.trCodeLine, "disallowed-loop-problem", problemDescription));
+                    $(uiPanel).append(makeLabelWithClickToScroll(
+                        loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
+                        loop.trCodeLine, "disallowed-loop-problem", problemDescription)
+                    );
                     addButtonComment(
                         loop.trCodeLine,
                         capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
                         problemDescription, problemColor
                     );
                 }
-                if(options.showAll){
-                    for (const loop of allowedLoops){
-                        $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}", loop.trCodeLine));
+                if (options.showAll) {
+                    for (const loop of allowedLoops) {
+                        $(uiPanel).append(makeLabelWithClickToScroll(
+                            loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
+                            loop.trCodeLine, "", "No problems were automatically detected.")
+                        );
                         addButtonComment(
                             loop.trCodeLine,
                             capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
