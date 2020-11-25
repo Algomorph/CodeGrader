@@ -61,7 +61,10 @@
                     "$T$.equals",
                     "this.compressAux",
                     "$LinkedList$.compressAux",
-                    "LinkedList<>()"
+                    "this.mapListAux",
+                    "$LinkedList$.mapListAux",
+                    "LinkedList<>()",
+                    "$LinkedList$.add"
                 ],
                 "global": [],
                 "myHashTable": [
