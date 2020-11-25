@@ -50,13 +50,16 @@
             "enabled": true,
             "ignoredMethods": {
                 "LinkedList": [
+                    "Node()",
                     "$TreeMap$.containsKey",
                     "$TreeMap$.put",
                     "$TreeMap$.get",
                     "$TreeMap$.remove",
                     "$TreeMap$.isEmpty",
                     "$TreeMap$.firstKey",
-                    "TreeMap()"
+                    "TreeMap()",
+                    "$T$.equals",
+                    "this.compressAux", "$LinkedList$.compressAux", "LinkedList<>()"
                 ],
                 "global": [],
                 "myHashTable": [
@@ -68,9 +71,22 @@
                     "$myHashTable$.search",
                     "$myHashTable$.insert",
                     "$myHashTable$.remove",
-                    "$myHashTable$.loadFactor"
+                    "$myHashTable$.loadFactor",
+                    "this.getSize",
+                    "this.getCapacity",
+                    "this.showMeTable",
+                    "this.hashBucket",
+                    "this.search",
+                    "this.insert",
+                    "this.remove",
+                    "this.loadFactor",
+                    "$String$.equals"
                 ]
             },
+            "ignoredTypes": [
+                "SampleDriver",
+                "Student"
+            ],
             "showUniqueOnly": false
         },
         "naming_module": {

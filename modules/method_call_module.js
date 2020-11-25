@@ -16,13 +16,16 @@ let method_call_module = {};
          * Use '$ClassName$.someInstanceMethod' for instance method 'someInstanceMethod' of class 'ClassName'.
          * Use 'ClassName.someStaticMethod' for static method 'someStaticMethod' of class 'ClassName'.
          * @param {boolean} showUniqueOnly whether to show only unique method call occurrences.
+         * @param {Array.<string>} ignoredTypes list of types (classes/enums) that will be completely ignored by the module.
          */
         constructor(enabled = false,
                     ignoredMethods = {"global": []},
-                    showUniqueOnly = false) {
+                    showUniqueOnly = false,
+                    ignoredTypes = []) {
             this.enabled = enabled;
             this.ignoredMethods = ignoredMethods;
             this.showUniqueOnly = showUniqueOnly;
+            this.ignoredTypes = ignoredTypes;
         }
     }
 
@@ -45,11 +48,16 @@ let method_call_module = {};
 
         let methodCalls = [];
 
+        const ignoredTypes = new Set(options.ignoredTypes);
+
         for (const codeFile of fileDictionary.values()) {
             if (codeFile.abstractSyntaxTree !== null) {
 
                 //iterate over classes / enums / etc.
                 for (const [typeName, typeInformation] of codeFile.types) {
+                    if (ignoredTypes.has(typeName)){
+                        continue;
+                    }
                     let ignoredMethodsForType = [...globallyIgnoredMethods];
                     if (options.ignoredMethods.hasOwnProperty(typeName)) {
                         ignoredMethodsForType.push(...options.ignoredMethods[typeName]);

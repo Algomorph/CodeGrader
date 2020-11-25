@@ -58,8 +58,7 @@ let test_module = {};
                     for (const call of scope.methodCalls) {
                         if (untestedMethods.has(call.name)) {
                             const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
-                            $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "",
-                                "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
+                            $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
                             addButtonComment(trCodeLine, "Method call from test: " + call.name,
                                 "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
                             untestedMethods.delete(call.name);
@@ -81,8 +80,7 @@ let test_module = {};
             if (parts.length > 1) {
                 shortName = parts[1];
             }
-            $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem",
-                "The method '" + shortName + "' has not been tested."));
+            $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem", "The method '" + shortName + "' has not been tested."));
             //TODO: not sure this needs to be done.
             // addButtonComment(trCodeLine, "Method was not tested: " + call.name,
             //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");

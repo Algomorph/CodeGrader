@@ -174,7 +174,7 @@ function makeLabels(strList) {
  * @param {string|undefined} toolTip (optional) the tooltip that will be used when the grader hovers their cursor over the button-label
  * @return {jQuery} the resulting HTML element wrapped in a jQuery object.
  */
-function makeLabelWithClickToScroll(label, targetElement, styleClass, toolTip) {
+function makeLabelWithClickToScroll(label, targetElement, styleClass = undefined, toolTip = undefined) {
     if (typeof styleClass === "undefined") {
         styleClass = "";
     }

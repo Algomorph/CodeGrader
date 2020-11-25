@@ -79,8 +79,7 @@ let loop_module = {};
                 }
                 for (const loop of disallowedLoops){
                     const problemDescription = "Loops were not allowed here."
-                    $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
-                        loop.trCodeLine, "disallowed-loop-problem", problemDescription));
+                    $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}", loop.trCodeLine, "disallowed-loop-problem", problemDescription));
                     addButtonComment(
                         loop.trCodeLine,
                         capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
@@ -89,8 +88,7 @@ let loop_module = {};
                 }
                 if(options.showAll){
                     for (const loop of allowedLoops){
-                        $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
-                            loop.trCodeLine));
+                        $(uiPanel).append(makeLabelWithClickToScroll(loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}", loop.trCodeLine));
                         addButtonComment(
                             loop.trCodeLine,
                             capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
