@@ -11,6 +11,9 @@ class TypeInformation {
         this.methodCalls = [];
         /** @type {Array.<Declaration>}*/
         this.declarations = [];
+        /** @type {Array.<Loop>}*/
+        this.loops = [];
+        /** @type {Array.<Scope>}*/
         this.scopes = [];
         this.ternaryExpressions = [];
         this.binaryExpressions = [];
@@ -46,12 +49,6 @@ class CodeFile {
 
         /**@type {Map.<string, TypeInformation>}*/
         this.types = new Map();
-    }
-}
-
-function getLineIndexFromOffset(lineStartOffsets, offset) {
-    for (let iLine = 0; iLine < lineStartOffsets.length; iLine++) {
-
     }
 }
 
@@ -113,9 +110,9 @@ function getCheckedFileCode(filesToCheck) {
                 }
             );
             const iEndLine = iLine;
-            if(fileCodeLines.length > 0){
+            if (fileCodeLines.length > 0) {
                 // parser doesn't like comments after closing brace at the end of the last line of file for whatever reason
-                fileCodeLines[fileCodeLines.length-1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length-1]);
+                fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
             }
             const fileCode = fileCodeLines.join("\n");
 
@@ -135,17 +132,18 @@ function getCheckedFileCode(filesToCheck) {
  * @return {number} indentation character count
  */
 let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
+
 function getIndentationWidth(codeLine, tabWidth = 4) {
     let tabReplacement = " ".repeat(tabWidth);
     return codeLine.match(indentationRegEx)[0].replaceAll("\t", tabReplacement).length;
 }
 
-function removeIndentation(codeLine){
+function removeIndentation(codeLine) {
     return codeLine.replace(indentationRegEx, "");
 }
 
 
-function trimRightWhitespaceAndComments(codeText){
+function trimRightWhitespaceAndComments(codeText) {
     return codeText.replace(/\s*(?:\s*\/\/.*|\s*\/\*.*\*\/)*(?:\/\*.*)?$/, "");
 }
 
@@ -384,8 +382,18 @@ function validateNumericInput(numberText, minimumValue, maximumValue) {
         if (score < minimumValue || score > maximumValue) {
             alert("You must enter a number between ");
             return [false, 0];
-        } else{
+        } else {
             return [true, score];
         }
     }
+}
+
+function validateStringListOption(value, optionPath, allowedValues, defaultValue) {
+    if (!allowedValues.includes(value)) {
+        alert("Unrecognized setting for " + optionPath + " : " +
+            optionPath + ". Please ensure the option is set to one of the values in " + allowedValues +
+            ". Continuing with the default value, \"" + defaultValue + "\"");
+        return defaultValue;
+    }
+    return value;
 }

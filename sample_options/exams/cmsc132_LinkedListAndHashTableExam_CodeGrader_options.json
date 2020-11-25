@@ -1,7 +1,7 @@
 {
     "filesToCheck": [
         "src/sysImplementation/LinkedList.java|sysImplementation/LinkedList.java",
-        "src/sysImplementation/LinkedList.java|sysImplementation/myHashTable.java",
+        "src/sysImplementation/myHashTable.java|sysImplementation/myHashTable.java",
         "src/sysImplementation/SampleDriver.java|sysImplementation/SampleDriver.java",
         "src/sysImplementation/Student.java|sysImplementation/Student.java"
     ],
@@ -14,7 +14,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "E3",
-            "gradersName": "",
+            "gradersName": "Greg K.",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -100
@@ -26,10 +26,50 @@
             "enabled": false,
             "keywords": []
         },
+        "loop_module": {
+            "enabled": true,
+            "methodList": [
+                "$LinkedList$.compress",
+                "$LinkedList$.compressAux",
+                "$LinkedList$.mapList",
+                "$LinkedList$.mapListAux",
+                "myHashTable()",
+                "$myHashTable$.getSize",
+                "$myHashTable$.getCapacity",
+                "$myHashTable$.showMeTable",
+                "$myHashTable$.hashBucket",
+                "$myHashTable$.search",
+                "$myHashTable$.insert",
+                "$myHashTable$.remove",
+                "$myHashTable$.loadFactor"
+            ],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
         "method_call_module": {
-            "enabled": false,
+            "enabled": true,
             "ignoredMethods": {
-                "global": []
+                "LinkedList": [
+                    "$TreeMap$.containsKey",
+                    "$TreeMap$.put",
+                    "$TreeMap$.get",
+                    "$TreeMap$.remove",
+                    "$TreeMap$.isEmpty",
+                    "$TreeMap$.firstKey",
+                    "TreeMap()"
+                ],
+                "global": [],
+                "myHashTable": [
+                    "myHashTable()",
+                    "$myHashTable$.getSize",
+                    "$myHashTable$.getCapacity",
+                    "$myHashTable$.showMeTable",
+                    "$myHashTable$.hashBucket",
+                    "$myHashTable$.search",
+                    "$myHashTable$.insert",
+                    "$myHashTable$.remove",
+                    "$myHashTable$.loadFactor"
+                ]
             },
             "showUniqueOnly": false
         },

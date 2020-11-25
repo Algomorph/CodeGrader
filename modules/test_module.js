@@ -41,7 +41,7 @@ let test_module = {};
             return;
         }
         const untestedMethods = new Set(options.methodsExpectedToBeTested);
-        let codefileToPlaceLackOfTestLabels = null;
+        let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
             if(codeFile.parseError != null){
@@ -51,8 +51,8 @@ let test_module = {};
             for (const typeInformation of codeFile.types.values()) {
                 /** @type {Array.<Scope>} */
                 const testScopes = typeInformation.scopes.filter(scope => scope.isTest);
-                if (testScopes.length > 0 && codefileToPlaceLackOfTestLabels === null) {
-                    codefileToPlaceLackOfTestLabels = codeFile;
+                if (testScopes.length > 0 && codeFileToPlaceLackOfTestLabels === null) {
+                    codeFileToPlaceLackOfTestLabels = codeFile;
                 }
                 for (const scope of testScopes) {
                     for (const call of scope.methodCalls) {
@@ -72,10 +72,10 @@ let test_module = {};
             return;
         }
         for (const untestedMethod of untestedMethods) {
-            if (codefileToPlaceLackOfTestLabels === null) {
-                codefileToPlaceLackOfTestLabels = parsedCodeFiles[0];
+            if (codeFileToPlaceLackOfTestLabels === null) {
+                codeFileToPlaceLackOfTestLabels = parsedCodeFiles[0];
             }
-            const trCodeLine = codefileToPlaceLackOfTestLabels.trCodeLines[0];
+            const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[0];
             let shortName = untestedMethod;
             const parts = untestedMethod.split('.')
             if (parts.length > 1) {

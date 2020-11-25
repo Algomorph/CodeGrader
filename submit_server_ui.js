@@ -166,6 +166,14 @@ function makeLabels(strList) {
     });
 }
 
+/**
+ * Make a label-button HTML element that, when clicked, scrolls to a specific line in the code section of the submit server review page.
+ * @param {string} label text label to put on the label-button
+ * @param {HTMLTableRowElement} targetElement an element in the code pane, usually a tr tag associated with a code line, which is the scroll target
+ * @param {string|undefined} styleClass (optional) a specific class to use to style the button-label
+ * @param {string|undefined} toolTip (optional) the tooltip that will be used when the grader hovers their cursor over the button-label
+ * @return {jQuery} the resulting HTML element wrapped in a jQuery object.
+ */
 function makeLabelWithClickToScroll(label, targetElement, styleClass, toolTip) {
     if (typeof styleClass === "undefined") {
         styleClass = "";
