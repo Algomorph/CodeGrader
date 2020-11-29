@@ -67,7 +67,7 @@
                     "LinkedList<>()",
                     "LinkedList()",
                     "$LinkedList$.add",
-"UnsupportedOperationException()"
+                    "UnsupportedOperationException()"
                 ],
                 "global": [],
                 "myHashTable": [
@@ -93,7 +93,7 @@
                     "Math.abs",
                     "Arrays.toString",
                     "IllegalArgumentException()",
-"UnsupportedOperationException()"
+                    "UnsupportedOperationException()"
                 ]
             },
             "ignoredTypes": [
