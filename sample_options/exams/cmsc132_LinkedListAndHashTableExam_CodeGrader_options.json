@@ -14,7 +14,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "E3",
-            "gradersName": "Greg K.",
+            "gradersName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -100
