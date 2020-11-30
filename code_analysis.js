@@ -10,20 +10,24 @@ let code_analysis = {};
 
     const MethodCallType = {
         METHOD: "method",
-        INSTANCE_METHOD: "static method",
+        INSTANCE_METHOD: "instance method",
         STATIC_METHOD: "static method",
         CONSTRUCTOR: "constructor",
         SUPER_METHOD: "super method",
         SUPER_CONSTRUCTOR: "super constructor",
     }
 
+    this.MethodCallType = MethodCallType;
+
     class MethodCall {
-        constructor(name, trCodeLine, astNode, callType) {
+        constructor(name, trCodeLine, astNode, callType, methodName, nameOfCalledType) {
             this.name = name;
             this.possiblyIgnored = false;
             this.trCodeLine = trCodeLine;
             this.astNode = astNode;
             this.callType = callType;
+            this.methodName = methodName;
+            this.nameOfCalledType = nameOfCalledType;
         }
     }
 
@@ -144,6 +148,10 @@ let code_analysis = {};
         }
     }
 
+    /**
+     * Signifies a single usage of a previously-declared element in the code, i.e. of a method, a field, a class/enum,
+     * or a variable.
+     */
     class Usage {
         /**
          * Define a usage instance
@@ -155,6 +163,75 @@ let code_analysis = {};
             this.astNode = astNode;
             this.trCodeline = trCodeLine;
             this.declaration = declaration;
+        }
+    }
+
+    const LoopType = {
+        FOR_LOOP: 0,
+        ENHANCED_FOR_LOOP: 1,
+        WHILE_LOOP: 2,
+        DO_WHILE_LOOP: 3
+    };
+
+    this.LoopType = LoopType;
+
+    const LoopDescriptionByType = new Map([
+        [LoopType.FOR_LOOP, "for loop"],
+        [LoopType.ENHANCED_FOR_LOOP, "enhanced-for loop"],
+        [LoopType.WHILE_LOOP, "while loop"],
+        [LoopType.DO_WHILE_LOOP, "do-while loop"]
+    ]);
+
+    this.LoopDescriptionByType = LoopDescriptionByType;
+
+    const LoopTypeByNode = new Map([
+        ["ForStatement", LoopType.FOR_LOOP],
+        ["EnhancedForStatement", LoopType.ENHANCED_FOR_LOOP],
+        ["WhileStatement", LoopType.WHILE_LOOP],
+        ["DoStatement", LoopType.DO_WHILE_LOOP]
+    ]);
+
+    /**
+     * Generate a unique string identifier for a method.
+     * @param {string} typeName
+     * @param {string} methodName
+     * @param {boolean} isStatic
+     */
+    this.generateMethodStringIdentifier = function (typeName, methodName, isStatic) {
+        if (isStatic) {
+            // static method call
+            return typeName + "." + methodName;
+        } else {
+            // instance method call
+            return "$" + typeName + "$." + methodName;
+        }
+    }
+
+    /**
+     * Signifies a loop statement in the code.
+     */
+    class Loop {
+        /**
+         * @param {Object} astNode
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {Scope} enclosingMethodScope
+         */
+        constructor(astNode, trCodeLine, enclosingMethodScope, enclosingTypeNode) {
+            this.astNode = astNode;
+            this.trCodeLine = trCodeLine;
+            this.enclosingMethodScope = enclosingMethodScope;
+            this.type = LoopTypeByNode.get(astNode.node);
+            //__DEBUG
+            if(this.type === undefined){
+                console.log(this.astNode);
+            }
+            this.methodIdentifier = "";
+            if (enclosingMethodScope.astNode.node === "MethodDeclaration") {
+                const enclosingMethodIsStatic = code_analysis.methodIsStatic(enclosingMethodScope.astNode);
+                //TODO: support handling of anonymous classes
+                const typeName = enclosingTypeNode.hasOwnProperty("name") ? enclosingTypeNode.name.identifier : "";
+                this.methodIdentifier = code_analysis.generateMethodStringIdentifier(typeName, enclosingMethodScope.astNode.name.identifier, enclosingMethodIsStatic);
+            }
         }
     }
 
@@ -204,6 +281,18 @@ let code_analysis = {};
         ["$ArrayList$.get", "<0>"],
         ["$ArrayList$.clone", "=="], //...
     ]);
+
+    this.methodIsStatic = function (astNode) {
+        if (astNode.node !== "MethodDeclaration") {
+            throw TypeError("astNode.node needs to be MethodDeclaration and the astNode needs to follow the javaparser PEG.js convention for that node type.");
+        }
+        for (const modifier of astNode.modifiers) {
+            if (modifier.keyword === "static") {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Search backwards through the scope stack for a declaration with matching name.
@@ -276,17 +365,18 @@ let code_analysis = {};
      * @param {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}, name: {identifier: string}}} methodInvocationNode
      * @param {Array.<Scope>} fullScopeStack
      * @param {CodeFile} codeFile
-     * @return {string}
+     * @return {[string, null|string]}
      */
-    this.determineMethodCallIdentifier = function (methodInvocationNode, fullScopeStack, codeFile) {
+    this.determineMethodCallIdentifierAndCalledType = function (methodInvocationNode, fullScopeStack, codeFile) {
         let name = "";
+        let calledType = null;
 
         if (methodInvocationNode.hasOwnProperty("expression") && methodInvocationNode.expression != null) {
-            const declaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
-            if (declaration == null) {
+            const calledDeclaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
+            if (calledDeclaration == null) {
                 if (methodInvocationNode.expression.node === "SimpleName") {
                     name = methodInvocationNode.expression.identifier + "." + methodInvocationNode.name.identifier;
-                    //TODO: also check against imported classes
+                    //TODO: also check against imported types
                     if (!javaDotLangPackageClasses.has(methodInvocationNode.expression.identifier) && log_method_ownership_warnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
                             + methodInvocationNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
@@ -303,17 +393,15 @@ let code_analysis = {};
                     }
                 }
             } else {
-                if (declaration.declarationType === DeclarationType.TYPE) {
-                    // static method call
-                    name = declaration.typeName + "." + methodInvocationNode.name.identifier;
-                } else {
-                    name = "$" + declaration.typeName + "$." + methodInvocationNode.name.identifier;
-                }
+                calledType = calledDeclaration.typeName;
+                name = this.generateMethodStringIdentifier(calledDeclaration.typeName,
+                    methodInvocationNode.name.identifier,
+                    calledDeclaration.declarationType === DeclarationType.TYPE);
             }
         } else {
             name = "this." + methodInvocationNode.name.identifier;
         }
-        return name;
+        return [name, calledType];
     }
 
 
@@ -354,10 +442,10 @@ let code_analysis = {};
      * @param {Array.<Scope>} scopeStack
      * @return {Scope}
      */
-    function getEnclosingMethodFromScopeStack(scopeStack){
-        let iScope ;
-        for(iScope = scopeStack.length - 1; iScope >= 0; iScope--){
-            if(scopeStack[iScope].astNode.node === "MethodDeclaration"){
+    function getEnclosingMethodFromScopeStack(scopeStack) {
+        let iScope;
+        for (iScope = scopeStack.length - 1; iScope >= 0; iScope--) {
+            if (scopeStack[iScope].astNode.node === "MethodDeclaration") {
                 return scopeStack[iScope];
             }
         }
@@ -537,8 +625,8 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "SuperMethodInvocation": {
-                const methodCall = new MethodCall("super.",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD);
+                const methodCall = new MethodCall("super." + astNode.name.identifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD, astNode.name.identifier, null);
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -547,7 +635,7 @@ let code_analysis = {};
                 break;
             case "SuperConstructorInvocation": {
                 const methodCall = new MethodCall("super(...)",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR, "super", null);
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -558,7 +646,7 @@ let code_analysis = {};
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
                 const methodCall = new MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, methodReturnTypeName, methodReturnTypeName);
 
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
@@ -567,9 +655,9 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
-                const methodCallIdentifier = this.determineMethodCallIdentifier(astNode, fullScopeStack, codeFile);
+                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
                 const methodCall = new MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD)
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
                 enclosingTypeInformation.methodCalls.push(methodCall);
                 const unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
@@ -606,6 +694,10 @@ let code_analysis = {};
                 break;
             default:
                 break;
+        }
+        // handle loops
+        if (LoopTypeByNode.has(astNode.node)) {
+            enclosingTypeInformation.loops.push(new Loop(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], getEnclosingMethodFromScopeStack(fullScopeStack), enclosingTypeInformation.typeScope.astNode));
         }
 
         const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);

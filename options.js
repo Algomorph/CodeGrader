@@ -36,15 +36,16 @@ class Options {
         this.filesToCheck = filesToCheck;
         this.lateScoreAdjustment = -12;
         this.moduleOptions = {
-            "keyword_module": keyword_module.getDefaultOptions(),
-            "naming_module": naming_module.getDefaultOptions(),
-            "method_call_module": method_call_module.getDefaultOptions(),
-            "spacing_module": spacing_module.getDefaultOptions(),
             "brace_style_module": brace_style_module.getDefaultOptions(),
-            "test_module": test_module.getDefaultOptions(),
-            "unused_code_module": unused_code_module.getDefaultOptions(),
+            "grade_server_module": grade_server_module.getDefaultOptions(),
             "indentation_module": indentation_module.getDefaultOptions(),
-            "grade_server_module": grade_server_module.getDefaultOptions()
+            "keyword_module": keyword_module.getDefaultOptions(),
+            "loop_module": loop_module.getDefaultOptions(),
+            "method_call_module": method_call_module.getDefaultOptions(),
+            "naming_module": naming_module.getDefaultOptions(),
+            "spacing_module": spacing_module.getDefaultOptions(),
+            "test_module": test_module.getDefaultOptions(),
+            "unused_code_module": unused_code_module.getDefaultOptions()
         };
     }
 }

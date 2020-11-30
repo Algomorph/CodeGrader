@@ -106,7 +106,7 @@
         },
         "test_module": {
             "enabled": false,
-            "methodExpectedToTested": []
+            "methodsExpectedToBeTested": []
         },
         "unused_code_module": {
             "checkMethods": true,

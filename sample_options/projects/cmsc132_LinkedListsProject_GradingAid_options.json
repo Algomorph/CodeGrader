@@ -60,7 +60,7 @@
         },
         "test_module": {
             "enabled": true,
-            "methodExpectedToTested": [
+            "methodsExpectedToBeTested": [
                 "$BasicLinkedList$.addToFront",
                 "$BasicLinkedList$.addToEnd",
                 "$BasicLinkedList$.getFirst",

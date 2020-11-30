@@ -7,7 +7,7 @@ let test_module = {};
 (function () {
 
     class Options {
-        methodExpectedToTested;
+        methodsExpectedToBeTested;
 
         /**
          * Build default options
@@ -19,7 +19,7 @@ let test_module = {};
          */
         constructor(enabled = false, methodsExpectedToBeTested = []) {
             this.enabled = enabled;
-            this.methodExpectedToTested = methodsExpectedToBeTested;
+            this.methodsExpectedToBeTested = methodsExpectedToBeTested;
         }
     }
 
@@ -40,8 +40,8 @@ let test_module = {};
         if (!options.enabled || codeFileDictionary.size === 0) {
             return;
         }
-        const untestedMethods = new Set(options.methodExpectedToTested);
-        let codefileToPlaceLackOfTestLabels = null;
+        const untestedMethods = new Set(options.methodsExpectedToBeTested);
+        let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
             if(codeFile.parseError != null){
@@ -51,15 +51,14 @@ let test_module = {};
             for (const typeInformation of codeFile.types.values()) {
                 /** @type {Array.<Scope>} */
                 const testScopes = typeInformation.scopes.filter(scope => scope.isTest);
-                if (testScopes.length > 0 && codefileToPlaceLackOfTestLabels === null) {
-                    codefileToPlaceLackOfTestLabels = codeFile;
+                if (testScopes.length > 0 && codeFileToPlaceLackOfTestLabels === null) {
+                    codeFileToPlaceLackOfTestLabels = codeFile;
                 }
                 for (const scope of testScopes) {
                     for (const call of scope.methodCalls) {
                         if (untestedMethods.has(call.name)) {
                             const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
-                            $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "",
-                                "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
+                            $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
                             addButtonComment(trCodeLine, "Method call from test: " + call.name,
                                 "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
                             untestedMethods.delete(call.name);
@@ -72,17 +71,16 @@ let test_module = {};
             return;
         }
         for (const untestedMethod of untestedMethods) {
-            if (codefileToPlaceLackOfTestLabels === null) {
-                codefileToPlaceLackOfTestLabels = parsedCodeFiles[0];
+            if (codeFileToPlaceLackOfTestLabels === null) {
+                codeFileToPlaceLackOfTestLabels = parsedCodeFiles[0];
             }
-            const trCodeLine = codefileToPlaceLackOfTestLabels.trCodeLines[0];
+            const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[0];
             let shortName = untestedMethod;
             const parts = untestedMethod.split('.')
             if (parts.length > 1) {
                 shortName = parts[1];
             }
-            $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem",
-                "The method '" + shortName + "' has not been tested."));
+            $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem", "The method '" + shortName + "' has not been tested."));
             //TODO: not sure this needs to be done.
             // addButtonComment(trCodeLine, "Method was not tested: " + call.name,
             //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");

@@ -69,6 +69,10 @@
 	background-color: #b16238;
 }
 
+.disallowed-loop-problem {
+	background-color: #7cc208;
+}
+
 .checked-file-link{
 	color: #2e6f05;
 }

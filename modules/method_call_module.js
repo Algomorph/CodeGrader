@@ -16,13 +16,16 @@ let method_call_module = {};
          * Use '$ClassName$.someInstanceMethod' for instance method 'someInstanceMethod' of class 'ClassName'.
          * Use 'ClassName.someStaticMethod' for static method 'someStaticMethod' of class 'ClassName'.
          * @param {boolean} showUniqueOnly whether to show only unique method call occurrences.
+         * @param {Array.<string>} ignoredTypes list of types (classes/enums) that will be completely ignored by the module.
          */
         constructor(enabled = false,
                     ignoredMethods = {"global": []},
-                    showUniqueOnly = false) {
+                    showUniqueOnly = false,
+                    ignoredTypes = []) {
             this.enabled = enabled;
             this.ignoredMethods = ignoredMethods;
             this.showUniqueOnly = showUniqueOnly;
+            this.ignoredTypes = ignoredTypes;
         }
     }
 
@@ -45,25 +48,29 @@ let method_call_module = {};
 
         let methodCalls = [];
 
+        const ignoredTypes = new Set(options.ignoredTypes);
+
         for (const codeFile of fileDictionary.values()) {
             if (codeFile.abstractSyntaxTree !== null) {
 
                 //iterate over classes / enums / etc.
                 for (const [typeName, typeInformation] of codeFile.types) {
+                    if (ignoredTypes.has(typeName)) {
+                        continue;
+                    }
                     let ignoredMethodsForType = [...globallyIgnoredMethods];
                     if (options.ignoredMethods.hasOwnProperty(typeName)) {
                         ignoredMethodsForType.push(...options.ignoredMethods[typeName]);
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
-                    let methodCallsForType = [...typeInformation.methodCalls];
-                    methodCallsForType = methodCallsForType.filter((methodCall) => {
-                        return !ignoredMethodsForType.has(methodCall.name);
-                    })
+                    let methodCallsForType = [...typeInformation.methodCalls].filter(methodCall =>
+                        !ignoredMethodsForType.has(methodCall.name)
+                    )
                     // special "this." case handling
                     if (ignoredMethodsForType.has("this.")) {
-                        methodCallsForType = methodCallsForType.filter((methodCall) => {
-                            return !methodCall.name.startsWith("this.");
-                        })
+                        methodCallsForType = methodCallsForType.filter(methodCall =>
+                            !methodCall.name.startsWith("this.")
+                        )
                     }
                     methodCallsForType.forEach((methodCall) => {
                         if (methodCall.astNode.hasOwnProperty("name") &&
@@ -81,14 +88,38 @@ let method_call_module = {};
         }
 
         for (const methodCall of methodCalls) {
+            let problemMessageBase = "This call ";
+
+            switch (methodCall.callType) {
+                case code_analysis.MethodCallType.METHOD:
+                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
+                        + (methodCall.nameOfCalledType != null ? " of class \"" + methodCall.nameOfCalledType + "\"" : "")
+                    break;
+                case code_analysis.MethodCallType.SUPER_METHOD:
+                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
+                    break;
+                case code_analysis.MethodCallType.SUPER_CONSTRUCTOR:
+                    problemMessageBase = "Call to this " + methodCall.callType;
+                    break;
+                case code_analysis.MethodCallType.CONSTRUCTOR:
+                    problemMessageBase = "Call to this " + methodCall.callType + " of class \"" +
+                        methodCall.nameOfCalledType + "\"";
+                    break;
+            }
+            const potentialProblemMessage = problemMessageBase + " was potentially not allowed here.";
+            const problemMessage = problemMessageBase + " was not allowed here.";
+
+
             if (methodCall.possiblyIgnored) {
-                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "possibly-ignored-method-call"));
+                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "possibly-ignored-method-call",
+                    "No problems were automatically detected."));
             } else {
-                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine));
+                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "",
+                    potentialProblemMessage));
             }
 
             addButtonComment(
-                methodCall.trCodeLine, capitalize(methodCall.callType) + " call: " + methodCall.name, "", "#b3769f"
+                methodCall.trCodeLine, capitalize(methodCall.callType) + " call: " + methodCall.name, problemMessage, "#b3769f"
             );
         }
     }
