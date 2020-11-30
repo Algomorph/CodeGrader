@@ -22,7 +22,7 @@
         "indentation_module": {
             "enabled": false
         },
-        "keyword_module": {
+        "keyword_and_pattern_module": {
             "enabled": false,
             "keywords": []
         },

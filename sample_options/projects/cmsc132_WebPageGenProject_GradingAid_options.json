@@ -30,7 +30,7 @@
         "indentation_module": {
             "enabled": true
         },
-        "keyword_module": {
+        "keyword_and_pattern_module": {
             "enabled": false,
             "keywords": []
         },

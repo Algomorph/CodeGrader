@@ -39,7 +39,7 @@ class Options {
             "brace_style_module": brace_style_module.getDefaultOptions(),
             "grade_server_module": grade_server_module.getDefaultOptions(),
             "indentation_module": indentation_module.getDefaultOptions(),
-            "keyword_module": keyword_module.getDefaultOptions(),
+            "keyword_and_pattern_module": keyword_and_pattern_module.getDefaultOptions(),
             "loop_module": loop_module.getDefaultOptions(),
             "method_call_module": method_call_module.getDefaultOptions(),
             "naming_module": naming_module.getDefaultOptions(),

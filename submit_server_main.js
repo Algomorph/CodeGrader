@@ -107,7 +107,7 @@ function constructUiPanel(options) {
             }
         }
 
-        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keyword_module);
+        keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
         naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
