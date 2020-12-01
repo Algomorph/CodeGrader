@@ -33,12 +33,25 @@
                 "==\\s*EmptyTree\\s*\\.\\s*getInstance\\([^)]*\\)",
                 "instanceof\\s+(:?Non)?EmptyTree",
                 "getClass\\s*\\(\\s*\\)",
-                "(:?tree|(:?left|right)(:?Child|Subtree|Side)?)\\s*\\.\\s*size\\s*\\(\\s*\\)\\s*(:?==|(:?<|>)=?)\\s*\\d+"
+                "(:?tree|(:?left|right)(:?Child|Subtree|Side)?)\\s*\\.\\s*size\\s*\\(\\s*\\)\\s*(:?==|(:?<|>)=?)\\s*\\d+",
+                "bool\\s*(:?isEmpty|empty)\\s*\\(\\s*\\)"
             ]
         },
         "loop_module": {
             "enabled": false,
-            "methodList": [],
+            "methodList": [
+                "$NonEmptyTree$.search",
+                "$NonEmptyTree$.insert",
+                "$NonEmptyTree$.delete",
+                "$NonEmptyTree$.max",
+                "$NonEmptyTree$.min",
+                "$NonEmptyTree$.size",
+                "$NonEmptyTree$.addKeysToCollection",
+                "$NonEmptyTree$.subTree",
+                "$NonEmptyTree$.height",
+                "$NonEmptyTree$.inorderTraversal",
+                "$NonEmptyTree$.rightRootLeftTraversal"
+            ],
             "methodListUsage": "disallowed",
             "showAll": true
         },
@@ -76,7 +89,19 @@
         },
         "test_module": {
             "enabled": true,
-            "methodsExpectedToBeTested": []
+            "methodsExpectedToBeTested": [
+                "$PolymorphicBST$.get",
+                "$PolymorphicBST$.put",
+                "$PolymorphicBST$.remove",
+                "$PolymorphicBST$.size",
+                "$PolymorphicBST$.getMax",
+                "$PolymorphicBST$.getMin",
+                "$PolymorphicBST$.keySet",
+                "$PolymorphicBST$.inorderTraversal",
+                "$PolymorphicBST$.rightRootLeftTraversal",
+                "$PolymorphicBST$.clear",
+               "$PolymorphicBST$.subMap"
+            ]
         },
         "unused_code_module": {
             "checkMethods": false,
@@ -84,10 +109,6 @@
             "checkVariables": true,
             "enabled": false,
             "ignoredNames": {
-                "BasicLinkedList": [],
-                "SortedLinkedList": [
-                    "data"
-                ],
                 "global": []
             },
             "markAllUsages": false
