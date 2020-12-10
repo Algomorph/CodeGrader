@@ -41,23 +41,16 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
 }
 
 /**
- * Navigate to first file in the provided lists that's present in the student's submission (review view) on the submit server (if any)
- * @param {Array.<string>} filesPathsToCheck list of file paths to check
+ * Navigate to first file in the provided list that is present in the student's submission (review view) on the
+ * submit server (if any)
+ * @param {Array.<string>} filePaths list of file paths to check.
  */
-function scrollToFirstFile(filesPathsToCheck) {
+function scrollToFirstFile(filePaths) {
     let found = false;
     let i_file = 0;
     let links = null;
-    while (!found && i_file < filesPathsToCheck.length) {
-        let filePath = filesPathsToCheck[i_file];
-        if(filePath.includes("|")){
-            const paths = filePath.split("|");
-            for (const path of paths) {
-                if($(".link.link-block:contains('" + path + "')").length){
-                    filePath = path;
-                }
-            }
-        }
+    while (!found && i_file < filePaths.length) {
+        let filePath = filePaths[i_file];
         links = $(".link.link-block:contains('" + filePath + "')");
         found = links.length > 0;
         i_file++;
@@ -67,16 +60,53 @@ function scrollToFirstFile(filesPathsToCheck) {
     }
 }
 
-function recolorCheckedFileLinks(filesToCheck) {
-    for (const filePath of filesToCheck) {
-        if (filePath.includes("|")) {
-            const paths = filePath.split("|");
-            for (const path of paths) {
-                $(".link.link-block:contains('" + path + "')").addClass("checked-file-link")
+/**
+ * Return the list of files present in the current submit server submission that match any of the entries in the provided
+ * file path entry list.
+ * @param {Array.<string>} filePathEntryList Each entry may be simply a file path. However, more complex functionality
+ * is supported.
+ * Firstly, each entry may be a set of paths signifying different versions for a file, concatenated by the "|"
+ * delimiter. Secondly, Each entry may also include wildcards, e.g. "*", which are  expanded into the set of files that
+ * match the path with the wildcard. Finally, if both the "*" and "|" are used, the first variant with any files already
+ * present will be used, and only the files matching it will be added to the resulting list.
+ * @return {Array.<string>} paths matching to entries in the list that exist in the current submission.
+ */
+function expandFilePathEntryList(filePathEntryList) {
+    const filePaths = [];
+
+    function processWildcardsAndAddPaths(pathPotentiallyWithWildcards) {
+        if (pathPotentiallyWithWildcards.includes("*")) {
+            const pattern = new RegExp(pathPotentiallyWithWildcards.replace("*", ".*"));
+            filePaths.push(...Array.from(document.querySelectorAll(".link.link-block"))
+                .filter(element => pattern.exec(element.textContent) != null)
+                .map(element => element.textContent));
+        } else {
+            if ($(".link.link-block:contains('" + pathPotentiallyWithWildcards + "')").length > 0) {
+                filePaths.push(pathPotentiallyWithWildcards);
+            }
+        }
+    }
+
+    for (const filePathEntry of filePathEntryList) {
+        if (filePathEntry.includes("|")) {
+            for (const pathVariant of filePathEntry.split("|")) {
+                if ($(".link.link-block:contains('" + pathVariant + "')").length > 0) {
+                    processWildcardsAndAddPaths(pathVariant);
+                    break;
+                }
             }
         } else {
-            $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
+            processWildcardsAndAddPaths(filePathEntry);
         }
+    }
+
+    return filePaths;
+
+}
+
+function recolorCheckedFileLinks(filePaths) {
+    for (const filePath of filePaths) {
+        $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
     }
 }
 
@@ -106,27 +136,15 @@ function highlightAllCheckedCode(filesToCheck) {
 
 
 function getSourceFileContainer(filePath) {
-    if (filePath.includes("|")) {
-        const paths = filePath.split("|");
-        for (const path of paths) {
-            const container = $("div.GMYHEHOCNK:contains('" + path + "')");
-            if (container.length) {
-                return container.parent();
-            }
-        }
-        return $("div.GMYHEHOCNK:contains('" + paths[0] + "')").parent();
-    } else {
-        return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
-    }
-
+    return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
 }
 
 function getScrollableSourceFilePane() {
     return $(".GMYHEHOCJK");
 }
 
-function getTrCodesForCodeFile(filePath) {
-    return $.makeArray(getSourceFileContainer(filePath).find("tr"));
+function getTrCodesForCodeFile(filePathEntry) {
+    return $.makeArray(getSourceFileContainer(filePathEntry).find("tr"));
 }
 
 function getCodeFromTrCodeLine(trCodeLine) {
@@ -136,19 +154,6 @@ function getCodeFromTrCodeLine(trCodeLine) {
     } else {
         return $(contentDivTag).text();
     }
-}
-
-
-function getAllCheckedTrCodeLines(filesToCheck) {
-    // flatten to get <tr> for each line of code
-    return _.reduce(
-        filesToCheck,
-        function (memo, filename) {
-            let trCodeLinesForFile = getTrCodesForCodeFile(filename);
-            return _.union(memo, trCodeLinesForFile);
-        },
-        []
-    );
 }
 
 function makeWarning(text) {

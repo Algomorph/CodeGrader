@@ -1,15 +1,6 @@
 {
     "filesToCheck": [
-        "WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java",
-        "WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java",
-        "WebPageGen/src/main/java/model/Element.java|src/model/Element.java",
-        "WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java",
-        "WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java",
-        "WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java",
-        "WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java",
-        "WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java",
-        "WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java",
-        "WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java"
+        "src/processor/*"
     ],
     "lateScoreAdjustment": -12,
     "moduleOptions": {
@@ -19,18 +10,20 @@
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "P2",
+            "gradeServerAssignmentName": "P7",
             "gradersName": "",
             "maximumCodeStyleScore": 10,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": 0
+            "minimumScoreAdjustment": -50
         },
         "indentation_module": {
             "enabled": true
         },
         "keyword_and_pattern_module": {
-            "enabled": false,
-            "keywords": [],
+            "enabled": true,
+            "keywords": [
+                "ArrayList"
+            ],
             "patterns": []
         },
         "loop_module": {
@@ -58,14 +51,12 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "WebPage": [
-                    "findElem",
-                    "stats"
-                ],
+                "BasicLinkedList": [],
+                "SortedLinkedList": [],
                 "global": []
             },
-            "numbersAllowedInNames": true,
-            "showUniqueOnly": true,
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": false,
             "sortAlphabetically": false
         },
         "spacing_module": {
@@ -74,21 +65,41 @@
             "enabled": true
         },
         "test_module": {
-            "enabled": false,
-            "methodsExpectedToBeTested": []
+            "enabled": true,
+            "methodsExpectedToBeTested": [
+                "$BasicLinkedList$.addToFront",
+                "$BasicLinkedList$.addToEnd",
+                "$BasicLinkedList$.getFirst",
+                "$BasicLinkedList$.getLast",
+                "$BasicLinkedList$.getReverseArrayList",
+                "$BasicLinkedList$.getReverseList",
+                "$BasicLinkedList$.getSize",
+                "$BasicLinkedList$.remove",
+                "$BasicLinkedList$.retrieveFirstElement",
+                "$BasicLinkedList$.retrieveLastElement",
+                "$BasicLinkedList$.iterator",
+                "$SortedLinkedList$.add",
+                "$SortedLinkedList$.remove",
+                "$SortedLinkedList$.addToFront",
+                "$SortedLinkedList$.addToEnd"
+            ]
         },
         "unused_code_module": {
             "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
+                "BasicLinkedList": [],
+                "SortedLinkedList": [
+                    "data"
+                ],
                 "global": []
             },
             "markAllUsages": false
         }
     },
     "semesterSeason": "fall",
-    "submitServerAssignmentName": "Proj 2",
+    "submitServerAssignmentName": "Proj7",
     "year": "2020"
 }
