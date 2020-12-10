@@ -11,7 +11,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "P7",
-            "gradersName": "",
+            "gradersName": "Greg K",
             "maximumCodeStyleScore": 10,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -50
@@ -21,9 +21,7 @@
         },
         "keyword_and_pattern_module": {
             "enabled": true,
-            "keywords": [
-                "ArrayList"
-            ],
+            "keywords": ["synchronized"],
             "patterns": []
         },
         "loop_module": {
@@ -51,49 +49,27 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "BasicLinkedList": [],
-                "SortedLinkedList": [],
                 "global": []
             },
             "numbersAllowedInNames": false,
-            "showUniqueOnly": false,
-            "sortAlphabetically": false
+            "showUniqueOnly": true,
+            "sortAlphabetically": true
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
-            "enabled": true
+            "enabled": false
         },
         "test_module": {
-            "enabled": true,
-            "methodsExpectedToBeTested": [
-                "$BasicLinkedList$.addToFront",
-                "$BasicLinkedList$.addToEnd",
-                "$BasicLinkedList$.getFirst",
-                "$BasicLinkedList$.getLast",
-                "$BasicLinkedList$.getReverseArrayList",
-                "$BasicLinkedList$.getReverseList",
-                "$BasicLinkedList$.getSize",
-                "$BasicLinkedList$.remove",
-                "$BasicLinkedList$.retrieveFirstElement",
-                "$BasicLinkedList$.retrieveLastElement",
-                "$BasicLinkedList$.iterator",
-                "$SortedLinkedList$.add",
-                "$SortedLinkedList$.remove",
-                "$SortedLinkedList$.addToFront",
-                "$SortedLinkedList$.addToEnd"
-            ]
+            "enabled": false,
+            "methodsExpectedToBeTested": []
         },
         "unused_code_module": {
             "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
-            "enabled": true,
+            "enabled": false,
             "ignoredNames": {
-                "BasicLinkedList": [],
-                "SortedLinkedList": [
-                    "data"
-                ],
                 "global": []
             },
             "markAllUsages": false
