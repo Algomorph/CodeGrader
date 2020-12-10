@@ -44,6 +44,9 @@ let loop_module = {};
      * @param {Options} options
      */
     this.initialize = function (uiPanel, codeFileDictionary, options) {
+        if (!options.enabled) {
+            return;
+        }
         const problemColor = "#7cc208";
         const noteColor = "#999999";
         $(uiPanel).append("<h3 style='color:" + problemColor + "'>Loops</h3>");

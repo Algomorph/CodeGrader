@@ -39,15 +39,16 @@ function main(options) {
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
         const assignmentName = options.submitServerAssignmentName;
+        let filePaths = expandFilePathEntryList(options.filesToCheck);
 
         // check if it's the right course & project
         if ($("h1").text().match(assignmentName)) {
             //FIXME
             // highlightAllCheckedCode(options.filesToCheck);
             // hljs.initHighlightingOnLoad();
-            recolorCheckedFileLinks(options.filesToCheck);
-            scrollToFirstFile(options.filesToCheck);
-            constructUiPanel(options);
+            recolorCheckedFileLinks(filePaths);
+            scrollToFirstFile(filePaths);
+            constructUiPanel(options, filePaths);
         }
 
         // assign click event to predefined comment buttons
@@ -80,7 +81,7 @@ function main(options) {
 
 } // MAIN ENDS
 
-function constructUiPanel(options) {
+function constructUiPanel(options, filePaths) {
     // first, create summary uiPanel
     let uiPanelContainer = document.createElement('div');
     uiPanelContainer.setAttribute('class', 'ui-panel-container');
@@ -91,11 +92,12 @@ function constructUiPanel(options) {
 
     makeCodeFeedArrow();
 
-    if (options.filesToCheck.length === 0) {
-        $(uiPanel).append(makeWarning("Note: no files to check specified in plugin options, review modules disabled."));
+    if (filePaths.length === 0) {
+        $(uiPanel).append(makeWarning("Note: no files found matching to the entries provided in \"filesToCheck\" in " +
+            "plugin options, continuing with review modules disabled."));
     } else {
 
-        const [codeFileDictionary, trCodeLines] = getCheckedFileCode(options.filesToCheck);
+        const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filePaths);
         for (const codeFile of codeFileDictionary.values()) {
             code_analysis.findEntitiesInCodeFileAst(codeFile);
         }
@@ -107,7 +109,7 @@ function constructUiPanel(options) {
             }
         }
 
-        keyword_module.initialize(uiPanel, trCodeLines, options.moduleOptions.keyword_module);
+        keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
         naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
