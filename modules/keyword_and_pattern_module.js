@@ -68,9 +68,9 @@ let keyword_and_pattern_module = {};
         const patternOccurrencesFound = [];
 
         for (const codeFile of fileDictionary.values()) {
+
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {	// iterates each line of code below
-                const codeLine = codeFile.codeLines[codeLineIndex]
-                if (codeLine.match(/\/\//i)) return;
+                const codeLine = stripCommentsFromCode(codeFile.codeLines[codeLineIndex]);
 
                 //TODO: get start & end column of each occurrence, store these in KeywordOccurrence & PatternOccurrence class for any discovered occurrence
                 const keywordsFound = _.filter(keywordsToFind, keyword => codeLine.includes(keyword));
