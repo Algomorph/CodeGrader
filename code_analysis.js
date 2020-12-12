@@ -222,7 +222,7 @@ let code_analysis = {};
             this.enclosingMethodScope = enclosingMethodScope;
             this.type = LoopTypeByNode.get(astNode.node);
             //__DEBUG
-            if(this.type === undefined){
+            if (this.type === undefined) {
                 console.log(this.astNode);
             }
             this.methodIdentifier = "";
@@ -542,19 +542,19 @@ let code_analysis = {};
                 branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
             }
                 branchScopes.push(new Scope(astNode, branchScopeDeclarations,
-                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
+                    [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
                 break;
             case "WhileStatement":
                 branchScopes.push(new Scope(astNode, [],
-                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
+                    [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
                 break;
             case "DoStatement":
                 branchScopes.push(new Scope(astNode, [],
-                    (astNode.body.node === "Block" ? astNode.body.statements : [astNode.body.expression]).concat([astNode.expression]),
+                    [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
                 break;
@@ -671,7 +671,7 @@ let code_analysis = {};
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
-                scope.unprocessedChildAstNodes = astNode.fragments;
+                scope.setNextBatchOfChildAstNodes(astNode.fragments);
             {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 for (const fragment of astNode.fragments) {
@@ -715,6 +715,11 @@ let code_analysis = {};
         for (const branchScope of branchScopes) {
             let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
+                //__DEBUG
+                if (childAstNode === undefined) {
+                    console.log(astNode);
+                    console.log(branchScope);
+                }
                 this.findEntitiesInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
             }
         }

@@ -5,7 +5,7 @@
     "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true,
+            "enabled": false,
             "markAllBraces": false
         },
         "grade_server_module": {
@@ -25,9 +25,9 @@
                 "synchronized"
             ],
             "patterns": [
-"[.]start\\s*\\(",
-"[.]join\\s*\\("
-]
+                "[.]start\\s*\\(",
+                "[.]join\\s*\\("
+            ]
         },
         "loop_module": {
             "enabled": false,
