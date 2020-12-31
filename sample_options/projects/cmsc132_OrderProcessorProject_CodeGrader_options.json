@@ -5,13 +5,13 @@
     "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": true,
+            "enabled": false,
             "markAllBraces": false
         },
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "P7",
-            "gradersName": "Greg K",
+            "gradersName": "Greg K.",
             "maximumCodeStyleScore": 10,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -50
@@ -21,8 +21,13 @@
         },
         "keyword_and_pattern_module": {
             "enabled": true,
-            "keywords": ["synchronized"],
-            "patterns": []
+            "keywords": [
+                "synchronized"
+            ],
+            "patterns": [
+                "[.]start\\s*\\(",
+                "[.]join\\s*\\("
+            ]
         },
         "loop_module": {
             "enabled": false,
@@ -41,7 +46,9 @@
         "naming_module": {
             "allowedSpecialWords": [
                 "min",
-                "max"
+                "max",
+                "ST",
+                "MT"
             ],
             "checkConstants": true,
             "checkMethods": true,

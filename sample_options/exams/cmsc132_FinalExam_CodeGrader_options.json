@@ -1,0 +1,96 @@
+{
+    "filesToCheck": [
+        "src/sysImplementation/MyLinkedList.java|sysImplementation/MyLinkedList.java",
+        "src/sysImplementation/CMSC132Sorter.java|sysImplementation/CMSC132Sorter.java",
+        "src/sysImplementation/MapOfCodes.java|sysImplementation/MapOfCodes.java",
+        "src/sysImplementation/BinarySearchTree.java|sysImplementation/BinarySearchTree.java"
+    ],
+    "lateScoreAdjustment": -30,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "FE",
+            "gradersName": "",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -100
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "loop_module": {
+            "enabled": true,
+            "methodList": [
+                "$MyLinkedList$.add",
+                "$MyLinkedList$.deleteAfterAux",
+                "$MyLinkedList$.newHeadAux",
+                "$CMSC132Sorter$.CMSC132Sort",
+                "$MapOfCodes$.sort",
+                "$BinarySearchTree$.treeProcessor",
+                "$BinarySearchTree$.treeProcessorAux",
+                "$BinarySearchTree$.removeSubTree"
+            ],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "global": [],
+                "MyLinkedList": ["$T$.compareTo"],
+                "CMSC132Sorter":["$Word$.compareTo"],
+                "MapOfCodes":["$String$.charAt"],
+                "BinarySearchTree":["ArrayList()","ArrayList<>()", "$ArrayList$.add", "$K$.compareTo"]
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": true
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "checkConstants": false,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": false,
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": false,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerAssignmentName": "Final Exam",
+    "year": "2020"
+}
