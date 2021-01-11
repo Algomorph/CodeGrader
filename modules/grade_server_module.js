@@ -98,7 +98,7 @@ let grade_server_module = {};
                 fieldValidationSuccessful &= scoreAdjustmentValid;
             }
             if (options.gradersName.length < 4) {
-                alert("Please enter a graders name longer than 3 characters in the CodeGrader plugin options (initials may be ambiguous)");
+                alert("Please enter a grader's name longer than three characters in CodeGrader options (Note: initials may be ambiguous.)");
             } else if (fieldValidationSuccessful) {
                 const directoryId = $("h1").text().split("(")[1].split(")")[0]
                 let finalComment = ""
