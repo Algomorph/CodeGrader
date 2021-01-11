@@ -7,6 +7,7 @@ let test_module = {};
 (function () {
 
     class Options {
+        enabled;
         methodsExpectedToBeTested;
 
         /**
@@ -36,10 +37,10 @@ let test_module = {};
      * @param {Options} options
      */
     this.initialize = function (uiPanel, codeFileDictionary, options) {
-        $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
         if (!options.enabled || codeFileDictionary.size === 0) {
             return;
         }
+        $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
         const untestedMethods = new Set(options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];

@@ -81,7 +81,7 @@
             "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
                 "global": []
             },
