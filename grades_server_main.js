@@ -41,6 +41,18 @@ function addListenerForGradingResult() {
 
                     $(scoreAdjustmentInput).val(adjustmentValue.toString());
                 }
+                const saveChangesButton = "form input[value=\"Save Changes\"]";
+
+                // closes current tab
+                $(saveChangesButton).on("click", function () {
+                    
+                    // need to send a message back to background script to close this tab
+                    chrome.runtime.sendMessage({
+                        action: "closeSendersTab"
+                    }, function (response) {})
+                    
+                })
+               
             }
         }
     );
