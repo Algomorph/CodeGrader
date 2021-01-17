@@ -42,6 +42,15 @@ function init() {
                         sendReportToGradesServer(gradesServerOverviewTab, request.report);
                     }
                 );
+            } else if (request.action === "closeSendersTab") {
+                // wait for 1 seconds before closing tab
+                
+                setTimeout(
+                    function () {
+                        chrome.tabs.remove(sender.tab.id);
+                    },
+                    1000
+                );
             }
         }
     );
