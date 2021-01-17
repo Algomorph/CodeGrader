@@ -53,14 +53,14 @@
    "options_page": "options_ui.html",
    "description": "A plugin to ease code style grading of student project submissions at UMD/CP CS department.",
    "icons": {
-      "16": "icons/grading-16.png",
-      "24": "icons/grading-24.png",
-      "32": "icons/grading-32.png",
-      "48": "icons/grading-48.png",
-      "128": "icons/grading-128.png"
+      "16": "icons/logo-A-16x16.png",
+      "24": "icons/logo-A-24x24.png",
+      "32": "icons/logo-32x32.png",
+      "48": "icons/logo-48x48.png",
+      "128": "icons/logo-128x128.png"
    },
    "page_action": {
-      "default_icon": "icons/grading-19.png",
+      "default_icon": "icons/logo-A-19x19.png",
       "default_title": "A plugin to ease code style grading  of student project submissions at UMD/CP CS department."
    },
    "permissions": [ "tabs", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
