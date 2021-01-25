@@ -73,9 +73,9 @@ let indentation_module = {};
             if (isComment && codeText.indexOf("*/") !== -1) {
                 isComment = false;
                 if(codeText.indexOf("/*") !== -1) {
-                    codeText.replace(/\/\*[^[*\/]]*\*\//g, " ".repeat(codeText.indexOf("/*") - codeText.indexOf("*/") + 1));
+                    codeText.replace(/\/\*[^[*\/]]*\*\//g, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
                 } else {
-                    codeText.replace(/.*\*\//g, " ".repeat(codeText.indexOf("*/") + 1));
+                    codeText.replace(/.*\*\//g, " ".repeat(codeText.indexOf("*/") + 2));
                 }
             }
 
