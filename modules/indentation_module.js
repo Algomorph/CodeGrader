@@ -112,15 +112,27 @@ let indentation_module = {};
             }
 
             // verify current indent is correct
-            if (countIndent(codeText) !== currentIndentation) {
+            if (getIndentationWidth(codeText) !== currentIndentationWidth) {
                 //badLines.push(trCodeLine);
-                let defaultMessage = "Detected indent: " + countIndent(codeText) + ", Expected indent: " + currentIndentation;
-                if (currentIndentation < countIndent(codeText)) {
-                    highlightSection(trCodeLine, currentIndentation, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Over-indent", trCodeLine, "", defaultMessage));
+                let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
+                let newProblem = false;
+                let shortProblemDescription = "";
+                if (currentIndentationWidth < getIndentationWidth(codeText)) {
+                    highlightSection(trCodeLine, currentIndentationWidth, "#92b9d1");
+                    if (lastLineStatus !== LastLineIndentationStatus.OVERINDENTED) {
+                        newProblem = true;
+                        shortProblemDescription = "Over-indent";
+                        $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
+                        lastLineStatus = LastLineIndentationStatus.OVERINDENTED;
+                    }
                 } else {
                     highlightSection(trCodeLine, 0, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Under-indent", trCodeLine, "", defaultMessage));
+                    if (lastLineStatus !== LastLineIndentationStatus.UNDERINDENTED) {
+                        newProblem = true;
+                        shortProblemDescription = "Under-indent";
+                        $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
+                        lastLineStatus = LastLineIndentationStatus.UNDERINDENTED;
+                    }
                 }
                 if (newProblem) {
                     addButtonComment(trCodeLine, shortProblemDescription, defaultMessage, "#92b9d1");
