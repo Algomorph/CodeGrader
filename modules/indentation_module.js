@@ -76,6 +76,7 @@ let indentation_module = {};
                     codeText.replace(/\/\*[^[*\/]]*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
                 } else {
                     codeText.replace(/.*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                    console.log(codeText.search(/\S/));
                 }
             }
 
