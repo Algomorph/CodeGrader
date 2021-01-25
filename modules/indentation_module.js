@@ -65,7 +65,7 @@ let indentation_module = {};
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
         let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
-            let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
+            let codeText = trimRightWhitespaceAndComments(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine)));
 
             if (codeText.indexOf("/*") !== -1) {
                 isComment = true;
