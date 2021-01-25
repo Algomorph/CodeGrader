@@ -1,5 +1,6 @@
 {
-   "name": "Code Style Grading Aid",
+   "name": "CodeGrader",
+   "short_name": "CodeGrader",
    "manifest_version": 2,
    "background": {
       "scripts": [ "background.js" ],
@@ -8,44 +9,62 @@
    "content_scripts": [ 
       {
          "all_frames": false,
-         "css": [ "css/style.css"],
+         "css": [
+            "css/style.css",
+            "css/highlight.min.css"
+         ],
          "js": [
-            "third_party/javaparser7.min.js", 
+            "third_party/javaparser7.min.js",
+            "third_party/highlight.min.js",
             "third_party/jquery-3.5.1.min.js", 
             "third_party/underscore-min.js", 
             "third_party/mustache.js", 
             "third_party/bootstrap.min.js",
+            "options.js",
             "code_analysis.js",
             "utilities.js",
             "submit_server_ui.js",
-            "modules/spacing_module.js",
             "modules/brace_style_module.js",
             "modules/grade_server_module.js",
-            "modules/keyword_module.js", 
-            "modules/naming_module.js",
-            "modules/method_call_module.js",
             "modules/indentation_module.js",
+            "modules/keyword_and_pattern_module.js",
+            "modules/loop_module.js",
+            "modules/method_call_module.js",
+            "modules/naming_module.js",
+            "modules/spacing_module.js",
+            "modules/test_module.js",
+            "modules/unused_code_module.js",
             "modules/us_english_dictionary.js",
-            "main.js"
+            "submit_server_main.js"
          ],
-         "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*" ],
+         "matches": [ "https://submit.cs.umd.edu/view/instructor/*", "https://submit.cs.umd.edu/view/codeReview/*", "https://submit.cs.umd.edu/*/view/instructor/*", "https://submit.cs.umd.edu/*/view/codeReview/*"],
          "run_at": "document_idle"
-      } 
+      },
+      {
+         "all_frames": false,
+         "js": [
+            "third_party/jquery-3.5.1.min.js",
+            "grades_server_main.js"
+         ],
+         "matches": ["https://grades.cs.umd.edu/classWeb/*"],
+         "run_at": "document_idle"
+      }
    ],
    "options_page": "options_ui.html",
    "description": "A plugin to ease code style grading of student project submissions at UMD/CP CS department.",
    "icons": {
-      "16": "icons/grading-16.png",
-      "24": "icons/grading-24.png",
-      "32": "icons/grading-32.png",
-      "48": "icons/grading-48.png",
-      "128": "icons/grading-128.png"
+      "16": "icons/logo-A-16x16.png",
+      "24": "icons/logo-A-24x24.png",
+      "32": "icons/logo-32x32.png",
+      "48": "icons/logo-48x48.png",
+      "128": "icons/logo-128x128.png"
    },
    "page_action": {
-      "default_icon": "icons/grading-19.png",
+      "default_icon": "icons/logo-A-19x19.png",
       "default_title": "A plugin to ease code style grading  of student project submissions at UMD/CP CS department."
    },
-   "permissions": [ "tabs", "bookmarks", "contextMenus", "notifications", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
+   "permissions": [ "tabs", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "3.0"
+   "version": "1.0",
+   "version_name": "1.0 alpha"
 }

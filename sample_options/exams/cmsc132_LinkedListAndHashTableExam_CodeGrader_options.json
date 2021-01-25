@@ -1,0 +1,145 @@
+{
+    "filesToCheck": [
+        "src/sysImplementation/LinkedList.java|sysImplementation/LinkedList.java",
+        "src/sysImplementation/myHashTable.java|sysImplementation/myHashTable.java",
+        "src/sysImplementation/SampleDriver.java|sysImplementation/SampleDriver.java",
+        "src/sysImplementation/Student.java|sysImplementation/Student.java"
+    ],
+    "lateScoreAdjustment": -15,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "E3",
+            "gradersName": "",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -100
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "loop_module": {
+            "enabled": true,
+            "methodList": [
+                "$LinkedList$.compress",
+                "$LinkedList$.compressAux",
+                "$LinkedList$.mapList",
+                "$LinkedList$.mapListAux",
+                "myHashTable()",
+                "$myHashTable$.getSize",
+                "$myHashTable$.getCapacity",
+                "$myHashTable$.showMeTable",
+                "$myHashTable$.hashBucket",
+                "$myHashTable$.search",
+                "$myHashTable$.insert",
+                "$myHashTable$.remove",
+                "$myHashTable$.loadFactor"
+            ],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "LinkedList": [
+                    "Node()",
+                    "$TreeMap$.containsKey",
+                    "$TreeMap$.put",
+                    "$TreeMap$.get",
+                    "$TreeMap$.remove",
+                    "$TreeMap$.isEmpty",
+                    "$TreeMap$.firstKey",
+                    "TreeMap<>()",
+                    "TreeMap()",
+                    "$T$.equals",
+                    "this.compressAux",
+                    "$LinkedList$.compressAux",
+                    "this.mapListAux",
+                    "$LinkedList$.mapListAux",
+                    "LinkedList<>()",
+                    "LinkedList()",
+                    "$LinkedList$.add",
+                    "UnsupportedOperationException()"
+                ],
+                "global": [],
+                "myHashTable": [
+                    "myHashTable()",
+                    "$myHashTable$.getSize",
+                    "$myHashTable$.getCapacity",
+                    "$myHashTable$.showMeTable",
+                    "$myHashTable$.hashBucket",
+                    "$myHashTable$.search",
+                    "$myHashTable$.insert",
+                    "$myHashTable$.remove",
+                    "$myHashTable$.loadFactor",
+                    "this.getSize",
+                    "this.getCapacity",
+                    "this.showMeTable",
+                    "this.hashBucket",
+                    "this.search",
+                    "this.insert",
+                    "this.remove",
+                    "this.loadFactor",
+                    "$String$.equals",
+                    "$String$.hashCode",
+                    "Math.abs",
+                    "Arrays.toString",
+                    "IllegalArgumentException()",
+                    "UnsupportedOperationException()"
+                ]
+            },
+            "ignoredTypes": [
+                "SampleDriver",
+                "Student"
+            ],
+            "showUniqueOnly": true
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "checkConstants": false,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": false,
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerAssignmentName": "Exam3",
+    "year": "2020"
+}

@@ -328,6 +328,7 @@ function peg$parse(input, options) {
       peg$c30 = function(dims, init) {
               return {
                 node:           'VariableDeclarationFragment',
+                location:        location(),
                 extraDimensions: dims.length,
                 initializer:     init
             };
@@ -373,6 +374,7 @@ function peg$parse(input, options) {
       peg$c37 = function(name, dims, init) {
             return {
               node:           'VariableDeclarationFragment',
+              location:        location(),
               name:            name,
               extraDimensions: dims.length,
               initializer:     extractOptional(init, 1)
@@ -408,6 +410,7 @@ function peg$parse(input, options) {
       peg$c44 = function(statements) {
             return {
               node:      'Block',
+              location:   location(),
               statements: statements
             }
           },
@@ -456,7 +459,7 @@ function peg$parse(input, options) {
       peg$c50 = function(expr, body) {
             return {
               node:      'WhileStatement',
-              location:     location(),
+              location:   location(),
               expression: expr.expression,
               body:       body
             };
@@ -464,6 +467,7 @@ function peg$parse(input, options) {
       peg$c51 = function(statement, expr) {
             return {
               node:      'DoStatement',
+              location:   location(),
               expression: expr.expression,
               body:       statement
             };
@@ -486,15 +490,15 @@ function peg$parse(input, options) {
               resources:    []
             });
           },
-      peg$c56 = function(expr, cases) { return { node: 'SwitchStatement', statements: cases, expression: expr.expression }; },
-      peg$c57 = function(expr, body) { return { node: 'SynchronizedStatement', expression: expr.expression, body: body } },
-      peg$c58 = function(expr) { return { node: 'ReturnStatement', expression: expr } },
-      peg$c59 = function(expr) { return { node: 'ThrowStatement', expression: expr }; },
-      peg$c60 = function(id) { return { node: 'BreakStatement', label: id }; },
-      peg$c61 = function(id) { return { node: 'ContinueStatement', label: id }; },
-      peg$c62 = function() { return { node: 'EmptyStatement' }; },
+      peg$c56 = function(expr, cases) { return { node: 'SwitchStatement', location: location(), statements: cases, expression: expr.expression }; },
+      peg$c57 = function(expr, body) { return { node: 'SynchronizedStatement', location: location(), expression: expr.expression, body: body } },
+      peg$c58 = function(expr) { return { node: 'ReturnStatement', location: location(), expression: expr } },
+      peg$c59 = function(expr) { return { node: 'ThrowStatement', location: location(), expression: expr }; },
+      peg$c60 = function(id) { return { node: 'BreakStatement', location: location(), label: id }; },
+      peg$c61 = function(id) { return { node: 'ContinueStatement', location: location(), label: id }; },
+      peg$c62 = function() { return { node: 'EmptyStatement', location: location() }; },
       peg$c63 = function(statement) { return statement; },
-      peg$c64 = function(id, statement) { return { node: 'LabeledStatement', label: id, body: statement }; },
+      peg$c64 = function(id, statement) { return { node: 'LabeledStatement', location: location(), label: id, body: statement }; },
       peg$c65 = function(modifiers, type, decl, expr) {
             var fragment = mergeProps(decl, { initializer: expr });
             fragment.node = 'VariableDeclarationFragment';
@@ -523,7 +527,7 @@ function peg$parse(input, options) {
           },
       peg$c67 = function(block) { return block; },
       peg$c68 = function(blocks) { return [].concat.apply([], blocks); },
-      peg$c69 = function(expr, blocks) { return [{ node: 'SwitchCase', expression: expr }].concat(blocks); },
+      peg$c69 = function(expr, blocks) { return [{ node: 'SwitchCase', location: location(), expression: expr }].concat(blocks); },
       peg$c70 = function(expr) { return expr; },
       peg$c71 = function(modifiers, type, decls) {
             return [{
@@ -551,6 +555,7 @@ function peg$parse(input, options) {
       peg$c74 = function(left, op, right) {
             return {
               node:         'Assignment',
+              location:      location(),
               operator:      op[0] /* remove ending spaces */,
               leftHandSide:  left,
               rightHandSide: right
@@ -559,6 +564,7 @@ function peg$parse(input, options) {
       peg$c75 = function(expr, then, alt) {
             return {
               node:          'ConditionalExpression',
+              location:       location(),
               expression:     expr,
               thenExpression: then,
               elseExpression: alt

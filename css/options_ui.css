@@ -1,3 +1,6 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
 .button-div {
     position: relative;
     overflow: hidden;
@@ -9,6 +12,10 @@ input.hidden-active {
     opacity: 0;
     right: 0;
     top: 0;
+}
+
+body{
+    overflow: hidden;
 }
 
 html, body, .container {
