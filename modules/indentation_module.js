@@ -19,7 +19,7 @@
      */
     function countIndent(codeLine) {
         let numChars = codeLine.length - codeLine.trimStart().length;
-        if(codeLine.trim().indexOf("*/") === 0) {
+        if(codeLine.indexOf("*/") !== -1) {
             numChars = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
         }
         let i = 0;
@@ -54,7 +54,7 @@
         Oops this is the indentation module not braces
         Check for indentation after opening brace
         */
-        let badLines = [];
+        //let badLines = [];
         let stack = [0];
 
         let isPrev = false;
@@ -78,15 +78,15 @@
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
-
             if (codeText.indexOf("/*") !== -1) {
                 isComment = true;
             }
-
             if (isComment && codeText.indexOf("*/") !== -1) {
                 isComment = false;
-                if(codeText.trim().indexOf("*/") === codeText.trim().length - 2) {
-                    return;
+                if(codeText.indexOf("/*") !== -1) {
+                    codeText.replace(/\/\*[^[*\/]]*\*\//g, " ".repeat(codeText.indexOf("/*") - codeText.indexOf("*/") + 1));
+                } else {
+                    codeText.replace(/.*\*\//g, " ".repeat(codeText.indexOf("/*") + 1));
                 }
             }
 
@@ -123,16 +123,17 @@
                 currentIndentation += singleIndentationString;
             }
 
+
             // verify current indent is correct
             if (countIndent(codeText) !== currentIndentation) {
-                badLines.push(trCodeLine);
+                //badLines.push(trCodeLine);
                 let defaultMessage = "Detected indent: " + countIndent(codeText) + ", Expected indent: " + currentIndentation;
                 if (currentIndentation < countIndent(codeText)) {
                     highlightSection(trCodeLine, currentIndentation, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Overindent", trCodeLine, "", defaultMessage));
+                    $(uiPanel).append(makeLabelWithClickToScroll("Over-indent", trCodeLine, "", defaultMessage));
                 } else {
                     highlightSection(trCodeLine, 0, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Underindent", trCodeLine, "", defaultMessage));
+                    $(uiPanel).append(makeLabelWithClickToScroll("Under-indent", trCodeLine, "", defaultMessage));
                 }
 
                 addButtonComment(trCodeLine, "Poor indentation", defaultMessage, "#92b9d1");
@@ -159,13 +160,9 @@
             }
 
             // If it doesn't end in a correct delimiter, it's a continuation of the previous line. Eclipse says to add two indents.
-<<<<<<< HEAD
-            if (!isPrev && codeText.search(/(for|while|do\s|else|if)/) !== -1
-=======
             if (!isPrev && codeText.trim().search(/(for|while|do\s|else|if)/) !== -1
->>>>>>> 2d7bfa4bf217f741e829a2eac51cf23cf069cbe6
-                    && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
-                    && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
+                && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
+                && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
                 if (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length)) {
                     if(codeText.indexOf("}") === -1 || codeText.indexOf("{") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
                         isPrev = true;
@@ -176,12 +173,16 @@
                     currentIndentation += 2 * singleIndentationString;
                 }
             } else if (!isPrev && [";","{","}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
-                isPrev = true;
-                stack.push(isNotAllman);
-                isNotAllman = 0;
-                currentIndentation += 2 * singleIndentationString;
+                if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
+                    codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
+
+                    isPrev = true;
+                    stack.push(isNotAllman);
+                    isNotAllman = 0;
+                    currentIndentation += 2 * singleIndentationString;
+                }
             } else if(isPrev && [";","{","}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
-                if(isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
+                if(isNotAllman === 0) {
                     isPrev = false;
 
                     currentIndentation -= 2 * singleIndentationString;

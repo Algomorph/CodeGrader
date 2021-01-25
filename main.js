@@ -85,7 +85,6 @@ function constructUiPanel(options) {
         naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.namingModule);
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.methodCallModule);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentationModule);
-        spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacingModule);
     }
 
 

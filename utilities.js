@@ -75,7 +75,6 @@ class Options {
             "namingModule": naming_module.getDefaultOptions(),
             "methodCallModule": method_call_module.getDefaultOptions(),
             "indentationModule": indentation_module.getDefaultOptions(),
-            "spacingModule": spacing_module.getDefaultOptions(),
             "braceStyleModule": brace_style_module.getDefaultOptions()
         };
     }
