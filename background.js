@@ -39,7 +39,7 @@ function init() {
                             alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
                         }
                         let gradesServerOverviewTab = tabs[0];
-                        sendReportToGradesServer(gradesServerOverviewTab, request.report);
+                        sendReportToGradesServer(gradesServerOverviewTab, request.report, request.callbackOnTabRemoved);
                     }
                 );
             } else if (request.action === "closeSendersTab") {
@@ -51,17 +51,17 @@ function init() {
                     1000
                 );
             } else if (request.action === "timeActiveTab") {
-                urlTimeTracker.startTrackingUrl(request.url);
+                tabTimeTracker.startTrackingActiveTab(request.callbackOnTabRemoved);
             }
         }
     );
 }
 
 
-function sendReportToGradesServer(gradesServerOverviewTab, report) {
-
+function sendReportToGradesServer(gradesServerOverviewTab, report, callbackOnTabRemoved) {
     chrome.tabs.sendMessage(gradesServerOverviewTab.id, {"action": "openStudentGradesPage", report: report}, function (url) {
         chrome.tabs.create({url: url, windowId: gradesServerOverviewTab.windowId}, function (newTab) {
+            tabTimeTracker.startTrackingActiveTab(callbackOnTabRemoved);
             // Wait for 3 seconds for listener/content script to set up
             setTimeout(
                 function () {

@@ -290,15 +290,6 @@ function loadURL(url, domResponseHandler) {
     });
 }
 
-function reportToGradeServer(report) {
-    chrome.runtime.sendMessage({
-        action: "reportGradingResult",
-        report: report
-    }, function (response) {
-        //TODO
-    });
-}
-
 function stringDistance(s, t) {
     if (!s.length) return t.length;
     if (!t.length) return s.length;

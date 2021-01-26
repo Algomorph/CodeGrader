@@ -134,9 +134,18 @@ let grade_server_module = {};
                     semesterSeason: semesterSeason,
                     year: year,
                     gradeServerAssignmentName: options.gradeServerAssignmentName,
-                    gradersName: options.gradersName
+                    gradersName: options.gradersName,
                 }
-                reportToGradeServer(report);
+                chrome.runtime.sendMessage({
+                    action: "reportGradingResult",
+                    report: report,
+                    callbackOnTabRemoved:
+                        function (tabActiveDuration){
+                            usage_statistics_module.gradeServerTabDuration = tabActiveDuration;
+                        }
+                }, function (response) {
+                    //TODO
+                });
             }
 
         }).appendTo(uiPanel);

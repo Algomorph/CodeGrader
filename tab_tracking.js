@@ -2,33 +2,47 @@
 //  Copyright (c) 2021 Gregory Kramida
 //  Based on: https://chrome.google.com/webstore/detail/time-tracker/mokmnbikneoaenmckfmgjgjimphfojkd
 
-let urlTimeTracker = {};
-
+let tabTimeTracker = {};
 
 (function () {
     /** @type {Date|null}*/
     this._startTime = null;
 
-    /** @type {Map.<Tab, number>}*/
-    this._trackedUrls = new Map();
+    /** @type {Map.<number, number>}*/
+    this._trackedTabs = new Map();
 
-    this._currentTabUrl = null;
+    this._currentlyTrackedTabId = null;
     this._idle = false;
     this._updateTimePeriodInMinuts = 1;
 
-    this.startTrackingUrl = function (url, callbackOnClose) {
+    this.startTrackingActiveTab = function (callbackOnTabRemoved) {
         let self = this;
         chrome.tabs.query({active: true, lastFocusedWindow: true},
             function (tabs) {
-                if (tabs.length === 1 && tabs[0].url === self._currentTabUrl) {
+                if (tabs.length === 1) {
+                    let trackedTabId = tabs[0].id;
                     chrome.windows.get(tabs[0].windowId,
                         function (win) {
                             if (!win.focused) {
+                                // something went wrong, window needs to have been focused at this point
                                 self._setCurrentFocus(null);
-                            } else {
-                                self._setCurrentFocus(url);
-
+                                return;
                             }
+                            self._trackedTabs.set(trackedTabId, 0);
+                            chrome.tabs.onRemoved.addListener(
+                                function _listener(tabId, removeInfo) {
+                                    if(tabId === trackedTabId){
+                                        const tabActiveDuration = self._trackedTabs.get(tabId);
+                                        if(tabId === self._currentlyTrackedTabId){
+                                            self._setCurrentFocus(null);
+                                        }
+                                        self._trackedTabs.delete(tabId);
+                                        callbackOnTabRemoved(tabActiveDuration);
+                                        chrome.tabs.onRemoved.removeListener(_listener);
+                                    }
+                                }
+                            );
+                            self._setCurrentFocus(trackedTabId);
                         }
                     );
                 }
@@ -38,7 +52,7 @@ let urlTimeTracker = {};
 
 
     this._updateCurrentTabTime = function () {
-        if (!this._currentTrackedUrl || !this._startTime) {
+        if (!this._currentlyTrackedTabId || !this._startTime) {
             return;
         }
         let delta = new Date() - this._startTime;
@@ -48,19 +62,19 @@ let urlTimeTracker = {};
             // something went wrong, return.
             return;
         }
-        if (this._trackedUrls.has(this._currentTrackedUrl)) {
-            this._trackedUrls.set(this._currentTrackedUrl, this._trackedUrls.get(this._currentTrackedUrl) + delta);
+        if (this._trackedTabs.has(this._currentlyTrackedTabId)) {
+            this._trackedTabs.set(this._currentlyTrackedTabId, this._trackedTabs.get(this._currentlyTrackedTabId) + delta);
         }
     }
 
-    this._setCurrentFocus = function (url) {
+    this._setCurrentFocus = function (tabId) {
         this._updateCurrentTabTime();
-        if (this._trackedUrls.has(url)) {
+        if (this._trackedTabs.has(tabId)) {
             this._startTime = new Date();
-            this._currentTrackedUrl = url;
+            this._currentlyTrackedTabId = tabId;
         } else {
             this._startTime = null;
-            this._currentTrackedUrl = null;
+            this._currentlyTrackedTabId = null;
         }
     }
 
@@ -80,13 +94,13 @@ let urlTimeTracker = {};
                     * this, we risk counting time towards a tab while the user is outside of
                     * Chrome altogether.
                     * */
-                    let url = tabs[0].url;
+                    let tabId = tabs[0].id;
                     chrome.windows.get(tabs[0].windowId,
                         function (win) {
                             if (!win.focused) {
-                                url = null;
+                                tabId = null;
                             }
-                            self._setCurrentFocus(url);
+                            self._setCurrentFocus(tabId);
                         }
                     );
                 }
@@ -101,7 +115,7 @@ let urlTimeTracker = {};
         function (tabId, changeInfo, tab) {
             /*
             * This tab has updated, but it may not have focus.
-            * Try to set focus to the active tab URL.
+            * Try to set focus to the active tab id.
             * */
             self._setFocusToActiveTab();
         }
@@ -109,13 +123,9 @@ let urlTimeTracker = {};
     chrome.tabs.onActivated.addListener(
         function (activeInfo) {
             /*
-            * A tab is activated (while window has focus): set focus to it.
+            * A tab is activated (while window has focus): try to set focus to it.
             * */
-            chrome.tabs.get(activeInfo.tabId,
-                function (tab) {
-                    self._setCurrentFocus(tab.url);
-                }
-            );
+            self._setCurrentFocus(activeInfo.tabId);
         }
     );
 
@@ -153,7 +163,7 @@ let urlTimeTracker = {};
         function (alarm) {
             if (alarm.name === "updateTime") {
                 /*
-                 * These event gets fired on a periodic basis and isn't triggered
+                 * These events gets fired on a periodic basis and aren't triggered
                  * by a user event, like the tabs/windows events. Because of that,
                  * we need to ensure the user is not idle or we'll track time for
                  * the current tab forever.
@@ -176,4 +186,4 @@ let urlTimeTracker = {};
     );
 
 
-}).apply(urlTimeTracker);
+}).apply(tabTimeTracker);

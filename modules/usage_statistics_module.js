@@ -6,9 +6,12 @@ let usage_statistics_module = {};
 
 (function () {
 
-    this._trackReportButton = false;
-    this._trackSaveButton = false;
     this._gradersName = "Anonymous";
+    this._active = false;
+
+    this.gradeServerTabDuration = 0;
+    //TODO: fill this in from grade_server_module somehow
+    this.gradeSaveButtonClicked = false;
 
     class Options {
         /**
@@ -27,6 +30,8 @@ let usage_statistics_module = {};
         return new Options();
     }
 
+    let self=this;
+
     /**
      * Initialize the module.
      * @param {Options} usageStatisticsModuleOptions options for statistics gathering
@@ -34,24 +39,27 @@ let usage_statistics_module = {};
      */
     this.initialize = function (usageStatisticsModuleOptions, gradeServerModuleOptions) {
         if (!usageStatisticsModuleOptions.enabled) {
+            this._active = false;
             return;
         }
-        if (!gradeServerModuleOptions.enabled) {
-            this._trackReportButton = false;
-            this._trackSaveButton = false;
-        } else {
-            this._trackReportButton = true;
-            this._trackSaveButton = true;
-            if (!usageStatisticsModuleOptions.anonymizeUser) {
-                this._gradersName = gradeServerModuleOptions.gradersName;
-            }
+        this._active = true;
+        if (!usageStatisticsModuleOptions.anonymizeUser && gradeServerModuleOptions.gradersName.length > 0) {
+            this._gradersName = gradeServerModuleOptions.gradersName;
         }
+
+        let submitServerSessionUrl = location.href;
+
         chrome.runtime.sendMessage({
             action: "timeActiveTab",
-            url: location.href
-        }, function (response) {
-            //TODO
+            callbackOnTabRemoved: function(submitServerTabDuration){
+                //TODO save session details (including self.gradeServerTabDuration and other stuff)
+                // using a POST query somehow, perhaps redirect via background.js first to initiate the POST request
+            }
         });
+    }
+
+    this.active = function (){
+        return this._active;
     }
 
 }).apply(usage_statistics_module);
