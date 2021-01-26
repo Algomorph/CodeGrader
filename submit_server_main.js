@@ -41,11 +41,16 @@ function main(options) {
         const assignmentName = options.submitServerAssignmentName;
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
+        usage_statistics_module.initialize(options.moduleOptions.usage_statistics_module, options.moduleOptions.grade_server_module.gradersName);
+
         // check if it's the right course & project
         if ($("h1").text().match(assignmentName)) {
             //FIXME
             // highlightAllCheckedCode(options.filesToCheck);
             // hljs.initHighlightingOnLoad();
+
+            //start logging usage statistics
+
             recolorCheckedFileLinks(filePaths);
             scrollToFirstFile(filePaths);
             constructUiPanel(options, filePaths);
@@ -118,8 +123,6 @@ function constructUiPanel(options, filePaths) {
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
-        // add graders name to usage_statistics_module
-        usage_statistics_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.usage_statistics_module, options.moduleOptions.grade_server_module.gradersName);
     }
 
     grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);

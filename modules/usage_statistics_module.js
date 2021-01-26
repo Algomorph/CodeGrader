@@ -35,16 +35,16 @@ let usage_statistics_module = {};
     /**
      * Initialize the module.
      * @param {Options} usageStatisticsModuleOptions options for statistics gathering
-     * @param {Object} gradeServerModuleOptions grade server module options
+     * @param {string} gradersName grade server module options
      */
-    this.initialize = function (usageStatisticsModuleOptions, gradeServerModuleOptions) {
+    this.initialize = function (usageStatisticsModuleOptions, gradersName = "") {
         if (!usageStatisticsModuleOptions.enabled) {
             this._active = false;
             return;
         }
         this._active = true;
-        if (!usageStatisticsModuleOptions.anonymizeUser && gradeServerModuleOptions.gradersName.length > 0) {
-            this._gradersName = gradeServerModuleOptions.gradersName;
+        if (!usageStatisticsModuleOptions.anonymizeUser && gradersName.length > 0) {
+            this._gradersName = gradersName;
         }
 
         let submitServerSessionUrl = location.href;
@@ -52,8 +52,8 @@ let usage_statistics_module = {};
         chrome.runtime.sendMessage({
             action: "timeActiveTab",
             callbackOnTabRemoved: function(submitServerTabDuration){
-                //TODO save session details (including self.gradeServerTabDuration and other stuff)
-                // using a POST query somehow, perhaps redirect via background.js first to initiate the POST request
+                //TODO save session details (including self.gradeServerTabDuration, self._gradersName, submitServerTabDuration, and other stuff).
+                // Do this using a POST query somehow, perhaps redirect via background.js first to initiate the POST request.
             }
         });
     }
