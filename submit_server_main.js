@@ -118,8 +118,8 @@ function constructUiPanel(options, filePaths) {
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
-        // add graders name to usage_statistic_module
-        usage_statistic_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.usage_statistic_module, options.moduleOptions.grade_server_module.gradersName);
+        // add graders name to usage_statistics_module
+        usage_statistics_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.usage_statistics_module, options.moduleOptions.grade_server_module.gradersName);
     }
 
     grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);

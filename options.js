@@ -46,7 +46,7 @@ class Options {
             "spacing_module": spacing_module.getDefaultOptions(),
             "test_module": test_module.getDefaultOptions(),
             "unused_code_module": unused_code_module.getDefaultOptions(),
-            "usage_statistic_module": usage_statistic_module.getDefaultOptions()
+            "usage_statistics_module": usage_statistics_module.getDefaultOptions()
         };
     }
 }

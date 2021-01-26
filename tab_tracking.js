@@ -1,0 +1,179 @@
+//  Created by Gregory Kramida (https://github.com/Algomorph) on 1/26/21.
+//  Copyright (c) 2021 Gregory Kramida
+//  Based on: https://chrome.google.com/webstore/detail/time-tracker/mokmnbikneoaenmckfmgjgjimphfojkd
+
+let urlTimeTracker = {};
+
+
+(function () {
+    /** @type {Date|null}*/
+    this._startTime = null;
+
+    /** @type {Map.<Tab, number>}*/
+    this._trackedUrls = new Map();
+
+    this._currentTabUrl = null;
+    this._idle = false;
+    this._updateTimePeriodInMinuts = 1;
+
+    this.startTrackingUrl = function (url, callbackOnClose) {
+        let self = this;
+        chrome.tabs.query({active: true, lastFocusedWindow: true},
+            function (tabs) {
+                if (tabs.length === 1 && tabs[0].url === self._currentTabUrl) {
+                    chrome.windows.get(tabs[0].windowId,
+                        function (win) {
+                            if (!win.focused) {
+                                self._setCurrentFocus(null);
+                            } else {
+                                self._setCurrentFocus(url);
+
+                            }
+                        }
+                    );
+                }
+            }
+        );
+    }
+
+
+    this._updateCurrentTabTime = function () {
+        if (!this._currentTrackedUrl || !this._startTime) {
+            return;
+        }
+        let delta = new Date() - this._startTime;
+
+        if (delta / 1000 / 60 > 2 * this._updateTimePeriodInMinuts) {
+            // time is too long to be realistic (since we're also periodically updating using an alarm object)
+            // something went wrong, return.
+            return;
+        }
+        if (this._trackedUrls.has(this._currentTrackedUrl)) {
+            this._trackedUrls.set(this._currentTrackedUrl, this._trackedUrls.get(this._currentTrackedUrl) + delta);
+        }
+    }
+
+    this._setCurrentFocus = function (url) {
+        this._updateCurrentTabTime();
+        if (this._trackedUrls.has(url)) {
+            this._startTime = new Date();
+            this._currentTrackedUrl = url;
+        } else {
+            this._startTime = null;
+            this._currentTrackedUrl = null;
+        }
+    }
+
+    /**
+     * Get active tab and set focus to it.
+     * @private
+     */
+    this._setFocusToActiveTab = function () {
+        let self = this;
+        chrome.tabs.query({active: true, lastFocusedWindow: true},
+            function (tabs) {
+                if (tabs.length === 1) {
+                    /*
+                    * Is the tab in the currently focused window? If not, assume Chrome
+                    * is out of focus. Although we ask for the lastFocusedWindow, it's
+                    * possible for that window to go out of focus quickly. If we don't do
+                    * this, we risk counting time towards a tab while the user is outside of
+                    * Chrome altogether.
+                    * */
+                    let url = tabs[0].url;
+                    chrome.windows.get(tabs[0].windowId,
+                        function (win) {
+                            if (!win.focused) {
+                                url = null;
+                            }
+                            self._setCurrentFocus(url);
+                        }
+                    );
+                }
+            }
+        );
+    }
+
+    let self = this;
+
+    // ==== Add listeners ====
+    chrome.tabs.onUpdated.addListener(
+        function (tabId, changeInfo, tab) {
+            /*
+            * This tab has updated, but it may not have focus.
+            * Try to set focus to the active tab URL.
+            * */
+            self._setFocusToActiveTab();
+        }
+    );
+    chrome.tabs.onActivated.addListener(
+        function (activeInfo) {
+            /*
+            * A tab is activated (while window has focus): set focus to it.
+            * */
+            chrome.tabs.get(activeInfo.tabId,
+                function (tab) {
+                    self._setCurrentFocus(tab.url);
+                }
+            );
+        }
+    );
+
+    chrome.tabs.onFocusChanged.addListener(
+        function (windowId) {
+            /*
+             * If window is out of focus, set focus to null.
+             * If window receives focus, set focus to active tab.
+             */
+            if (windowId === chrome.windows.WINDOW_ID_NONE) {
+                self._setCurrentFocus(null);
+                return;
+            }
+            self._setFocusToActiveTab();
+        }
+    );
+
+    chrome.idle.onStateChanged.addListener(
+        function (idleState) {
+            if (idleState === "active") {
+                self._idle = false;
+                self._setFocusToActiveTab();
+            } else {
+                self._idle = true;
+                self._setCurrentFocus(null);
+            }
+        }
+    );
+
+    chrome.alarms.create(
+        "updateTime",
+        {periodInMinutes: this._updateTimePeriodInMinuts}
+    );
+    chrome.alarms.onAlarm.addListener(
+        function (alarm) {
+            if (alarm.name === "updateTime") {
+                /*
+                 * These event gets fired on a periodic basis and isn't triggered
+                 * by a user event, like the tabs/windows events. Because of that,
+                 * we need to ensure the user is not idle or we'll track time for
+                 * the current tab forever.
+                 * */
+                if (!self._idle) {
+                    self._setFocusToActiveTab();
+                }
+                /* Force a check of the idle state to ensure that we transition
+                 * back from idle to active as soon as possible. */
+                chrome.idle.queryState(60, function (idleState) {
+                    if (idleState === "active") {
+                        self._idle = false;
+                    } else {
+                        self._idle = true;
+                        self._setCurrentFocus(null);
+                    }
+                });
+            }
+        }
+    );
+
+
+}).apply(urlTimeTracker);

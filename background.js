@@ -44,13 +44,14 @@ function init() {
                 );
             } else if (request.action === "closeSendersTab") {
                 // wait for 1 seconds before closing tab
-                
                 setTimeout(
                     function () {
                         chrome.tabs.remove(sender.tab.id);
                     },
                     1000
                 );
+            } else if (request.action === "timeActiveTab") {
+                urlTimeTracker.startTrackingUrl(request.url);
             }
         }
     );
