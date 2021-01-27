@@ -41,15 +41,17 @@ function main(options) {
         const assignmentName = options.submitServerAssignmentName;
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
-        usage_statistics_module.initialize(options.moduleOptions.usage_statistics_module, options.moduleOptions.grade_server_module.gradersName);
-
         // check if it's the right course & project
         if ($("h1").text().match(assignmentName)) {
             //FIXME
             // highlightAllCheckedCode(options.filesToCheck);
             // hljs.initHighlightingOnLoad();
 
-            //start logging usage statistics
+            //start logging usage statistics for this session
+            chrome.runtime.sendMessage({
+                action: "timeTab",
+                sessionUrl: location.href
+            });
 
             recolorCheckedFileLinks(filePaths);
             scrollToFirstFile(filePaths);

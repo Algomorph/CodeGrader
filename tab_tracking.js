@@ -10,13 +10,14 @@ let tabTimeTracker = {};
 
     class TrackedTabInfo {
         duration;
-        session_url;
+        sessionUrl;
 
         /**
-         * @param {string} session_url URL of the submit server tab (either the active tab or the tab the active tab was launched from)
+         * @param {string} sessionUrl URL of the submit server tab (either the active tab or the tab the active tab was launched from)
          */
-        constructor(session_url) {
-            self.session_url = session_url
+        constructor(sessionUrl) {
+            this.sessionUrl = sessionUrl;
+            this.duration = 0;
         }
     }
 
@@ -27,56 +28,40 @@ let tabTimeTracker = {};
     this._idle = false;
     this._updateTimePeriodInMinuts = 1;
 
-    this.startTrackingActiveTab = function (session_url) {
+    this.startTrackingTabActiveTime = function (sessionUrl, tab) {
+
         let self = this;
-        chrome.tabs.query({active: true, lastFocusedWindow: true},
-            function (tabs) {
-                if (tabs.length === 1) {
 
-                    //__DEBUG
-                    console.log("I am tabTimeTracker, and I have discovered the active tab with url " + tabs[0].url + ". What I know of the session_url: ")
-                    console.log(session_url)
+        const trackedTabId = tab.id;
+        self._trackedTabs.set(trackedTabId, new TrackedTabInfo(sessionUrl));
 
-                    const trackedTabId = tabs[0].id;
-                    chrome.windows.get(tabs[0].windowId,
-                        function (win) {
-                            if (!win.focused) {
-                                // something went wrong, window needs to have been focused at this point
-                                self._setCurrentFocus(null);
-                                return;
-                            }
-                            self._trackedTabs.set(trackedTabId, new TrackedTabInfo(session_url));
-                            const url = tabs[0].url;
-                            chrome.tabs.onRemoved.addListener(
-                                function _listener(tabId, removeInfo) {
-                                    if (tabId === trackedTabId) {
-                                        //__DEBUG
-                                        const tabActiveDuration = self._trackedTabs.get(trackedTabId).duration;
-                                        if (tabId === self._currentlyTrackedTabId) {
-                                            self._setCurrentFocus(null);
-                                        }
-                                        self._trackedTabs.delete(tabId);
+        self._setFocusToActiveTab();
 
-                                        let message_action = "tabClosed";
-                                        if (url.includes("grades.cs.umd.edu")) {
-                                            message_action = "gradeServerTabClosed";
-                                        } else if (url.includes("submit.cs.umd.edu")) {
-                                            message_action = "submitServerTabClosed";
-                                        }
-                                        chrome.runtime.sendMessage(
-                                            {
-                                                action: message_action,
-                                                session_url: session_url,
-                                                tabActiveDuration: tabActiveDuration
-                                            }
-                                        );
-                                        chrome.tabs.onRemoved.removeListener(_listener);
-                                    }
-                                }
-                            );
-                            self._setCurrentFocus(trackedTabId);
+        const url = tab.url;
+        let messageAction = "tabClosed";
+        if (url.includes("grades.cs.umd.edu")) {
+            messageAction = "gradeServerTabClosed";
+        } else if (url.includes("submit.cs.umd.edu")) {
+            messageAction = "submitServerTabClosed";
+        }
+
+        chrome.tabs.onRemoved.addListener(
+            function _listener(tabId, removeInfo) {
+                if (tabId === trackedTabId) {
+                    if(tabId === self._currentlyTrackedTabId){
+                        self._setCurrentFocus(null);
+                    }
+                    const tabActiveDuration = self._trackedTabs.get(trackedTabId).duration;
+
+                    chrome.runtime.sendMessage(
+                        {
+                            action: messageAction,
+                            sessionUrl: sessionUrl,
+                            tabActiveDuration: tabActiveDuration
                         }
                     );
+                    self._trackedTabs.delete(tabId);
+                    chrome.tabs.onRemoved.removeListener(_listener);
                 }
             }
         );

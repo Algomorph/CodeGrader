@@ -58,6 +58,7 @@ let grade_server_module = {};
         if (!options.enabled) {
             return;
         }
+
         $(uiPanel).append("<h3 style='color:#0d5212'>Grade</h3>");
         const codeStyleScoreEnabled = options.maximumCodeStyleScore !== 0;
         const scoreAdjustmentEnabled = options.minimumScoreAdjustment !== 0;
@@ -135,15 +136,12 @@ let grade_server_module = {};
                     year: year,
                     gradeServerAssignmentName: options.gradeServerAssignmentName,
                     gradersName: options.gradersName,
-                    session_url: location.href
+                    sessionUrl: location.href
                 }
                 chrome.runtime.sendMessage({
-                    action: "reportGradingResult",
+                    action: "reportGradeButtonClicked",
+                    sessionUrl: location.href, // log for usage statistics
                     report: report,
-                    callbackOnTabRemoved:
-                        function (tabActiveDuration){
-                            usage_statistics_module.gradeServerTabDuration = tabActiveDuration;
-                        }
                 }, function (response) {
                     //TODO
                 });

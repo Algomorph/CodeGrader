@@ -12,8 +12,8 @@ function addListenerForGradingResult() {
             if (message.action === "insertGradingReport") {
 
                 chrome.runtime.sendMessage({
-                    action: "timeActiveTab",
-                    session_url: report.session_url
+                    action: "timeTab",
+                    sessionUrl: report.sessionUrl
                 });
 
                 const report = message.report;
@@ -51,12 +51,11 @@ function addListenerForGradingResult() {
 
                 // closes current tab
                 $(saveChangesButton).on("click", function () {
-                    
                     // need to send a message back to background script to close this tab
                     chrome.runtime.sendMessage({
-                        action: "closeSendersTab"
+                        action: "saveGradeButtonClicked",
+                        sessionUrl: report.sessionUrl //log for usage statistics
                     }, function (response) {})
-                    
                 })
                
             }

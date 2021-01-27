@@ -12,25 +12,11 @@ window.addEventListener('load', function () {
 
 function init() {
     chrome.runtime.onMessage.addListener(
-        function (request, sender, callback) {
-            if (request.action === "xhttp") {
-                let xhttpRequest = new XMLHttpRequest(),
-                    method = request.method ? request.method.toUpperCase() : 'GET';
-                xhttpRequest.onreadystatechange = function () {
-                    if (xhttpRequest.readyState === 4) {
-                        callback(xhttpRequest.responseText);
-                        xhttpRequest.onreadystatechange = xhttpRequest.open = xhttpRequest.send = null;
-                        xhttpRequest = null;
-                    }
-                };
-                if (method === 'POST') {
-                    xhttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    xhttpRequest.setRequestHeader("Content-length", request.data.length);
-                }
-                xhttpRequest.open(method, request.url, true);
-                xhttpRequest.send(request.data);
-                // end of cross domain loading
-            } else if (request.action === "reportGradingResult") {
+        function (message, sender, callback) {
+
+            if (message.action === "xhttp") {
+                sendPostXHTTPRequest(message);
+            } else if (message.action === "reportGradeButtonClicked") {
                 let gradesUrl = "https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=*"
                 // uses open class grades page
                 chrome.tabs.query(
@@ -39,10 +25,10 @@ function init() {
                             alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
                         }
                         let gradesServerOverviewTab = tabs[0];
-                        sendReportToGradesServer(gradesServerOverviewTab, request.report, request.callbackOnTabRemoved);
+                        sendReportToGradesServer(gradesServerOverviewTab, message.report, message.callbackOnTabRemoved);
                     }
                 );
-            } else if (request.action === "closeSendersTab") {
+            } else if (message.action === "saveGradeButtonClicked") {
                 // wait for 1 seconds before closing tab
                 setTimeout(
                     function () {
@@ -50,27 +36,55 @@ function init() {
                     },
                     1000
                 );
-            } else if (request.action === "timeActiveTab") {
-                //__DEBUG
-                console.log("I am background.js, about to request tab tracking from tabTimeTracker. What I know of the callback:");
-                console.log(request.callbackOnTabRemoved)
-                tabTimeTracker.startTrackingActiveTab(request.session_url);
-            } else if (request.action === "logToConsole"){
-                console.log(request.message);
+            } else if (message.action === "timeTab") {
+                tabTimeTracker.startTrackingTabActiveTime(message.sessionUrl, sender.tab);
+            } else if (message.action === "logToConsole") {
+                console.log(message.message);
+            } else if (message.action === "optionsChanged"){
+                usage_statistics.updateOptions(message.options);
+            }
+            if (message.hasOwnProperty("sessionUrl")) {
+                usage_statistics.handleSessionInfo(message);
             }
         }
     );
 }
 
 
+function sendPostXHTTPRequest(message) {
+    let xhttpRequest = new XMLHttpRequest(),
+        method = message.method ? message.method.toUpperCase() : 'GET';
+    xhttpRequest.onreadystatechange = function () {
+        if (xhttpRequest.readyState === 4) {
+            callback(xhttpRequest.responseText);
+            xhttpRequest.onreadystatechange = xhttpRequest.open = xhttpRequest.send = null;
+            xhttpRequest = null;
+        }
+    };
+    if (method === 'POST') {
+        xhttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhttpRequest.setRequestHeader("Content-length", message.data.length);
+    }
+    xhttpRequest.open(method, message.url, true);
+    xhttpRequest.send(message.data);
+    // end of cross domain loading
+}
+
+
 function sendReportToGradesServer(gradesServerOverviewTab, report, callbackOnTabRemoved) {
-    chrome.tabs.sendMessage(gradesServerOverviewTab.id, {"action": "openStudentGradesPage", report: report}, function (url) {
+    chrome.tabs.sendMessage(gradesServerOverviewTab.id, {
+        "action": "openStudentGradesPage",
+        report: report
+    }, function (url) {
         chrome.tabs.create({url: url, windowId: gradesServerOverviewTab.windowId}, function (newTab) {
-            tabTimeTracker.startTrackingActiveTab(callbackOnTabRemoved);
+            tabTimeTracker.startTrackingTabActiveTime(callbackOnTabRemoved);
             // Wait for 3 seconds for listener/content script to set up
             setTimeout(
                 function () {
-                    chrome.tabs.sendMessage(newTab.id, {"action": "insertGradingReport", report: report}, function (url) {
+                    chrome.tabs.sendMessage(newTab.id, {
+                        "action": "insertGradingReport",
+                        report: report
+                    }, function (url) {
                     })
                 },
                 3000
