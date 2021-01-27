@@ -41,7 +41,7 @@ let indentation_module = {};
         Oops this is the indentation module not braces
         Check for indentation after opening brace
         */
-        //let badLines = [];
+
         let stack = [0];
 
         let isPrev = false;
@@ -113,7 +113,6 @@ let indentation_module = {};
 
             // verify current indent is correct
             if (getIndentationWidth(codeText) !== currentIndentationWidth) {
-                //badLines.push(trCodeLine);
                 let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
                 let newProblem = false;
                 let shortProblemDescription = "";
