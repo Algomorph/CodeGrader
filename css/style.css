@@ -1,3 +1,8 @@
+/*
+* Copyright 2013 Tak Yeon Lee
+* Copyright 2020 Gregory Kramida
+* */
+
 .label,
 .badge {
 	-webkit-border-radius: 3px;
@@ -28,8 +33,48 @@
 	background-color: #e35d10;
 }
 
+.inconsistent-brace-style-problem {
+	background-color: #0c5460;
+}
+
+.indentation-brace-style-problem {
+	background-color: #0c6045;
+}
+
+.line-brace-style-problem {
+	background-color: #0e9792;
+}
+
+.missing-brace-style-problem {
+	background-color: #0e7797;
+}
+
+.unused-variable-problem {
+	background-color: #802400;
+}
+
+.unused-method-problem {
+	background-color: #5c4303;
+}
+
+.unused-type-problem {
+	background-color: #994500;
+}
+
 .possibly-ignored-method-call {
 	background-color: #77929c;
+}
+
+.untested-method-problem {
+	background-color: #b16238;
+}
+
+.disallowed-loop-problem {
+	background-color: #7cc208;
+}
+
+.checked-file-link{
+	color: #2e6f05;
 }
 
 .ui-panel h3 {
@@ -50,10 +95,19 @@
     width: 450px;
     right: 0px;
     top:0px;
-    overflow: scroll;
+    overflow-y: auto;
+	overflow-x: visible;
     height:100%;
     pointer-events: none;
+	/*IE/Edge/Firefox -- hide scrollbar*/
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
 }
+/* Hide scrollbar for Chrome, Safari and Opera */
+.ui-panel-container::-webkit-scrollbar{
+	display: none;
+}
+
 
 .ui-panel {
 	z-index:10;
@@ -80,10 +134,6 @@
 	color:black;
 }
 
-.defaultComment {
-	width:100%;
-}
-
 .tip {
 	font-size:10px;
 	margin-right:1px;
@@ -92,6 +142,7 @@
 	border-radius:2px;
     z-index: 5;
 }
+
 
 .has-tooltip {
     position: relative;
@@ -144,6 +195,9 @@
 	color: rgba(107,65,16,0.7);
 }
 
+.comment-text{
+	color: #6f6e6e;
+}
 
 a:visited {
 	color:#666 !important ;

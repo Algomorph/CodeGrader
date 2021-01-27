@@ -1,27 +1,150 @@
-function scrollToFirstFile(filesToCheck) {
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
+
+function hasSubmissionInOverviewTableCell(overviewTableCell) {
+    return $(overviewTableCell).find("a")[0] !== undefined;
+}
+
+/**
+ * Add a single review link to a Submit-Server overview table cell containing a link to the submission view
+ * Assumes that if the passed-in cell has a link, it is the link to the project submission.
+ * @param {HTMLTableCellElement} overviewTableCell
+ */
+function addReviewLinkToOverviewTableCell(overviewTableCell) {
+    const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
+    if (linkToProjectSubmission) {
+        let url = linkToProjectSubmission.href;
+        let directUrlToReview = url.replace("instructor/submission.jsp", "codeReview/index.jsp");
+        $(overviewTableCell).prepend("<a href='" + directUrlToReview + "' target='_blank'>REVIEW</a>&nbsp;&nbsp;");
+    }
+}
+
+/**
+ * Calculate the score from automatic tests run on the submit server based on the information in the provided overview
+ * table cell.
+ * Assumes that if the passed-in cell has a link, it is the link to the project submission, formatted as
+ *  numbers delimited with the "|" (pipe) character, whose sum is the actual automated test score.
+ * @param {HTMLTableCellElement} overviewTableCell
+ */
+function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
+    const linkToProjectSubmission = $(overviewTableCell).find("a")[0];
+    let score = 0;
+    if (linkToProjectSubmission) {
+        const matches = linkToProjectSubmission.textContent.matchAll(/\d+/g);
+        for (const match of matches) {
+            score += parseInt(match[0]);
+        }
+    }
+    return score;
+}
+
+/**
+ * Navigate to first file in the provided list that is present in the student's submission (review view) on the
+ * submit server (if any)
+ * @param {Array.<string>} filePaths list of file paths to check.
+ */
+function scrollToFirstFile(filePaths) {
     let found = false;
     let i_file = 0;
     let links = null;
-    while(!found && i_file < filesToCheck.length){
-        links = $(".link.link-block:contains('" + filesToCheck[i_file] + "')");
+    while (!found && i_file < filePaths.length) {
+        let filePath = filePaths[i_file];
+        links = $(".link.link-block:contains('" + filePath + "')");
         found = links.length > 0;
         i_file++;
     }
-    if(found){
+    if (found) {
         links[0].click();
     }
 }
 
-function getSourceFileContainer(filename) {
-    return $("div.GMYHEHOCNK:contains('" + filename + "')").parent();
+/**
+ * Return the list of files present in the current submit server submission that match any of the entries in the provided
+ * file path entry list.
+ * @param {Array.<string>} filePathEntryList Each entry may be simply a file path. However, more complex functionality
+ * is supported.
+ * Firstly, each entry may be a set of paths signifying different versions for a file, concatenated by the "|"
+ * delimiter. Secondly, Each entry may also include wildcards, e.g. "*", which are  expanded into the set of files that
+ * match the path with the wildcard. Finally, if both the "*" and "|" are used, the first variant with any files already
+ * present will be used, and only the files matching it will be added to the resulting list.
+ * @return {Array.<string>} paths matching to entries in the list that exist in the current submission.
+ */
+function expandFilePathEntryList(filePathEntryList) {
+    const filePaths = [];
+
+    function processWildcardsAndAddPaths(pathPotentiallyWithWildcards) {
+        if (pathPotentiallyWithWildcards.includes("*")) {
+            const pattern = new RegExp(pathPotentiallyWithWildcards.replace("*", ".*"));
+            filePaths.push(...Array.from(document.querySelectorAll(".link.link-block"))
+                .filter(element => pattern.exec(element.textContent) != null)
+                .map(element => element.textContent));
+        } else {
+            if ($(".link.link-block:contains('" + pathPotentiallyWithWildcards + "')").length > 0) {
+                filePaths.push(pathPotentiallyWithWildcards);
+            }
+        }
+    }
+
+    for (const filePathEntry of filePathEntryList) {
+        if (filePathEntry.includes("|")) {
+            for (const pathVariant of filePathEntry.split("|")) {
+                if ($(".link.link-block:contains('" + pathVariant + "')").length > 0) {
+                    processWildcardsAndAddPaths(pathVariant);
+                    break;
+                }
+            }
+        } else {
+            processWildcardsAndAddPaths(filePathEntry);
+        }
+    }
+
+    return filePaths;
+
+}
+
+function recolorCheckedFileLinks(filePaths) {
+    for (const filePath of filePaths) {
+        $(".link.link-block:contains('" + filePath + "')").addClass("checked-file-link")
+    }
+}
+
+
+function highlightAllCheckedCode(filesToCheck) {
+    //TODO: code highlighting doesn't play nice with tables, since it actually has a parser of its own and requires
+    // the full code.
+    let preTags = $("table.code-grid").parent();
+    let filesToCheckSet = new Set(filesToCheck);
+    for (const preTag of preTags) {
+        const filePanelTitle = ($(preTag).parent().find("div.GMYHEHOCNK").text());
+        if (filesToCheckSet.has(filePanelTitle)) {
+            const codeDivElements = $(preTag).find("tr").find(".gwt-Label");
+            for (const codeDiv of codeDivElements) {
+                const preTag = document.createElement("pre");
+                const codeTag = document.createElement("code");
+                codeTag.textContent = $(codeDiv).text();
+                $(codeTag).addClass("java");
+                $(codeTag).addClass("hljs");
+                codeDiv.textContent = ""
+                preTag.appendChild(codeTag);
+                codeDiv.appendChild(preTag);
+            }
+        }
+    }
+}
+
+
+function getSourceFileContainer(filePath) {
+    return $("div.GMYHEHOCNK:contains('" + filePath + "')").parent();
 }
 
 function getScrollableSourceFilePane() {
     return $(".GMYHEHOCJK");
 }
 
-function getTrCodesForCodeFile(filename) {
-    return $.makeArray(getSourceFileContainer(filename).find("tr"));
+function getTrCodesForCodeFile(filePathEntry) {
+    return $.makeArray(getSourceFileContainer(filePathEntry).find("tr"));
 }
 
 function getCodeFromTrCodeLine(trCodeLine) {
@@ -31,19 +154,6 @@ function getCodeFromTrCodeLine(trCodeLine) {
     } else {
         return $(contentDivTag).text();
     }
-}
-
-
-function getAllCheckedTrCodeLines(filesToCheck) {
-    // flatten to get <tr> for each line of code
-    return _.reduce(
-        filesToCheck,
-        function (memo, filename) {
-            let trCodeLinesForFile = getTrCodesForCodeFile(filename);
-            return _.union(memo, trCodeLinesForFile);
-        },
-        []
-    );
 }
 
 function makeWarning(text) {
@@ -61,7 +171,15 @@ function makeLabels(strList) {
     });
 }
 
-function makeLabelWithClickToScroll(label, targetElement, styleClass, toolTip) {
+/**
+ * Make a label-button HTML element that, when clicked, scrolls to a specific line in the code section of the submit server review page.
+ * @param {string} label text label to put on the label-button
+ * @param {HTMLTableRowElement} targetElement an element in the code pane, usually a tr tag associated with a code line, which is the scroll target
+ * @param {string|undefined} styleClass (optional) a specific class to use to style the button-label
+ * @param {string|undefined} toolTip (optional) the tooltip that will be used when the grader hovers their cursor over the button-label
+ * @return {jQuery} the resulting HTML element wrapped in a jQuery object.
+ */
+function makeLabelWithClickToScroll(label, targetElement, styleClass = undefined, toolTip = undefined) {
     if (typeof styleClass === "undefined") {
         styleClass = "";
     }
@@ -153,7 +271,7 @@ function highlightSection(tr, start, color) {
     $(codeNumber).css("border-left", "3px solid " + color);
     let codeLine = $(tr).find(".gwt-Label")[0];
 
-    if($(codeLine).find(".code").length > 0){
+    if ($(codeLine).find(".code").length > 0) {
         codeLine = $(codeLine).find(".code")[0];
     }
 

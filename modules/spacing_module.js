@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 let spacing_module = {};
 
 (function () {
@@ -19,7 +23,6 @@ let spacing_module = {};
     this.getDefaultOptions = function () {
         return new Options();
     }
-
 
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
@@ -44,20 +47,30 @@ let spacing_module = {};
                     expressionsToIterateOver.push(...typeInformation.assignments);
                 }
                 for (const expression of expressionsToIterateOver) {
-                    let leftHandSide = null;
-                    let rightHandSide = null;
+                    let leftHandSide;
+                    let rightHandSide;
+                    let operator;
                     switch (expression.node) {
                         case "InfixExpression":
                             leftHandSide = expression.leftOperand;
                             rightHandSide = expression.rightOperand;
+                            operator = expression.operator;
                             break;
                         case "Assignment":
                             leftHandSide = expression.leftHandSide;
                             rightHandSide = expression.rightHandSide;
+                            operator = expression.operator;
+                            break;
+                        case "VariableDeclarationFragment":
+                            leftHandSide = expression.name;
+                            rightHandSide = expression.initializer;
+                            operator = "=";
                             break;
                     }
 
+
                     const textBetweenOperandsStart = code_analysis.getOperandEnd(leftHandSide);
+                    //TODO: from code design perspective, these corrections should also be inside the getOperandEnd/getOperandStart functions, not here
                     const startCodeLine = codeFile.codeLines[textBetweenOperandsStart.line - 1];
                     let startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
                     if (startCodeLineBeforeOperator.endsWith(" ")) {
@@ -67,6 +80,7 @@ let spacing_module = {};
                         startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
                     }
                     const textBetweenOperandsEnd = code_analysis.getOperandStart(rightHandSide);
+                    //TODO: from code design perspective, these corrections should also be inside the getOperandEnd/getOperandStart functions, not here
                     const endCodeLine = codeFile.codeLines[textBetweenOperandsEnd.line - 1];
                     let endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
 
@@ -76,17 +90,23 @@ let spacing_module = {};
                         textBetweenOperandsEnd.offset += extraSpaces.length;
                         endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
                     }
-
+                    //TODO: from code design perspective, these corrections should also be inside the getOperandEnd/getOperandStart functions, not here
                     let textBetweenOperands = codeFile.sourceCode.substring(textBetweenOperandsStart.offset, textBetweenOperandsEnd.offset);
-                    const newKeywordMatch = textBetweenOperands.match(/.*(new\s*)$/);
-                    if (newKeywordMatch) {
-                        textBetweenOperands = textBetweenOperands.replace(newKeywordMatch[1], "");
-                        textBetweenOperandsEnd.column -= newKeywordMatch[1];
-                        textBetweenOperandsEnd.offset -= newKeywordMatch[1];
+                    const keywordMatchEnd = textBetweenOperands.match(/.*(new\s*|super\s*)$/);
+                    if (keywordMatchEnd) {
+                        textBetweenOperands = textBetweenOperands.replace(keywordMatchEnd[1], "");
+                        textBetweenOperandsEnd.column -= keywordMatchEnd[1].length;
+                        textBetweenOperandsEnd.offset -= keywordMatchEnd[1].length;
                         endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
                     }
+                    const keywordMatchStart = textBetweenOperands.match(/^(\s*(?:\[\])+).*/);
+                    if (keywordMatchStart){
+                        textBetweenOperands = textBetweenOperands.replace(keywordMatchStart[1], "");
+                        textBetweenOperandsStart.column += keywordMatchStart[1].length;
+                        textBetweenOperandsStart.offset += keywordMatchStart[1].length;
+                        startCodeLineBeforeOperator = startCodeLine.substring(0, textBetweenOperandsStart.column - 1);
+                    }
 
-                    const operator = expression.operator;
                     const operatorRegexPart = operator.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
                     let checkSpacesBefore = true;
                     let checkSpacesAfter = true;

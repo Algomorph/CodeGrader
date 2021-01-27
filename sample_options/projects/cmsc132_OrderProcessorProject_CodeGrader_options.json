@@ -1,0 +1,88 @@
+{
+    "filesToCheck": [
+        "src/processor/*"
+    ],
+    "lateScoreAdjustment": -12,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P7",
+            "gradersName": "Greg K.",
+            "maximumCodeStyleScore": 10,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -50
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_and_pattern_module": {
+            "enabled": true,
+            "keywords": [
+                "synchronized"
+            ],
+            "patterns": [
+                "[.]start\\s*\\(",
+                "[.]join\\s*\\("
+            ]
+        },
+        "loop_module": {
+            "enabled": false,
+            "methodList": [],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max",
+                "ST",
+                "MT"
+            ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true,
+            "sortAlphabetically": true
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerAssignmentName": "Proj7",
+    "year": "2020"
+}

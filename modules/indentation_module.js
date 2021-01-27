@@ -1,37 +1,24 @@
-﻿let indentation_module = {};
+﻿/*
+* Copyright 2020 Matthew Simmons
+* */
+let indentation_module = {};
 
 (function () {
 
-    class Options{
+    class Options {
         constructor(enabled = false) {
             this.enabled = enabled;
         }
     }
 
-    this.getDefaultOptions = function (){
+    this.getDefaultOptions = function () {
         return new Options();
     }
 
-    /**
-     * Counts indent for a given code line
-     * @param {string} codeLine
-     * @return {number} indentation character count
-     */
-    function countIndent(codeLine) {
-        let numChars = codeLine.length - codeLine.trimStart().length;
-        if(codeLine.indexOf("*/") !== -1) {
-            numChars = codeLine.length - codeLine.substr(codeLine.indexOf("*/") + 2).trimStart().length;
-        }
-        let i = 0;
-        let total = 0;
-        for(; i < numChars; i++) {
-            if (codeLine.charAt(i) === '\t') {
-                total = (Math.floor(total / 4) + 1) * 4;
-            } else {
-                total++;
-            }
-        }
-        return total;
+    const LastLineIndentationStatus = {
+        PROPERLY_INDENTED: 0,
+        OVERINDENTED: 1,
+        UNDERINDENTED: 2
     }
 
     /**
@@ -41,7 +28,7 @@
      * @param {Options} options
      */
     this.initialize = function (uiPanel, trCodeLines, options) {
-        if(!options.enabled){
+        if (!options.enabled) {
             return;
         }
 
@@ -63,40 +50,41 @@
 
         // find first indent used and use that as standard
         let i;
-        let singleIndentationString = 0;
+        let singleIndentWidth = 0;
         for (i = 0; i < trCodeLines.length;) {
             if (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
-                while(getCodeFromTrCodeLine(trCodeLines[i]).trim().length === 0) { // Makes sure next isn't an empty line
+                while (getCodeFromTrCodeLine(trCodeLines[i]).trim().length === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
-                singleIndentationString = countIndent(getCodeFromTrCodeLine(trCodeLines[i]));
+                //assumes first line with indentation will have exactly one indent
+                singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
                 break;
             }
         }
 
-        let currentIndentation = 0; // in white spaces
+        let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
+        let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = getCodeFromTrCodeLine(trCodeLine);
 
 
-
             // Handle opening and closing braces updating indent size
             if (codeText.trim().indexOf("}") === 0) {
-                currentIndentation -= singleIndentationString;
+                currentIndentationWidth -= singleIndentWidth;
             }
 
             if (isPrev && codeText.trim().charAt(0) === "{") { // Accounts for Allman braces
                 isPrev = false;
-                currentIndentation -= 2 * singleIndentationString;
-                if(isNotAllman > 0) {
+                currentIndentationWidth -= 2 * singleIndentWidth;
+                if (isNotAllman > 0) {
                     isNotAllman--;
-                    currentIndentation += 2 * singleIndentationString;
+                    currentIndentationWidth += 2 * singleIndentWidth;
                 }
             }
 
-            if(isNotAllman > 0) {
+            if (isNotAllman > 0) {
                 isPrev = false;
-                currentIndentation += singleIndentationString;
+                currentIndentationWidth += singleIndentWidth;
             }
 
             if (codeText.indexOf("/*") !== -1) {
@@ -105,7 +93,7 @@
 
             if (isComment && codeText.indexOf("*/") !== -1) {
                 isComment = false;
-                if(codeText.trim().indexOf("*/") === codeText.trim().length - 2) {
+                if (codeText.trim().indexOf("*/") === codeText.trim().length - 2) {
                     return;
                 }
             }
@@ -117,89 +105,100 @@
                 return;
             }
 
+
             if (codeText.trim().charAt(0) === "@") return;
 
             if (codeText.trim().substr(0, 2) === "//") return;
 
-            if(codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
+            if (codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
 
             // verify current indent is correct
-            if (countIndent(codeText) !== currentIndentation) {
+            if (getIndentationWidth(codeText) !== currentIndentationWidth) {
                 badLines.push(trCodeLine);
-                let defaultMessage = "Detected indent: " + countIndent(codeText) + ", Expected indent: " + currentIndentation;
-                if (currentIndentation < countIndent(codeText)) {
-                    highlightSection(trCodeLine, currentIndentation, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Overindent", trCodeLine, "", defaultMessage));
+                let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
+                let newProblem = false;
+                let shortProblemDescription = "";
+                if (currentIndentationWidth < getIndentationWidth(codeText)) {
+                    highlightSection(trCodeLine, currentIndentationWidth, "#92b9d1");
+                    if (lastLineStatus !== LastLineIndentationStatus.OVERINDENTED) {
+                        newProblem = true;
+                        shortProblemDescription = "Over-indent";
+                        $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
+                        lastLineStatus = LastLineIndentationStatus.OVERINDENTED;
+                    }
                 } else {
                     highlightSection(trCodeLine, 0, "#92b9d1");
-                    $(uiPanel).append(makeLabelWithClickToScroll("Underindent", trCodeLine, "", defaultMessage));
+                    if (lastLineStatus !== LastLineIndentationStatus.UNDERINDENTED) {
+                        newProblem = true;
+                        shortProblemDescription = "Under-indent";
+                        $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
+                        lastLineStatus = LastLineIndentationStatus.UNDERINDENTED;
+                    }
                 }
-
-                addButtonComment(trCodeLine, "Poor indentation", defaultMessage, "#92b9d1");
+                if (newProblem) {
+                    addButtonComment(trCodeLine, shortProblemDescription, defaultMessage, "#92b9d1");
+                }
+            } else {
+                lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             }
 
             // if opening brace exists, increase indent
             if (codeText.indexOf("{") !== -1) {
-                if(codeText.trim().indexOf("}") === 0) {
-                    currentIndentation += (codeText.match(/{/g).length - codeText.match(/}/g).length + 1) * singleIndentationString;
+                if (codeText.trim().indexOf("}") === 0) {
+                    currentIndentationWidth += (codeText.match(/{/g).length - codeText.match(/}/g).length + 1) * singleIndentWidth;
                 } else if (codeText.indexOf("}") === -1) {
-                    currentIndentation += codeText.match(/{/g).length * singleIndentationString;
+                    currentIndentationWidth += codeText.match(/{/g).length * singleIndentWidth;
                 } else {
-                    currentIndentation += (codeText.match(/{/g).length - codeText.match(/}/g).length) * singleIndentationString;
+                    currentIndentationWidth += (codeText.match(/{/g).length - codeText.match(/}/g).length) * singleIndentWidth;
                 }
                 stack.push(isNotAllman);
                 isNotAllman = 0;
             }
 
-            if(codeText.indexOf("}") !== -1) {
-                if(codeText.indexOf("{") === -1 && codeText.trim().indexOf("}") !== 0) {
-                    currentIndentation -= codeText.match(/}/g).length * singleIndentationString;
+            if (codeText.indexOf("}") !== -1) {
+                if (codeText.indexOf("{") === -1 && codeText.trim().indexOf("}") !== 0) {
+                    currentIndentationWidth -= codeText.match(/}/g).length * singleIndentWidth;
                 }
                 isNotAllman = stack.pop(); // Somehow, this fixes nested if's with AND without braces
             }
 
             // If it doesn't end in a correct delimiter, it's a continuation of the previous line. Eclipse says to add two indents.
             if (!isPrev && codeText.trim().search(/(for|while|do\s|else|if)/) !== -1
-                    && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
-                    && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
+                && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
+                && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
                 if (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length)) {
-                    if(codeText.indexOf("}") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
+                    if (codeText.indexOf("}") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
                         isPrev = true;
                         isNotAllman++;
                     }
                 } else {
                     isPrev = true;
-                    currentIndentation += 2 * singleIndentationString;
+                    currentIndentationWidth += 2 * singleIndentWidth;
                 }
-            } else if (!isPrev && [";","{","}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
+            } else if (!isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
                 if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
                     codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
 
                     isPrev = true;
                     stack.push(isNotAllman);
                     isNotAllman = 0;
-                    currentIndentation += 2 * singleIndentationString;
+                    currentIndentationWidth += 2 * singleIndentWidth;
                 }
-            } else if(isPrev && [";","{","}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
-                if(isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
+            } else if (isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
+                if (isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
                     isPrev = false;
 
-                    currentIndentation -= 2 * singleIndentationString;
+                    currentIndentationWidth -= 2 * singleIndentWidth;
                 }
                 isNotAllman = stack.pop();
-                if(isNotAllman > 0) {
-                    currentIndentation -= isNotAllman * singleIndentationString;
+                if (isNotAllman > 0) {
+                    currentIndentationWidth -= isNotAllman * singleIndentWidth;
                     isNotAllman = 0;
                 }
-            } else if(isNotAllman > 0) {
-                currentIndentation -= isNotAllman * singleIndentationString;
+            } else if (isNotAllman > 0) {
+                currentIndentationWidth -= isNotAllman * singleIndentWidth;
                 isNotAllman = 0;
             }
-
-            /*_.each(badLines, function(keyword) {
-                $(uiPanel).push(makeLabelWithClickToScroll(keyword,trCodeLine));
-                addButtonComment(trCodeLine,"Bad indented lines: " + keyword," ","#92b9d1");
-            });*/
         });
     }
 

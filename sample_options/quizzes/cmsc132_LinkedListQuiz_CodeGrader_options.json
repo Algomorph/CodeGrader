@@ -1,0 +1,75 @@
+{
+    "filesToCheck": [
+        "src/sysImplementation/LinkedList.java|sysImplementation/LinkedList.java",
+        "src/sysImplementation/SampleDriver.java|sysImplementation/SampleDriver.java",
+        "src/sysImplementation/Student.java|sysImplementation/Student.java"
+    ],
+    "lateScoreAdjustment": -5,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "Q3",
+            "gradersName": "",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -30
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": []
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "global": []
+            },
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "checkConstants": false,
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariablesAndFields": false,
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "numbersAllowedInNames": false,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "fall",
+    "submitServerAssignmentName": "",
+    "year": "2020"
+}

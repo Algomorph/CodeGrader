@@ -1,3 +1,7 @@
+/*
+* Copyright 2020 Gregory Kramida
+* */
+
 let naming_module = {};
 
 (function () {
@@ -12,17 +16,33 @@ let naming_module = {};
          * globally-ignored names should be under the key 'global'.
          * @param {boolean} showUniqueOnly whether to show only unique code name occurrences.
          * @param {boolean} numbersAllowedInNames whether arbitrary integral numbers are considered fair-game for variable names
+         * @param {boolean} sortAlphabetically sort the UI buttons for code names alphabetically instead of by line they
+         * were were encountered in
+         * @param {boolean} checkVariablesAndFields check variables and non-constant fields in the code
+         * @param {boolean} checkMethods check methods in the code
+         * @param {boolean} checkConstants check constants and constant fields in the code
+         * @param {boolean} checkTypes check types (classes/enums/interfaces) in the code
          */
         constructor(enabled = false,
                     allowedSpecialWords = ["min", "max"],
                     ignoredNames = {"global": []},
                     showUniqueOnly = true,
-                    numbersAllowedInNames = true) {
+                    numbersAllowedInNames = true,
+                    sortAlphabetically = false,
+                    checkVariablesAndFields = true,
+                    checkMethods = true,
+                    checkConstants = true,
+                    checkTypes = true) {
             this.enabled = enabled;
             this.allowedSpecialWords = allowedSpecialWords;
             this.ignoredNames = ignoredNames;
             this.showUniqueOnly = showUniqueOnly;
             this.numbersAllowedInNames = numbersAllowedInNames;
+            this.sortAlphabetically = sortAlphabetically;
+            this.checkVariablesAndFields = checkVariablesAndFields;
+            this.checkMethods = checkMethods;
+            this.checkConstants = checkConstants;
+            this.checkTypes = checkTypes;
         }
     }
 
@@ -82,7 +102,7 @@ let naming_module = {};
      */
     function splitCodeNameIntoWords(declaration, omitNumbers = true) {
         let name = declaration.name;
-        if(omitNumbers){
+        if (omitNumbers) {
             name = name.replace(/\d+/g, "");
         }
         if (declaration.nameType === code_analysis.NameType.CONSTANT) {
@@ -130,8 +150,8 @@ let naming_module = {};
     function checkName(declaration, numbersAllowedInNames = true) {
         let potentialProblems = []
         let name = declaration.name;
-        if(numbersAllowedInNames){
-            name = name.replace(/\d+/g,"");
+        if (numbersAllowedInNames) {
+            name = name.replace(/\d+/g, "");
         }
         if (!NameTypeConventionCheck[declaration.nameType](name)) {
             potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION,
@@ -173,9 +193,23 @@ let naming_module = {};
      * @param {string} color
      * @param {string} sectionTitle
      * @param {boolean} numbersAllowedInNames
+     * @param {boolean} uniqueOnly
+     * @param {boolean} sortAlphabetically
      */
-    function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle, numbersAllowedInNames = true) {
+    function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle, numbersAllowedInNames = true,
+                                               uniqueOnly = false, sortAlphabetically=false) {
         $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
+
+        if(uniqueOnly){
+            declarations = uniqueNames(declarations);
+        }
+        if(sortAlphabetically){
+            declarations = declarations.sort(function (declarationA, declarationB) {
+                return declarationA.name < declarationB.name ? -1 : declarationA.name > declarationB.name ? 1 : 0;
+            });
+        }
+
+
         for (const declaration of declarations) {
             let potentialProblems = checkName(declaration, numbersAllowedInNames);
             let problemsDescription = null;
@@ -214,11 +248,12 @@ let naming_module = {};
         }
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 
-        let methodAndVariableNames = [];
+        let variableNames = [];
+        let methodNames = [];
         let constantNames = [];
         let typeNames = [];
 
-        let globalIgnoredNames = options.ignoredNames.global;
+        const globalIgnoredNames = options.ignoredNames.global;
 
         for (const codeFile of fileDictionary.values()) {
             if (codeFile.abstractSyntaxTree !== null) {
@@ -230,13 +265,15 @@ let naming_module = {};
                         ignoredNamesForType.push(...options.ignoredNames[typeName]);
                     }
                     ignoredNamesForType = new Set(ignoredNamesForType);
-
                     let declarationsForType = typeInformation.declarations.filter(declaration => !ignoredNamesForType.has(declaration.name));
+
                     for (const declaration of declarationsForType) {
                         switch (declaration.nameType) {
                             case code_analysis.NameType.VARIABLE:
+                                variableNames.push(declaration);
+                                break;
                             case code_analysis.NameType.METHOD:
-                                methodAndVariableNames.push(declaration);
+                                methodNames.push(declaration);
                                 break;
                             case code_analysis.NameType.CONSTANT:
                                 constantNames.push(declaration);
@@ -248,16 +285,18 @@ let naming_module = {};
                 }
             }
         }
-
-        if (options.showUniqueOnly) {
-            methodAndVariableNames = uniqueNames(methodAndVariableNames);
-            constantNames = uniqueNames(constantNames);
-            typeNames = uniqueNames(typeNames);
+        if(options.checkVariablesAndFields){
+            processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
         }
-
-        processCodeNameArrayAndAddSection(uiPanel, methodAndVariableNames, "#4fa16b", "Variables &amp; Methods", options.numbersAllowedInNames);
-        processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants", options.numbersAllowedInNames);
-        processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes &amp; Enums", options.numbersAllowedInNames);
+        if(options.checkMethods){
+            processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
+        if(options.checkConstants){
+            processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
+        if(options.checkTypes){
+            processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes, Interfaces, &amp; Enums", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        }
 
     }
 
