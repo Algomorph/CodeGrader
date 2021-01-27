@@ -41,7 +41,7 @@ let indentation_module = {};
         Oops this is the indentation module not braces
         Check for indentation after opening brace
         */
-        let badLines = [];
+
         let stack = [0];
 
         let isPrev = false;
@@ -65,8 +65,32 @@ let indentation_module = {};
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
         let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
-            let codeText = getCodeFromTrCodeLine(trCodeLine);
+            let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
+            if (codeText.indexOf("/*") !== -1) {
+                isComment = true;
+            }
+            if (isComment && codeText.indexOf("*/") !== -1) {
+                isComment = false;
+                if(codeText.indexOf("/*") !== -1) {
+                    codeText = codeText.replace(/\/\*[^[*\/]]*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
+                } else {
+                    codeText = codeText.replace(/.*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                }
+            }
+
+            // Skip blank lines
+            if (codeText.search(/\S/) === -1) return;
+
+            if (isComment) {
+                return;
+            }
+
+            if (codeText.trim().charAt(0) === "@") return;
+
+            if (codeText.trim().substr(0, 2) === "//") return;
+
+            if(codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
 
             // Handle opening and closing braces updating indent size
             if (codeText.trim().indexOf("}") === 0) {
@@ -87,34 +111,8 @@ let indentation_module = {};
                 currentIndentationWidth += singleIndentWidth;
             }
 
-            if (codeText.indexOf("/*") !== -1) {
-                isComment = true;
-            }
-
-            if (isComment && codeText.indexOf("*/") !== -1) {
-                isComment = false;
-                if (codeText.trim().indexOf("*/") === codeText.trim().length - 2) {
-                    return;
-                }
-            }
-
-            // Skip blank lines
-            if (codeText.search(/\S/i) === -1) return;
-
-            if (isComment) {
-                return;
-            }
-
-
-            if (codeText.trim().charAt(0) === "@") return;
-
-            if (codeText.trim().substr(0, 2) === "//") return;
-
-            if (codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
-
             // verify current indent is correct
             if (getIndentationWidth(codeText) !== currentIndentationWidth) {
-                badLines.push(trCodeLine);
                 let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
                 let newProblem = false;
                 let shortProblemDescription = "";
@@ -167,7 +165,7 @@ let indentation_module = {};
                 && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
                 && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
                 if (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length)) {
-                    if (codeText.indexOf("}") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
+                    if(codeText.indexOf("}") === -1 || codeText.indexOf("{") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
                         isPrev = true;
                         isNotAllman++;
                     }

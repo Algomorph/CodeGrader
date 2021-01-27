@@ -64,6 +64,7 @@ function parseJavaCode(fileCode) {
     return [abstractSyntaxTree, parseError]
 }
 
+
 function readCodeFilesFromServer(fileDescriptors, callback) {
     const fileCount = fileDescriptors.length;
     let processedCount = 0;
