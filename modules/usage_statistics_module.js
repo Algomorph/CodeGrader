@@ -9,9 +9,10 @@ let usage_statistics_module = {};
     this._gradersName = "Anonymous";
     this._active = false;
 
-    this.gradeServerTabDuration = 0;
-    //TODO: fill this in from grade_server_module somehow
-    this.gradeSaveButtonClicked = false;
+    this._submitServerTabDuration = 0;
+    this._gradeServerTabDuration = 0;
+    this._saveGradeButtonClicked = false;
+    this._reportGradeButtonClicked = false;
 
     class Options {
         /**
@@ -30,7 +31,7 @@ let usage_statistics_module = {};
         return new Options();
     }
 
-    let self=this;
+    let self = this;
 
     /**
      * Initialize the module.
@@ -49,16 +50,45 @@ let usage_statistics_module = {};
 
         let submitServerSessionUrl = location.href;
 
+        //__DEBUG
+        chrome.runtime.sendMessage({
+            action: "logToConsole",
+            message: "I am usage_statistics_module, about to activate tab tracking."
+        });
+
+        let session_url = location.href;
+
         chrome.runtime.sendMessage({
             action: "timeActiveTab",
-            callbackOnTabRemoved: function(submitServerTabDuration){
-                //TODO save session details (including self.gradeServerTabDuration, self._gradersName, submitServerTabDuration, and other stuff).
-                // Do this using a POST query somehow, perhaps redirect via background.js first to initiate the POST request.
-            }
+            session_url: session_url
         });
+
+
+        chrome.runtime.onMessage.addListener(
+            function (message, sender, sendResponse) {
+                if(message.session_url !== undefined && message.session_url != null && message.session_url === session_url){
+                    if (message.action === "gradeServerTabClosed") {
+                        self._gradeServerTabDuration = message.tabActiveDuration;
+                    } else if (message.action === "saveGradeButtonClicked"){
+                        self._saveGradeButtonClicked = true;
+                    } else if (message.action === "reportGradeButtonClicked"){
+                        self._reportGradeButtonClicked = true;
+                    } else if (message.action === "submitServerTabClosed"){
+                        self._submitServerTabDuration = message.tabActiveDuration
+                        //TODO save session details (including self.gradeServerTabDuration, self._gradersName, submitServerTabDuration, and other stuff).
+                        // Do this using a POST query somehow, perhaps redirect via background.js first to initiate the POST request.
+                        //__DEBUG
+                        chrome.runtime.sendMessage({
+                            action: "logToConsole",
+                            message: "I am usage_statistics_module, ready to save session information."
+                        });
+                    }
+                }
+            }
+        );
     }
 
-    this.active = function (){
+    this.active = function () {
         return this._active;
     }
 

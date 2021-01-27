@@ -10,6 +10,12 @@ function addListenerForGradingResult() {
             // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?subPartOf=166356&courseID=1322&stuID=30000
             // this if block fills in the style points and the comment section
             if (message.action === "insertGradingReport") {
+
+                chrome.runtime.sendMessage({
+                    action: "timeActiveTab",
+                    session_url: report.session_url
+                });
+
                 const report = message.report;
                 $("textarea[name='block_comment']").val(report.comments);
 

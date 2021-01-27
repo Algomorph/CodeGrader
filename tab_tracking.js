@@ -8,19 +8,36 @@ let tabTimeTracker = {};
     /** @type {Date|null}*/
     this._startTime = null;
 
-    /** @type {Map.<number, number>}*/
+    class TrackedTabInfo {
+        duration;
+        session_url;
+
+        /**
+         * @param {string} session_url URL of the submit server tab (either the active tab or the tab the active tab was launched from)
+         */
+        constructor(session_url) {
+            self.session_url = session_url
+        }
+    }
+
+    /** @type {Map.<number, TrackedTabInfo>}*/
     this._trackedTabs = new Map();
 
     this._currentlyTrackedTabId = null;
     this._idle = false;
     this._updateTimePeriodInMinuts = 1;
 
-    this.startTrackingActiveTab = function (callbackOnTabRemoved) {
+    this.startTrackingActiveTab = function (session_url) {
         let self = this;
         chrome.tabs.query({active: true, lastFocusedWindow: true},
             function (tabs) {
                 if (tabs.length === 1) {
-                    let trackedTabId = tabs[0].id;
+
+                    //__DEBUG
+                    console.log("I am tabTimeTracker, and I have discovered the active tab with url " + tabs[0].url + ". What I know of the session_url: ")
+                    console.log(session_url)
+
+                    const trackedTabId = tabs[0].id;
                     chrome.windows.get(tabs[0].windowId,
                         function (win) {
                             if (!win.focused) {
@@ -28,16 +45,31 @@ let tabTimeTracker = {};
                                 self._setCurrentFocus(null);
                                 return;
                             }
-                            self._trackedTabs.set(trackedTabId, 0);
+                            self._trackedTabs.set(trackedTabId, new TrackedTabInfo(session_url));
+                            const url = tabs[0].url;
                             chrome.tabs.onRemoved.addListener(
                                 function _listener(tabId, removeInfo) {
-                                    if(tabId === trackedTabId){
-                                        const tabActiveDuration = self._trackedTabs.get(tabId);
-                                        if(tabId === self._currentlyTrackedTabId){
+                                    if (tabId === trackedTabId) {
+                                        //__DEBUG
+                                        const tabActiveDuration = self._trackedTabs.get(trackedTabId).duration;
+                                        if (tabId === self._currentlyTrackedTabId) {
                                             self._setCurrentFocus(null);
                                         }
                                         self._trackedTabs.delete(tabId);
-                                        callbackOnTabRemoved(tabActiveDuration);
+
+                                        let message_action = "tabClosed";
+                                        if (url.includes("grades.cs.umd.edu")) {
+                                            message_action = "gradeServerTabClosed";
+                                        } else if (url.includes("submit.cs.umd.edu")) {
+                                            message_action = "submitServerTabClosed";
+                                        }
+                                        chrome.runtime.sendMessage(
+                                            {
+                                                action: message_action,
+                                                session_url: session_url,
+                                                tabActiveDuration: tabActiveDuration
+                                            }
+                                        );
                                         chrome.tabs.onRemoved.removeListener(_listener);
                                     }
                                 }
@@ -63,7 +95,7 @@ let tabTimeTracker = {};
             return;
         }
         if (this._trackedTabs.has(this._currentlyTrackedTabId)) {
-            this._trackedTabs.set(this._currentlyTrackedTabId, this._trackedTabs.get(this._currentlyTrackedTabId) + delta);
+            this._trackedTabs.get(this._currentlyTrackedTabId).duration += delta;
         }
     }
 
@@ -129,7 +161,7 @@ let tabTimeTracker = {};
         }
     );
 
-    chrome.tabs.onFocusChanged.addListener(
+    chrome.windows.onFocusChanged.addListener(
         function (windowId) {
             /*
              * If window is out of focus, set focus to null.

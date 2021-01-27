@@ -135,6 +135,7 @@ let grade_server_module = {};
                     year: year,
                     gradeServerAssignmentName: options.gradeServerAssignmentName,
                     gradersName: options.gradersName,
+                    session_url: location.href
                 }
                 chrome.runtime.sendMessage({
                     action: "reportGradingResult",

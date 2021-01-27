@@ -51,7 +51,12 @@ function init() {
                     1000
                 );
             } else if (request.action === "timeActiveTab") {
-                tabTimeTracker.startTrackingActiveTab(request.callbackOnTabRemoved);
+                //__DEBUG
+                console.log("I am background.js, about to request tab tracking from tabTimeTracker. What I know of the callback:");
+                console.log(request.callbackOnTabRemoved)
+                tabTimeTracker.startTrackingActiveTab(request.session_url);
+            } else if (request.action === "logToConsole"){
+                console.log(request.message);
             }
         }
     );
