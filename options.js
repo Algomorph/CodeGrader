@@ -48,7 +48,7 @@ class Options {
             "unused_code_module": unused_code_module.getDefaultOptions()
         };
         this.usageStatisticsOptions = {
-            "enabled": false,
+            "enabled": true,
             "anonymizeUser": true
         }
     }

@@ -4,8 +4,21 @@
 
 let usage_statistics = {};
 
+const TabType = {
+    UNKNOWN: 0,
+    SUBMIT_SERVER_TAB: 1,
+    GRADE_SERVER_TAB: 2
+};
+
 (function () {
     const DEFAULT_GRADERS_NAME = "Anonymous";
+
+    class TabStatus {
+        constructor(isOpen = false) {
+            this.open = isOpen;
+            this.activeDuration = 0;
+        }
+    }
 
     class SessionInfo {
         /**
@@ -14,10 +27,10 @@ let usage_statistics = {};
          */
         constructor(gradersName) {
             this.gradersName = gradersName;
-            this.gradeServerTabDuration = 0;
             this.saveGradeButtonClicked = false;
             this.reportGradeButtonClicked = false;
-            this.submitServerTabDuration = 0;
+            this.submitServerTabStatus = new TabStatus(true);
+            this.gradeServerTabStatus = new TabStatus(false);
         }
     }
 
@@ -54,31 +67,102 @@ let usage_statistics = {};
         }
     }
 
-    this.handleSessionInfo = function (message) {
-        if (!self.options.enabled) {
+    this._uploadSessionInfoToDatabase = function (sessionUrl, sessionInfo) {
+
+        const request = {
+            method: "POST",
+            url: "http://codegrader.net/insertdb.php",
+            data: new URLSearchParams({
+                duration_ms: sessionInfo.gradeServerTabStatus.activeDuration + sessionInfo.submitServerTabStatus.activeDuration,
+                report_clicked: sessionInfo.reportGradeButtonClicked ? 1 : 0,
+                save_clicked: sessionInfo.saveGradeButtonClicked ? 1 : 0,
+                graders_name: sessionInfo.gradersName
+            }).toString()
+        }
+        //__DEBUG
+        console.log(request);
+        sendPostXHTTPRequest(request);
+        this.sessionInfoByUrl.delete(sessionUrl);
+    }
+
+    this.handleSessionInfoMessage = function (message) {
+        if (!this.options.enabled) {
             return;
         }
-
-        let sessionInfo = null;
         if (this.sessionInfoByUrl.has(message.sessionUrl)) {
-            sessionInfo = this.sessionInfoByUrl.get(message.sessionUrl);
-        } else {
-            sessionInfo = new SessionInfo(self.gradersName);
-            this.sessionInfoByUrl.set(message.sessionUrl, sessionInfo);
-        }
-
-        if (message.action === "gradeServerTabClosed") {
-            sessionInfo.gradeServerTabDuration = message.tabActiveDuration;
-        } else if (message.action === "saveGradeButtonClicked") {
-            sessionInfo.saveGradeButtonClicked = true;
-        } else if (message.action === "reportGradeButtonClicked") {
-            sessionInfo.reportGradeButtonClicked = true;
-        } else if (message.action === "submitServerTabClosed") {
-            sessionInfo.submitServerTabDuration = message.tabActiveDuration
-            //TODO save session details (including self.gradeServerTabDuration, self._gradersName, submitServerTabDuration, and other stuff).
-            // Do this using a POST query somehow, perhaps redirect via background.js first to initiate the POST request.
-            console.log("Received submit server tab closing event. Ready to save session information.");
+            const sessionInfo = this.sessionInfoByUrl.get(message.sessionUrl);
+            if (message.action === "saveGradeButtonClicked") {
+                sessionInfo.saveGradeButtonClicked = true;
+            } else if (message.action === "reportGradeButtonClicked") {
+                sessionInfo.reportGradeButtonClicked = true;
+            }
         }
     }
+
+    this.handleTabOpen = function (tabType, sessionUrl){
+        if (!this.options.enabled) {
+            return;
+        }
+        let sessionInfo = null;
+
+        //__DEBUG
+        console.log("Tab opening for session: ", sessionUrl, "Tab type: ", tabType);
+
+        switch (tabType){
+            case TabType.GRADE_SERVER_TAB:
+                if (this.sessionInfoByUrl.has(sessionUrl)){
+                    sessionInfo = this.sessionInfoByUrl.get(sessionUrl);
+                    sessionInfo.gradeServerTabStatus.open = true;
+                }
+                break;
+            case TabType.SUBMIT_SERVER_TAB:
+                sessionInfo = new SessionInfo(self.gradersName);
+                this.sessionInfoByUrl.set(sessionUrl, sessionInfo);
+                break;
+            default:
+                return;
+        }
+
+
+    }
+
+    /**
+     * Handle a tab close event. If both tabs for a student session (grading of a single student's submission) are
+     * closed, will trigger a routine that uploads the session data to the server.
+     *
+     * @param {TabType} tabType type of the tab (submit server tab or grade server tab)
+     * @param {string} sessionUrl url of the student session
+     * @param {number} tabActiveDuration the total duration the tab that was closed has been active
+     */
+    this.handleTabClose = function (tabType, sessionUrl, tabActiveDuration) {
+        if (!this.options.enabled) {
+            return;
+        }
+        //__DEBUG
+        console.log("Tab closing for session: ", sessionUrl, "Tab type: ", tabType, " Tab duration: ", tabActiveDuration);
+
+        if (this.sessionInfoByUrl.has(sessionUrl)) {
+            const sessionInfo = this.sessionInfoByUrl.get(sessionUrl);
+            let otherTabIsClosed = true;
+            let tabStatus = null;
+            switch (tabType){
+                case TabType.GRADE_SERVER_TAB:
+                    otherTabIsClosed = !sessionInfo.submitServerTabStatus.open;
+                    tabStatus = sessionInfo.gradeServerTabStatus;
+                    break;
+                case TabType.SUBMIT_SERVER_TAB:
+                    otherTabIsClosed = !sessionInfo.gradeServerTabStatus.open;
+                    tabStatus = sessionInfo.submitServerTabStatus;
+                    break;
+                default:
+                    return;
+            }
+            tabStatus.activeDuration = tabActiveDuration;
+            if (otherTabIsClosed) {
+                this._uploadSessionInfoToDatabase(sessionUrl, sessionInfo);
+            }
+        }
+    }
+
 
 }).apply(usage_statistics);

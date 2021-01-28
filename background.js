@@ -14,8 +14,11 @@ function init() {
     chrome.runtime.onMessage.addListener(
         function (message, sender, callback) {
 
+            //__DEBUG
+            console.log(message);
+
             if (message.action === "xhttp") {
-                sendPostXHTTPRequest(message);
+                sendPostXHTTPRequest(message, callback = null);
             } else if (message.action === "reportGradeButtonClicked") {
                 let gradesUrl = "https://grades.cs.umd.edu/classWeb/viewGrades.cgi?courseID=*"
                 // uses open class grades page
@@ -40,36 +43,15 @@ function init() {
                 tabTimeTracker.startTrackingTabActiveTime(message.sessionUrl, sender.tab);
             } else if (message.action === "logToConsole") {
                 console.log(message.message);
-            } else if (message.action === "optionsChanged"){
+            } else if (message.action === "optionsChanged") {
                 usage_statistics.updateOptions(message.options);
             }
             if (message.hasOwnProperty("sessionUrl")) {
-                usage_statistics.handleSessionInfo(message);
+                usage_statistics.handleSessionInfoMessage(message);
             }
         }
     );
 }
-
-
-function sendPostXHTTPRequest(message) {
-    let xhttpRequest = new XMLHttpRequest(),
-        method = message.method ? message.method.toUpperCase() : 'GET';
-    xhttpRequest.onreadystatechange = function () {
-        if (xhttpRequest.readyState === 4) {
-            callback(xhttpRequest.responseText);
-            xhttpRequest.onreadystatechange = xhttpRequest.open = xhttpRequest.send = null;
-            xhttpRequest = null;
-        }
-    };
-    if (method === 'POST') {
-        xhttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhttpRequest.setRequestHeader("Content-length", message.data.length);
-    }
-    xhttpRequest.open(method, message.url, true);
-    xhttpRequest.send(message.data);
-    // end of cross domain loading
-}
-
 
 function sendReportToGradesServer(gradesServerOverviewTab, report, callbackOnTabRemoved) {
     chrome.tabs.sendMessage(gradesServerOverviewTab.id, {
@@ -77,7 +59,6 @@ function sendReportToGradesServer(gradesServerOverviewTab, report, callbackOnTab
         report: report
     }, function (url) {
         chrome.tabs.create({url: url, windowId: gradesServerOverviewTab.windowId}, function (newTab) {
-            tabTimeTracker.startTrackingTabActiveTime(callbackOnTabRemoved);
             // Wait for 3 seconds for listener/content script to set up
             setTimeout(
                 function () {

@@ -11,12 +11,12 @@ function addListenerForGradingResult() {
             // this if block fills in the style points and the comment section
             if (message.action === "insertGradingReport") {
 
+                const report = message.report;
                 chrome.runtime.sendMessage({
                     action: "timeTab",
                     sessionUrl: report.sessionUrl
                 });
 
-                const report = message.report;
                 $("textarea[name='block_comment']").val(report.comments);
 
                 let automatedTestScore = currentScore;

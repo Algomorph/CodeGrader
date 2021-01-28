@@ -33,33 +33,29 @@ let tabTimeTracker = {};
         let self = this;
 
         const trackedTabId = tab.id;
-        self._trackedTabs.set(trackedTabId, new TrackedTabInfo(sessionUrl));
 
+        self._trackedTabs.set(trackedTabId, new TrackedTabInfo(sessionUrl));
         self._setFocusToActiveTab();
 
         const url = tab.url;
-        let messageAction = "tabClosed";
+        let tabType = TabType.UNKNOWN;
         if (url.includes("grades.cs.umd.edu")) {
-            messageAction = "gradeServerTabClosed";
+            tabType = TabType.GRADE_SERVER_TAB;
         } else if (url.includes("submit.cs.umd.edu")) {
-            messageAction = "submitServerTabClosed";
+            tabType = TabType.SUBMIT_SERVER_TAB;
         }
+        usage_statistics.handleTabOpen(tabType, sessionUrl);
 
         chrome.tabs.onRemoved.addListener(
             function _listener(tabId, removeInfo) {
                 if (tabId === trackedTabId) {
-                    if(tabId === self._currentlyTrackedTabId){
+                    if (tabId === self._currentlyTrackedTabId) {
                         self._setCurrentFocus(null);
                     }
                     const tabActiveDuration = self._trackedTabs.get(trackedTabId).duration;
 
-                    chrome.runtime.sendMessage(
-                        {
-                            action: messageAction,
-                            sessionUrl: sessionUrl,
-                            tabActiveDuration: tabActiveDuration
-                        }
-                    );
+                    usage_statistics.handleTabClose(tabType, sessionUrl, tabActiveDuration);
+
                     self._trackedTabs.delete(tabId);
                     chrome.tabs.onRemoved.removeListener(_listener);
                 }

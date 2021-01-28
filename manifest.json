@@ -4,8 +4,9 @@
    "manifest_version": 2,
    "background": {
       "scripts": [
-         "tab_tracking.js",
+         "background_utils.js",
          "usage_statistics.js",
+         "tab_tracking.js",
          "background.js"
       ],
       "persistent": false
