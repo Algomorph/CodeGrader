@@ -47,6 +47,7 @@ let indentation_module = {};
         let isPrev = false;
         let isComment = false;
         let isNotAllman = 0;
+        let expectedIndent = 0;
 
         // find first indent used and use that as standard
         let i;
@@ -66,25 +67,25 @@ let indentation_module = {};
         let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
+            codeText = codeText.replace(/\t/, "    ");
 
-            if (codeText.indexOf("/*") !== -1) {
+            if(isComment && codeText.indexOf("*/") !== -1 && (codeText.indexOf("/*") === -1 || codeText.indexOf("/*") > codeText.indexOf("*/"))) {
+                isComment = false;
+                codeText = codeText.replace(/^.?([^*][^\/])*.?\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+            }
+            while(codeText.indexOf("/*") !== -1 && codeText.indexOf("*/") !== -1) {
+                codeText = codeText.replace(/\/\*([^*][^\/]|[^\/][^*])*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
+            }
+            if(codeText.indexOf("/*") !== -1) {
                 isComment = true;
             }
-            if (isComment && codeText.indexOf("*/") !== -1) {
-                isComment = false;
-                if(codeText.indexOf("/*") !== -1) {
-                    codeText = codeText.replace(/\/\*[^[*\/]]*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
-                } else {
-                    codeText = codeText.replace(/.*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
-                }
-            }
+
+            if(isComment) return;
 
             // Skip blank lines
             if (codeText.search(/\S/) === -1) return;
 
-            if (isComment) {
-                return;
-            }
+
 
             if (codeText.trim().charAt(0) === "@") return;
 
@@ -99,10 +100,8 @@ let indentation_module = {};
 
             if (isPrev && codeText.trim().charAt(0) === "{") { // Accounts for Allman braces
                 isPrev = false;
-                currentIndentationWidth -= 2 * singleIndentWidth;
                 if (isNotAllman > 0) {
                     isNotAllman--;
-                    currentIndentationWidth += 2 * singleIndentWidth;
                 }
             }
 
@@ -112,7 +111,7 @@ let indentation_module = {};
             }
 
             // verify current indent is correct
-            if (getIndentationWidth(codeText) !== currentIndentationWidth) {
+            if ((!isPrev && getIndentationWidth(codeText) !== currentIndentationWidth) || (isPrev && getIndentationWidth(codeText) < expectedIndent)) {
                 let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
                 let newProblem = false;
                 let shortProblemDescription = "";
@@ -140,6 +139,10 @@ let indentation_module = {};
                 lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             }
 
+            if(isPrev) {
+                expectedIndent = Math.max(expectedIndent, currentIndentationWidth);
+            }
+
             // if opening brace exists, increase indent
             if (codeText.indexOf("{") !== -1) {
                 if (codeText.trim().indexOf("}") === 0) {
@@ -160,18 +163,17 @@ let indentation_module = {};
                 isNotAllman = stack.pop(); // Somehow, this fixes nested if's with AND without braces
             }
 
-            // If it doesn't end in a correct delimiter, it's a continuation of the previous line. Eclipse says to add two indents.
-            if (!isPrev && codeText.trim().search(/(for|while|do\s|else|if)/) !== -1
-                && codeText.trim().charAt(codeText.trim().length - 1) !== "{"
-                && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
-                if (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length)) {
+            // If it doesn't end in a correct delimiter, it's a continuation of the previous line.
+            if (!isPrev && codeText.search(/(for|while|do|else|if)\W/) !== -1
+                && codeText.trim().charAt(codeText.trim().length - 1) !== "{" && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
+                if (codeText.trim().charAt(codeText.trim().length - 1) !== ";" && (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length))) {
                     if(codeText.indexOf("}") === -1 || codeText.indexOf("{") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
                         isPrev = true;
                         isNotAllman++;
                     }
                 } else {
                     isPrev = true;
-                    currentIndentationWidth += 2 * singleIndentWidth;
+                    expectedIndent = currentIndentationWidth;
                 }
             } else if (!isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
                 if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
@@ -180,13 +182,13 @@ let indentation_module = {};
                     isPrev = true;
                     stack.push(isNotAllman);
                     isNotAllman = 0;
-                    currentIndentationWidth += 2 * singleIndentWidth;
+                    expectedIndent = currentIndentationWidth;
+
                 }
             } else if (isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
                 if (isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
                     isPrev = false;
 
-                    currentIndentationWidth -= 2 * singleIndentWidth;
                 }
                 isNotAllman = stack.pop();
                 if (isNotAllman > 0) {
