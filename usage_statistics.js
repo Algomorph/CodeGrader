@@ -158,6 +158,7 @@ const TabType = {
                     return;
             }
             tabStatus.activeDuration = tabActiveDuration;
+            tabStatus.open = false;
             if (otherTabIsClosed) {
                 this._uploadSessionInfoToDatabase(sessionUrl, sessionInfo);
             }
