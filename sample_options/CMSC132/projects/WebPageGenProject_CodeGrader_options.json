@@ -1,33 +1,37 @@
 {
     "filesToCheck": [
-        "src/processor/*"
+        "WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java",
+        "WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java",
+        "WebPageGen/src/main/java/model/Element.java|src/model/Element.java",
+        "WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java",
+        "WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java",
+        "WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java",
+        "WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java",
+        "WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java",
+        "WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java",
+        "WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java"
     ],
     "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": false,
+            "enabled": true,
             "markAllBraces": false
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "P7",
-            "graderName": "Greg K.",
+            "gradeServerAssignmentName": "P2",
+            "graderName": "",
             "maximumCodeStyleScore": 10,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": -50
+            "minimumScoreAdjustment": 0
         },
         "indentation_module": {
             "enabled": true
         },
         "keyword_and_pattern_module": {
-            "enabled": true,
-            "keywords": [
-                "synchronized"
-            ],
-            "patterns": [
-                "[.]start\\s*\\(",
-                "[.]join\\s*\\("
-            ]
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
         },
         "loop_module": {
             "enabled": false,
@@ -46,9 +50,7 @@
         "naming_module": {
             "allowedSpecialWords": [
                 "min",
-                "max",
-                "ST",
-                "MT"
+                "max"
             ],
             "checkConstants": true,
             "checkMethods": true,
@@ -56,16 +58,20 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
+                "WebPage": [
+                    "findElem",
+                    "stats"
+                ],
                 "global": []
             },
-            "numbersAllowedInNames": false,
+            "numbersAllowedInNames": true,
             "showUniqueOnly": true,
-            "sortAlphabetically": true
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
-            "enabled": false
+            "enabled": true
         },
         "test_module": {
             "enabled": false,
@@ -75,14 +81,15 @@
             "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
                 "global": []
             },
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
-    "submitServerAssignmentName": "Proj7",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 2",
     "year": "2020"
 }

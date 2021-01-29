@@ -114,7 +114,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
     "submitServerAssignmentName": "Proj 6",
     "year": "2020"
 }

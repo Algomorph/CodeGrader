@@ -1,15 +1,7 @@
 {
     "filesToCheck": [
-        "WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java",
-        "WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java",
-        "WebPageGen/src/main/java/model/Element.java|src/model/Element.java",
-        "WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java",
-        "WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java",
-        "WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java",
-        "WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java",
-        "WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java",
-        "WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java",
-        "WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java"
+        "src/model/ClearCellGame.java|ClearCellGame/src/main/java/model/ClearCellGame.java",
+        "src/model/Game.java|ClearCellGame/src/main/java/model/Game.java"
     ],
     "lateScoreAdjustment": -12,
     "moduleOptions": {
@@ -19,7 +11,7 @@
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "P2",
+            "gradeServerAssignmentName": "P3",
             "graderName": "",
             "maximumCodeStyleScore": 10,
             "maximumStudentTestsScore": 0,
@@ -58,9 +50,27 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "WebPage": [
-                    "findElem",
-                    "stats"
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "strategy"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
                 ],
                 "global": []
             },
@@ -78,17 +88,40 @@
             "methodsExpectedToBeTested": []
         },
         "unused_code_module": {
-            "checkMethods": false,
+            "checkMethods": true,
             "checkTypes": false,
             "checkVariables": true,
             "enabled": true,
             "ignoredNames": {
+                "ClearCellGame": [
+                    "ClearCellGame",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "strategy"
+                ],
+                "Game": [
+                    "Game",
+                    "getBoardCell",
+                    "getMaxCols",
+                    "getMaxRows",
+                    "getScore",
+                    "isGameOver",
+                    "nextAnimationStep",
+                    "processCell",
+                    "setBoardCell",
+                    "setBoardWithColor",
+                    "setColWithColor",
+                    "setRowWithColor"
+                ],
                 "global": []
             },
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
-    "submitServerAssignmentName": "Proj 2",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 3",
     "year": "2020"
 }

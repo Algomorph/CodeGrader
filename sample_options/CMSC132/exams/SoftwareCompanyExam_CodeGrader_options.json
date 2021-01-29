@@ -119,7 +119,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
     "submitServerAssignmentName": "Exam2",
     "year": "2020"
 }

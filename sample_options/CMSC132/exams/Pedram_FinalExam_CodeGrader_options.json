@@ -1,10 +1,11 @@
 {
     "filesToCheck": [
-        "src/sysImplementation/LinkedList.java|sysImplementation/LinkedList.java",
-        "src/sysImplementation/SampleDriver.java|sysImplementation/SampleDriver.java",
-        "src/sysImplementation/Student.java|sysImplementation/Student.java"
+        "src/sysImplementation/MyLinkedList.java|sysImplementation/MyLinkedList.java",
+        "src/sysImplementation/CMSC132Sorter.java|sysImplementation/CMSC132Sorter.java",
+        "src/sysImplementation/MapOfCodes.java|sysImplementation/MapOfCodes.java",
+        "src/sysImplementation/BinarySearchTree.java|sysImplementation/BinarySearchTree.java"
     ],
-    "lateScoreAdjustment": -5,
+    "lateScoreAdjustment": -30,
     "moduleOptions": {
         "brace_style_module": {
             "enabled": false,
@@ -12,11 +13,11 @@
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "Q3",
+            "gradeServerAssignmentName": "FE",
             "graderName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": -30
+            "minimumScoreAdjustment": -100
         },
         "indentation_module": {
             "enabled": false
@@ -25,12 +26,32 @@
             "enabled": false,
             "keywords": []
         },
+        "loop_module": {
+            "enabled": true,
+            "methodList": [
+                "$MyLinkedList$.add",
+                "$MyLinkedList$.deleteAfterAux",
+                "$MyLinkedList$.newHeadAux",
+                "$CMSC132Sorter$.CMSC132Sort",
+                "$MapOfCodes$.sort",
+                "$BinarySearchTree$.treeProcessor",
+                "$BinarySearchTree$.treeProcessorAux",
+                "$BinarySearchTree$.removeSubTree"
+            ],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
         "method_call_module": {
             "enabled": true,
             "ignoredMethods": {
-                "global": []
+                "global": [],
+                "MyLinkedList": ["$T$.compareTo"],
+                "CMSC132Sorter":["$Word$.compareTo"],
+                "MapOfCodes":["$String$.charAt"],
+                "BinarySearchTree":["ArrayList()","ArrayList<>()", "$ArrayList$.add", "$K$.compareTo"]
             },
-            "showUniqueOnly": false
+            "ignoredTypes": [],
+            "showUniqueOnly": true
         },
         "naming_module": {
             "allowedSpecialWords": [
@@ -39,14 +60,14 @@
             ],
             "checkConstants": false,
             "checkMethods": true,
-            "checkTypes": false,
+            "checkTypes": true,
             "checkVariablesAndFields": false,
             "enabled": true,
             "ignoredNames": {
                 "global": []
             },
-            "numbersAllowedInNames": false,
-            "showUniqueOnly": true,
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": false,
             "sortAlphabetically": false
         },
         "spacing_module": {
@@ -69,7 +90,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
-    "submitServerAssignmentName": "",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Final Exam",
     "year": "2020"
 }
