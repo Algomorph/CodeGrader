@@ -8,15 +8,13 @@ function sendPostXHTTPRequest(request, callback = null) {
         xhttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     }
 
-    if (callback !== null) {
-        xhttpRequest.onreadystatechange = function () {
-            if (xhttpRequest.readyState === XMLHttpRequest.DONE) {
-                callback(xhttpRequest.responseText);
-                xhttpRequest.onreadystatechange = xhttpRequest.open = xhttpRequest.send = null;
-                xhttpRequest = null;
-            }
-        };
-    }
+    xhttpRequest.onreadystatechange = function () {
+        if (xhttpRequest.readyState === XMLHttpRequest.DONE && callback !== null) {
+            callback(xhttpRequest.responseText);
+            xhttpRequest.onreadystatechange = xhttpRequest.open = xhttpRequest.send = null;
+            xhttpRequest = null;
+        }
+    };
 
     xhttpRequest.send(request.data);
     // end of cross domain loading

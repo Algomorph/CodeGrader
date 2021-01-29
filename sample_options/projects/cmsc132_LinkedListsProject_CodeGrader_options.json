@@ -13,7 +13,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "P4",
-            "gradersName": "",
+            "graderName": "",
             "maximumCodeStyleScore": 12,
             "maximumStudentTestsScore": 15,
             "minimumScoreAdjustment": -35

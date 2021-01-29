@@ -28,7 +28,7 @@ let tabTimeTracker = {};
     this._idle = false;
     this._updateTimePeriodInMinuts = 1;
 
-    this.startTrackingTabActiveTime = function (sessionUrl, tab) {
+    this.startTrackingTabActiveTime = function (sessionUrl, studentName, tab) {
 
         let self = this;
 
@@ -44,7 +44,7 @@ let tabTimeTracker = {};
         } else if (url.includes("submit.cs.umd.edu")) {
             tabType = TabType.SUBMIT_SERVER_TAB;
         }
-        usage_statistics.handleTabOpen(tabType, sessionUrl);
+        usage_statistics.handleTabOpen(tabType, sessionUrl, studentName);
 
         chrome.tabs.onRemoved.addListener(
             function _listener(tabId, removeInfo) {

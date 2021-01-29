@@ -14,9 +14,6 @@ function init() {
     chrome.runtime.onMessage.addListener(
         function (message, sender, callback) {
 
-            //__DEBUG
-            console.log(message);
-
             if (message.action === "xhttp") {
                 sendPostXHTTPRequest(message, callback = null);
             } else if (message.action === "reportGradeButtonClicked") {
@@ -28,7 +25,7 @@ function init() {
                             alert("You have multiple tabs of the grades server open. Be careful of submitting grades for the wrong course.")
                         }
                         let gradesServerOverviewTab = tabs[0];
-                        sendReportToGradesServer(gradesServerOverviewTab, message.report, message.callbackOnTabRemoved);
+                        sendReportToGradesServer(gradesServerOverviewTab, message.report);
                     }
                 );
             } else if (message.action === "saveGradeButtonClicked") {
@@ -40,7 +37,7 @@ function init() {
                     1000
                 );
             } else if (message.action === "timeTab") {
-                tabTimeTracker.startTrackingTabActiveTime(message.sessionUrl, sender.tab);
+                tabTimeTracker.startTrackingTabActiveTime(message.sessionUrl, message.studentName, sender.tab);
             } else if (message.action === "logToConsole") {
                 console.log(message.message);
             } else if (message.action === "optionsChanged") {
@@ -53,7 +50,7 @@ function init() {
     );
 }
 
-function sendReportToGradesServer(gradesServerOverviewTab, report, callbackOnTabRemoved) {
+function sendReportToGradesServer(gradesServerOverviewTab, report) {
     chrome.tabs.sendMessage(gradesServerOverviewTab.id, {
         "action": "openStudentGradesPage",
         report: report

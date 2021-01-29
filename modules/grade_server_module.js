@@ -12,7 +12,7 @@ let grade_server_module = {};
          * @param enabled whether the module is at all enabled.
          * @param gradeServerAssignmentName project/assignment name up on the grade server.
          * Often the first letter & number of the project/quiz/exam on the submit server.
-         * @param gradersName name of the grader, e.g. Greg K. Don't just use first and last initial, at least provide the full first name.
+         * @param graderName name of the grader, e.g. Greg K. Don't just use first and last initial, at least provide the full first name.
          * @param minimumScoreAdjustment  - maximum points that the grader is able to deduct (in addition to the late
          * penalty, when applicable). This has to be a negative value or zero. If the value is zero, the control for
          * this will not added drawn on the panel.
@@ -23,13 +23,13 @@ let grade_server_module = {};
          */
         constructor(enabled = true,
                     gradeServerAssignmentName = "",
-                    gradersName = "",
+                    graderName = "",
                     minimumScoreAdjustment = 0,
                     maximumCodeStyleScore = 10,
                     maximumStudentTestsScore = 0) {
             this.enabled = enabled;
             this.gradeServerAssignmentName = gradeServerAssignmentName;
-            this.gradersName = gradersName;
+            this.graderName = graderName;
             this.minimumScoreAdjustment = minimumScoreAdjustment;
             this.maximumCodeStyleScore = maximumCodeStyleScore;
             this.maximumStudentTestsScore = maximumStudentTestsScore;
@@ -98,13 +98,13 @@ let grade_server_module = {};
                     validateNumericInput($("input#grading-plugin-score-adjustment-score").val(), options.minimumScoreAdjustment, 0);
                 fieldValidationSuccessful &= scoreAdjustmentValid;
             }
-            if (options.gradersName.length < 4) {
-                alert("Please enter a grader's name longer than three characters in CodeGrader options (Note: initials may be ambiguous.)");
+            if (options.graderName.length < 4) {
+                alert("Please enter the grader's name (graderName) longer than three characters in CodeGrader options (Note: initials may be ambiguous.)");
             } else if (fieldValidationSuccessful) {
                 const directoryId = $("h1").text().split("(")[1].split(")")[0]
                 let finalComment = ""
                 // add graders name
-                finalComment += "Grader: " + options.gradersName + "\n\n"
+                finalComment += "Grader: " + options.graderName + "\n\n"
                 // Using CSS selectors for majority of filtering
                 const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
                 classes.each(function () {
@@ -135,7 +135,7 @@ let grade_server_module = {};
                     semesterSeason: semesterSeason,
                     year: year,
                     gradeServerAssignmentName: options.gradeServerAssignmentName,
-                    gradersName: options.gradersName,
+                    graderName: options.graderName,
                     sessionUrl: location.href
                 }
                 chrome.runtime.sendMessage({

@@ -14,7 +14,8 @@ function addListenerForGradingResult() {
                 const report = message.report;
                 chrome.runtime.sendMessage({
                     action: "timeTab",
-                    sessionUrl: report.sessionUrl
+                    sessionUrl: report.sessionUrl,
+                    studentName: null
                 });
 
                 $("textarea[name='block_comment']").val(report.comments);

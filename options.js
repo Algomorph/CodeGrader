@@ -30,6 +30,7 @@ class Options {
                 submitServerAssignmentName = "",
                 filesToCheck = [],
                 lateScoreAdjustment = -12) {
+        this.course = "CMSC132";
         this.semesterSeason = semesterSeason;
         this.year = year;
         this.submitServerAssignmentName = submitServerAssignmentName;

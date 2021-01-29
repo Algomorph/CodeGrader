@@ -11,7 +11,8 @@ const TabType = {
 };
 
 (function () {
-    const DEFAULT_GRADERS_NAME = "Anonymous";
+
+    const UNKNOWN_STRING = "UNKNOWN";
 
     class TabStatus {
         constructor(isOpen = false) {
@@ -23,48 +24,39 @@ const TabType = {
     class SessionInfo {
         /**
          *
-         * @param {string} gradersName
+         * @param {string} graderName
          */
-        constructor(gradersName) {
-            this.gradersName = gradersName;
+        constructor(graderName, studentName) {
+            this.graderName = graderName;
             this.saveGradeButtonClicked = false;
             this.reportGradeButtonClicked = false;
             this.submitServerTabStatus = new TabStatus(true);
             this.gradeServerTabStatus = new TabStatus(false);
+            this.studentName = studentName;
         }
     }
-
 
     this.sessionInfoByUrl = new Map();
     this.options = null;
-    this.gradersName = DEFAULT_GRADERS_NAME;
-
-    class Options {
-        /**
-         * Build options for the usage statistics module.
-         * @param enabled whether the module is at all enabled.
-         * @param anonymizeUser flag to anonymize user name. Name is taken from grade_server_module options
-         */
-        constructor(enabled = true,
-                    anonymizeUser = true) {
-            this.enabled = enabled;
-            this.anonymizeUser = anonymizeUser;
-        }
-    }
-
-    this.getDefaultOptions = function () {
-        return new Options();
-    }
+    this.graderName = "Anonymous";
+    this.course = UNKNOWN_STRING;
+    this.assignmentName = UNKNOWN_STRING;
+    this.semester = UNKNOWN_STRING;
+    this.year = UNKNOWN_STRING;
 
     let self = this;
 
+    /**
+     * Update local options
+     * @param {Options} options
+     */
     this.updateOptions = function (options) {
-        self.options = options.usageStatisticsOptions;
-        if (self.options.anonymizeUser) {
-            self.gradersName = DEFAULT_GRADERS_NAME;
-        } else {
-            self.gradersName = options.moduleOptions.grade_server_module.gradersName;
-        }
+        this.options = options.usageStatisticsOptions;
+        this.graderName = options.moduleOptions.grade_server_module.graderName;
+        this.course = options.course;
+        this.assignmentName = options.submitServerAssignmentName;
+        this.semester = options.semesterSeason;
+        this.year = options.year;
     }
 
     this._uploadSessionInfoToDatabase = function (sessionUrl, sessionInfo) {
@@ -73,14 +65,19 @@ const TabType = {
             method: "POST",
             url: "http://codegrader.net/insertdb.php",
             data: new URLSearchParams({
+                student_name: sessionInfo.studentName,
+                course_name: this.course,
+                semester: this.semester,
+                year: this.year,
+                assignment_name: this.assignmentName,
                 duration_ms: sessionInfo.gradeServerTabStatus.activeDuration + sessionInfo.submitServerTabStatus.activeDuration,
                 report_clicked: sessionInfo.reportGradeButtonClicked ? 1 : 0,
                 save_clicked: sessionInfo.saveGradeButtonClicked ? 1 : 0,
-                graders_name: sessionInfo.gradersName
+                graders_name: sessionInfo.graderName,
+                anonymize_grader: this.options.anonymizeUser
             }).toString()
         }
-        //__DEBUG
-        console.log(request);
+
         sendPostXHTTPRequest(request);
         this.sessionInfoByUrl.delete(sessionUrl);
     }
@@ -99,14 +96,11 @@ const TabType = {
         }
     }
 
-    this.handleTabOpen = function (tabType, sessionUrl){
+    this.handleTabOpen = function (tabType, sessionUrl, studentName){
         if (!this.options.enabled) {
             return;
         }
         let sessionInfo = null;
-
-        //__DEBUG
-        console.log("Tab opening for session: ", sessionUrl, "Tab type: ", tabType);
 
         switch (tabType){
             case TabType.GRADE_SERVER_TAB:
@@ -116,7 +110,7 @@ const TabType = {
                 }
                 break;
             case TabType.SUBMIT_SERVER_TAB:
-                sessionInfo = new SessionInfo(self.gradersName);
+                sessionInfo = new SessionInfo(this.graderName, studentName);
                 this.sessionInfoByUrl.set(sessionUrl, sessionInfo);
                 break;
             default:
@@ -138,8 +132,6 @@ const TabType = {
         if (!this.options.enabled) {
             return;
         }
-        //__DEBUG
-        console.log("Tab closing for session: ", sessionUrl, "Tab type: ", tabType, " Tab duration: ", tabActiveDuration);
 
         if (this.sessionInfoByUrl.has(sessionUrl)) {
             const sessionInfo = this.sessionInfoByUrl.get(sessionUrl);
