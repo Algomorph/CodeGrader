@@ -221,10 +221,6 @@ let code_analysis = {};
             this.trCodeLine = trCodeLine;
             this.enclosingMethodScope = enclosingMethodScope;
             this.type = LoopTypeByNode.get(astNode.node);
-            //__DEBUG
-            if (this.type === undefined) {
-                console.log(this.astNode);
-            }
             this.methodIdentifier = "";
             if (enclosingMethodScope.astNode.node === "MethodDeclaration") {
                 const enclosingMethodIsStatic = code_analysis.methodIsStatic(enclosingMethodScope.astNode);
@@ -715,11 +711,6 @@ let code_analysis = {};
         for (const branchScope of branchScopes) {
             let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                //__DEBUG
-                if (childAstNode === undefined) {
-                    console.log(astNode);
-                    console.log(branchScope);
-                }
                 this.findEntitiesInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
             }
         }
