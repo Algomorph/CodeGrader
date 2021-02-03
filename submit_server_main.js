@@ -35,6 +35,10 @@ function main(options) {
 
     const semesterString = options.semesterSeason + options.year.toString();
 
+    //__DEBUG
+    console.log(location.href)
+    //__DEBUG
+    console.log(semesterString)
 
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
