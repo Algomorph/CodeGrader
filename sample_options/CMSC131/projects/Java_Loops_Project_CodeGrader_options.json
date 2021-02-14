@@ -1,9 +1,9 @@
 {
     "course": "CMSC131",
     "filesToCheck": [
-        "WebPageGen/src/main/java/programs/Access.java|src/programs/Access.java",
-        "WebPageGen/src/main/java/programs/Convert.java|src/programs/Convert.java",
-        "WebPageGen/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java"
+        "WebPageGen/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java",
+        "WebPageGen/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java",
+        "WebPageGen/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java"
     ],
     "lateScoreAdjustment": -12,
     "moduleOptions": {
@@ -53,7 +53,10 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "global": [ "args", "main"]
+                "global": [
+                    "args",
+                    "main"
+                ]
             },
             "numbersAllowedInNames": true,
             "showUniqueOnly": true,
