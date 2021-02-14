@@ -568,7 +568,9 @@ let brace_style_module = {};
         if (!options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#0c5460'>Brace Style</h3>");
+        const inconsistentBraceStyleColor = "#0e616f";
+
+        $(uiPanel).append("<h3 style='color:"+inconsistentBraceStyleColor+"'>Brace Style</h3>");
 
         for (const codeFile of codeFileDictionary.values()) {
             /** @type {Array.<BracePair>} */
@@ -611,12 +613,11 @@ let brace_style_module = {};
                             defaultMessageText = "Brace pair doesn't follow any of the allowed styles.";
                         }
                         let trCodeLine = codeFile.trCodeLines[bracePair.braceAstNode.location.start.line - 1];
-                        let color = "#0c5460";
                         $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, "inconsistent-brace-style-problem", defaultMessageText));
                         addButtonComment(
                             trCodeLine,
                             "Inconsistent brace style",
-                            defaultMessageText, color
+                            defaultMessageText, inconsistentBraceStyleColor
                         );
                     }
                 }
@@ -634,20 +635,19 @@ let brace_style_module = {};
 
                     let buttonClass = BraceButtonClassByErrorType.get(braceStyleError.errorType);
                     let trCodeLine = codeFile.trCodeLines[braceStyleError.line - 1];
-                    let color = "#0c5460";
                     $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, buttonClass, defaultMessageText));
                     addButtonComment(
                         trCodeLine,
                         adjective + " " + braceStyleError.shortDescription,
-                        defaultMessageText, color
+                        defaultMessageText, inconsistentBraceStyleColor
                     );
 
                 }
                 if (options.markAllBraces) {
                     addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], "{", "",
-                        "#0c5460");
+                        inconsistentBraceStyleColor);
                     addButtonComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], "}", "",
-                        "#0c5460");
+                        inconsistentBraceStyleColor);
                 }
             }
 
