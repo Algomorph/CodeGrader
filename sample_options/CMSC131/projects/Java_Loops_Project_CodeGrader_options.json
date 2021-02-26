@@ -77,7 +77,7 @@
             "checkVariables": true,
             "enabled": true,
             "ignoredNames": {
-                "global": []
+                "global": ["args"]
             },
             "markAllUsages": false
         }
