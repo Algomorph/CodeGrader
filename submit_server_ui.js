@@ -52,13 +52,15 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
  */
 function isMemberOfStudentSet(acctTableCell, studentStr) {
     const acct = $(acctTableCell).find("a")[0].innerText; // hopefully this never fails :)
+    studentStr = studentStr.trim();
 
     if (studentStr === "*") return true;
     if (studentStr[0] === "(" && studentStr[studentStr.length - 1] === ")") {
-        const studentBounds = studentStr.substring(1, studentStr.length - 1).split(",");
-        const start = studentBounds[0].trim();
-        const end = studentBounds[1].trim();
-        return acct >= start && acct <= end;
+        const studentBounds = studentStr
+            .substring(1, studentStr.length - 1)
+            .split(",")
+            .map(str => str.trim());
+        return acct >= studentBounds[0] && acct <= studentBounds[1];
     }
     const students = studentStr.split(",").map(str => str.trim());
     return students.includes(acct);
