@@ -2,7 +2,6 @@
 * Copyright 2020 Gregory Kramida
 * */
 
-
 function hasSubmissionInOverviewTableCell(overviewTableCell) {
     return $(overviewTableCell).find("a")[0] !== undefined;
 }
@@ -38,6 +37,31 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
         }
     }
     return score;
+}
+
+/**
+ * A hack :)
+ *
+ * if students is *, then return true
+ * if students is a pair, specified with parens, treat as inclusive endpoint range
+ * otherwise, treat as set/list and use contains
+ *
+ * @param {HTMLTableCellElement} acctTableCell
+ * @param {String} studentStr
+ * @returns {boolean} whether the student is a member of the student set
+ */
+function isMemberOfStudentSet(acctTableCell, studentStr) {
+    const acct = $(acctTableCell).find("a")[0].innerText; // hopefully this never fails :)
+
+    if (studentStr === "*") return true;
+    if (studentStr[0] === "(" && studentStr[studentStr.length - 1] === ")") {
+        const studentBounds = studentStr.substring(1, studentStr.length - 1).split(",");
+        const start = studentBounds[0].trim();
+        const end = studentBounds[1].trim();
+        return acct >= start && acct <= end;
+    }
+    const students = studentStr.split(",").map(str => str.trim());
+    return students.includes(acct);
 }
 
 /**

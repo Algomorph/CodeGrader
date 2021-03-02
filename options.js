@@ -36,6 +36,7 @@ class Options {
         this.submitServerAssignmentName = submitServerAssignmentName;
         this.filesToCheck = filesToCheck;
         this.lateScoreAdjustment = -12;
+        this.students = "*";
         this.moduleOptions = {
             "brace_style_module": brace_style_module.getDefaultOptions(),
             "grade_server_module": grade_server_module.getDefaultOptions(),
