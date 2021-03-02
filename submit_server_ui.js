@@ -52,7 +52,6 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
  */
 function isMemberOfStudentSet(acctTableCell, studentStr) {
     const acct = $(acctTableCell).find("a")[0].innerText; // hopefully this never fails :)
-    studentStr = studentStr.trim();
 
     if (studentStr === "*") return true;
     if (studentStr[0] === "(" && studentStr[studentStr.length - 1] === ")") {

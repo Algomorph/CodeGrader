@@ -78,6 +78,10 @@ function saveOptions() {
             options.lateScoreAdjustment = 0;
             needsReload = true;
         }
+        if (options.students.trim() !== options.students) {
+            options.students = options.students.trim();
+            needsReload = true;
+        }
         chrome.storage.sync.set(
             options
             , function () {
