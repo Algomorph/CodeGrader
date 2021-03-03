@@ -40,29 +40,18 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
 }
 
 /**
- * A hack :)
- *
- * if students is *, then return true
- * if students is a pair, specified with parens, treat as inclusive endpoint range
- * otherwise, treat as set/list and use contains
- *
+ * Check whether student in acctTableCell is between first & last student bounds
  * @param {HTMLTableCellElement} acctTableCell
- * @param {String} studentStr
+ * @param {String} firstStudent
+ * @param {String} lastStudent
  * @returns {boolean} whether the student is a member of the student set
  */
-function isMemberOfStudentSet(acctTableCell, studentStr) {
+function isMemberOfStudentSet(acctTableCell, firstStudent, lastStudent) {
     const acct = $(acctTableCell).find("a")[0].innerText; // hopefully this never fails :)
 
-    if (studentStr === "*") return true;
-    if (studentStr[0] === "(" && studentStr[studentStr.length - 1] === ")") {
-        const studentBounds = studentStr
-            .substring(1, studentStr.length - 1)
-            .split(",")
-            .map(str => str.trim());
-        return acct >= studentBounds[0] && acct <= studentBounds[1];
-    }
-    const students = studentStr.split(",").map(str => str.trim());
-    return students.includes(acct);
+    // Supposedly, JS string comparison can have "interesting" behavior depending on locale
+    // But this might not matter since directory IDs *shouldn't* be anything other than /[a-z][a-z0-9]{,7}/
+    return acct >= firstStudent && acct <= lastStudent;
 }
 
 /**

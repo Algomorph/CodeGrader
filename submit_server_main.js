@@ -21,7 +21,7 @@ function main(options) {
             let onTimeTableCell = onTimeColumn[iStudent];
             let lateTableCell = lateColumn[iStudent];
             let acctTableCell = acctColumn[iStudent];
-            if (isMemberOfStudentSet(acctTableCell, options.students)
+            if (isMemberOfStudentSet(acctTableCell, options.firstStudent, options.lastStudent)
                 && (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell))) {
                 let onTimeAutomaticTestScore = getAutomaticTestsScoreFromOverviewTableCell(onTimeTableCell);
                 let lateAutomaticTestScoreWithAdjustment =
