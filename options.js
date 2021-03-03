@@ -37,7 +37,9 @@ class Options {
         this.filesToCheck = filesToCheck;
         this.lateScoreAdjustment = -12;
         this.firstStudent = "a";
-        this.lastStudent = "z";
+        // To include directory IDs that start with z, use ASCII codepoint directly
+        // after z as the default upper bound
+        this.lastStudent = "{";
         this.moduleOptions = {
             "brace_style_module": brace_style_module.getDefaultOptions(),
             "grade_server_module": grade_server_module.getDefaultOptions(),
@@ -83,7 +85,9 @@ function saveOptions() {
         // so the field will default to "a". Conveniently, this also means firstStudent
         // can't be the empty string since that's also falsey.
         options.firstStudent = options.firstStudent?.trim() || "a";
-        options.lastStudent = options.lastStudent?.trim() || "z";
+        // To include directory IDs that start with z, use ASCII codepoint directly
+        // after z as the default upper bound
+        options.lastStudent = options.lastStudent?.trim() || "{";
         if (options.firstStudent > options.lastStudent) {
             const tmp = options.firstStudent;
             options.firstStudent = options.lastStudent;
