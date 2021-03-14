@@ -116,7 +116,6 @@ function getCheckedFileCode(filesToCheck) {
                 fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
             }
             const fileCode = fileCodeLines.join("\n");
-
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);

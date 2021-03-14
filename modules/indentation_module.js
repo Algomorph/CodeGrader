@@ -63,10 +63,13 @@ let indentation_module = {};
             }
         }
 
+
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
         let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
+
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
+
             codeText = codeText.replace(/\t/, "    ");
 
             if(isComment && codeText.indexOf("*/") !== -1 && (codeText.indexOf("/*") === -1 || codeText.indexOf("/*") > codeText.indexOf("*/"))) {
@@ -74,7 +77,7 @@ let indentation_module = {};
                 codeText = codeText.replace(/^.?([^*][^\/])*.?\*\//, " ".repeat(codeText.indexOf("*/") + 2));
             }
             while(codeText.indexOf("/*") !== -1 && codeText.indexOf("*/") !== -1) {
-                codeText = codeText.replace(/\/\*([^*][^\/]|[^\/][^*])*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
+                codeText = codeText.replace(/(:?\/\*[^*]*)*\/\*[^*]*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
             }
             if(codeText.indexOf("/*") !== -1) {
                 isComment = true;
@@ -84,8 +87,6 @@ let indentation_module = {};
 
             // Skip blank lines
             if (codeText.search(/\S/) === -1) return;
-
-
 
             if (codeText.trim().charAt(0) === "@") return;
 

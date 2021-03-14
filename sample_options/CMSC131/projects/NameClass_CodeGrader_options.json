@@ -69,20 +69,23 @@
         "test_module": {
             "enabled": true,
             "methodsExpectedToBeTested": [
-                   "$Name$.getFirstname",
-                   "$Name$.getLastname",
-                   "$Name$.getMiddlename",
-                   "$Name$.setNickname",
-                   "$Name$.getNickname",
-                   "$Name$.setSeparator",
-                   "$Name$.getSeparator",
-                   "Name()",
-                   "$Name$.equals",
-                   "$Name$.toString",
-                   "$Name$.compareTo",
-                   "Name.getNumberOfNameObjects",
-                   "Name.normalize"
-             ]
+                "$Name$.getFirstname",
+                "$Name$.getLastname",
+                "$Name$.getMiddlename",
+                "$Name$.setNickname",
+                "$Name$.getNickname",
+                "$Name$.setSeparator",
+                "$Name$.getSeparator",
+                "Name()",
+                "Name(String, String)",
+                "Name(String, String, String)",
+                "Name(String, String, String, char)",
+                "$Name$.equals",
+                "$Name$.toString",
+                "$Name$.compareTo",
+                "Name.getNumberOfNameObjects",
+                "Name.normalize"
+            ]
         },
         "unused_code_module": {
             "checkMethods": false,
@@ -101,7 +104,7 @@
     "submitServerAssignmentName": "Proj 4",
     "usageStatisticsOptions": {
         "anonymizeUser": true,
-        "enabled": true
+        "enabled": false
     },
     "year": "2021"
 }
