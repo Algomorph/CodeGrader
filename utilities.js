@@ -371,7 +371,7 @@ function validateNumericInput(numberText, minimumValue, maximumValue) {
     } else {
         const score = parseInt(numberText);
         if (score < minimumValue || score > maximumValue) {
-            alert("You must enter a number between ");
+            alert("You must enter a number in range [" + minimumValue + ", " + maximumValue + "].");
             return [false, 0];
         } else {
             return [true, score];
