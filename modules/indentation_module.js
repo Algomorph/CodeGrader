@@ -69,12 +69,12 @@ let indentation_module = {};
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
             codeText = codeText.replace(/\t/, "    ");
 
-            if(isComment && codeText.indexOf("*/") !== -1 && (codeText.indexOf("/*") === -1 || codeText.indexOf("/*") > codeText.indexOf("*/"))) {
+            if(isComment && codeText.indexOf("*/") !== -1 && codeText.indexOf("/*") > codeText.indexOf("*/")) {
                 isComment = false;
-                codeText = codeText.replace(/^.?([^*][^\/])*.?\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                codeText = codeText.replace(/^((?!\*\/).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
             }
-            while(codeText.indexOf("/*") !== -1 && codeText.indexOf("*/") !== -1) {
-                codeText = codeText.replace(/\/\*([^*][^\/]|[^\/][^*])*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
+            while(codeText.indexOf("*/") !== -1) {
+                codeText = codeText.replace(/\/\*.*?\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
             }
             if(codeText.indexOf("/*") !== -1) {
                 isComment = true;
