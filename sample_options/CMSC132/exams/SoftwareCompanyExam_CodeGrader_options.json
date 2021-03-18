@@ -14,7 +14,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "E2",
-            "gradersName": "",
+            "graderName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -100
@@ -119,7 +119,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
     "submitServerAssignmentName": "Exam2",
-    "year": "2020"
+    "year": "2021"
 }

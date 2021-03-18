@@ -35,17 +35,27 @@ function main(options) {
 
     const semesterString = options.semesterSeason + options.year.toString();
 
-
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
         const assignmentName = options.submitServerAssignmentName;
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
+        const headerText = document.querySelector("h1").textContent;
         // check if it's the right course & project
-        if ($("h1").text().match(assignmentName)) {
+        if (headerText.match(assignmentName)) {
             //FIXME
             // highlightAllCheckedCode(options.filesToCheck);
             // hljs.initHighlightingOnLoad();
+
+            const studentName = (/[^,]*,\s*written\s*by\s*([^(]*).*/.exec(headerText)[1]).trim();
+
+            //start logging usage statistics for this session
+            chrome.runtime.sendMessage({
+                action: "timeTab",
+                sessionUrl: location.href,
+                studentName: studentName
+            });
+
             recolorCheckedFileLinks(filePaths);
             scrollToFirstFile(filePaths);
             constructUiPanel(options, filePaths);
@@ -108,7 +118,6 @@ function constructUiPanel(options, filePaths) {
                 console.log(codeFile.parseError);
             }
         }
-
         keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
         naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);

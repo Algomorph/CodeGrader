@@ -45,7 +45,7 @@ let test_module = {};
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
-            if(codeFile.parseError != null){
+            if (codeFile.parseError != null) {
                 continue;
             }
             parsedCodeFiles.push(codeFile);
@@ -59,16 +59,24 @@ let test_module = {};
                     for (const call of scope.methodCalls) {
                         if (untestedMethods.has(call.name)) {
                             const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
-                            $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
-                            addButtonComment(trCodeLine, "Method call from test: " + call.name,
-                                "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
+
+                            if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
+                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
+                                addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
+                                    "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
+                            } else {
+                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
+                                addButtonComment(trCodeLine, "Method call from test: " + call.name,
+                                    "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
+                            }
+
                             untestedMethods.delete(call.name);
                         }
                     }
                 }
             }
         }
-        if(parsedCodeFiles.length === 0){
+        if (parsedCodeFiles.length === 0) {
             return;
         }
         for (const untestedMethod of untestedMethods) {

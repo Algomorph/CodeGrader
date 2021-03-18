@@ -10,7 +10,14 @@ function addListenerForGradingResult() {
             // this is meant for a page of this type: https://grades.cs.umd.edu/classWeb/viewGrades.cgi?subPartOf=166356&courseID=1322&stuID=30000
             // this if block fills in the style points and the comment section
             if (message.action === "insertGradingReport") {
+
                 const report = message.report;
+                chrome.runtime.sendMessage({
+                    action: "timeTab",
+                    sessionUrl: report.sessionUrl,
+                    studentName: null
+                });
+
                 $("textarea[name='block_comment']").val(report.comments);
 
                 let automatedTestScore = currentScore;
@@ -45,12 +52,11 @@ function addListenerForGradingResult() {
 
                 // closes current tab
                 $(saveChangesButton).on("click", function () {
-                    
                     // need to send a message back to background script to close this tab
                     chrome.runtime.sendMessage({
-                        action: "closeSendersTab"
+                        action: "saveGradeButtonClicked",
+                        sessionUrl: report.sessionUrl //log for usage statistics
                     }, function (response) {})
-                    
                 })
                
             }

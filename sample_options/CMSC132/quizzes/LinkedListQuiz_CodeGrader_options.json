@@ -13,7 +13,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "Q3",
-            "gradersName": "",
+            "graderName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
             "minimumScoreAdjustment": -30
@@ -69,7 +69,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
-    "submitServerAssignmentName": "",
-    "year": "2020"
+    "course": "CMSC132",
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Quiz 3",
+    "year": "2021"
 }

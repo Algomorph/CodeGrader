@@ -73,7 +73,9 @@ let unused_code_module = {};
         if (!options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#5c1a00'>Unused Code</h3>");
+        const unusedCodeOccurrenceColor = "#802400";
+
+        $(uiPanel).append("<h3 style='color:" + unusedCodeOccurrenceColor + "'>Unused Code</h3>");
 
         // configure ignored declaration types
         const declarationTypesToIgnore = new Set([code_analysis.DeclarationType.CAST, code_analysis.DeclarationType.THIS]);
@@ -113,7 +115,7 @@ let unused_code_module = {};
                                 capitalize(UsageTypeByDeclarationType.get(usage.declaration.declarationType))
                                 + " \"" + usage.declaration.name + "\" used.";
                             addButtonComment(codeFile.trCodeLines[usage.astNode.location.start.line - 1], usageMarkerText, "",
-                                "#5c1a00");
+                                unusedCodeOccurrenceColor);
                         }
                     }
                 }
@@ -127,7 +129,7 @@ let unused_code_module = {};
                         const buttonClass = ButtonClassByDeclarationType.get(declaration.declarationType);
                         $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, trCodeLine, buttonClass, unusedDeclarationMessage));
                         addButtonComment(trCodeLine, "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
-                            "#5c1a00");
+                            unusedCodeOccurrenceColor);
                     }
                 }
 

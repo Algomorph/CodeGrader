@@ -30,6 +30,7 @@ class Options {
                 submitServerAssignmentName = "",
                 filesToCheck = [],
                 lateScoreAdjustment = -12) {
+        this.course = "CMSC132";
         this.semesterSeason = semesterSeason;
         this.year = year;
         this.submitServerAssignmentName = submitServerAssignmentName;
@@ -47,15 +48,23 @@ class Options {
             "test_module": test_module.getDefaultOptions(),
             "unused_code_module": unused_code_module.getDefaultOptions()
         };
+        this.usageStatisticsOptions = {
+            "enabled": true,
+            "anonymizeUser": true
+        }
     }
 }
 
 // Restores options based on values stored in chrome.storage.
 function restoreOptions(callback) {
-
     let options = new Options();
-
-    chrome.storage.sync.get(options, callback);
+    chrome.storage.sync.get(options, function (options) {
+        chrome.runtime.sendMessage({
+            action: "optionsChanged",
+            options: options
+        });
+        callback(options);
+    });
 }
 
 // Saves options to chrome.storage
@@ -63,7 +72,7 @@ function saveOptions() {
     let needsReload = false;
     try {
         let options = JSON.parse(document.getElementById("optionsTextArea").value);
-        if(options.lateScoreAdjustment > 0){
+        if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
             needsReload = true;
@@ -95,7 +104,7 @@ function saveOptions() {
             throw error;
         }
     }
-    if(needsReload){
+    if (needsReload) {
         restoreOptionsLocal();
     }
 }
