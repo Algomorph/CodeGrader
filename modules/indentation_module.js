@@ -50,9 +50,8 @@ let indentation_module = {};
         let expectedIndent = 0;
 
         // find first indent used and use that as standard
-        let i;
         let singleIndentWidth = 0;
-        for (i = 0; i < trCodeLines.length;) {
+        for (let i = 0; i < trCodeLines.length;) {
             if (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
                 while (getCodeFromTrCodeLine(trCodeLines[i]).trim().length === 0) { // Makes sure next isn't an empty line
                     i++;
@@ -70,33 +69,54 @@ let indentation_module = {};
 
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
-            codeText = codeText.replace(/\t/, "    ");
+            // Tabs are 4 characters until this causes issues.
+            codeText = codeText.replaceAll(/\t/g, "    ");
 
-            if(isComment && codeText.indexOf("*/") !== -1 && (codeText.indexOf("/*") === -1 || codeText.indexOf("/*") > codeText.indexOf("*/"))) {
+            if (codeText.trim().substr(0, 2) === "//") return;
+
+            // If a line ends a previous multiline comment, remove up to the FIRST instance of "*/".
+            if(isComment && codeText.indexOf("*/") !== -1) {
                 isComment = false;
-                codeText = codeText.replace(/^.?([^*][^\/])*.?\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                codeText = codeText.replace(/^((?!\*\/).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
             }
-            while(codeText.indexOf("/*") !== -1 && codeText.indexOf("*/") !== -1) {
-                codeText = codeText.replace(/(:?\/\*[^*]*)*\/\*[^*]*\*\//, " ".repeat(codeText.indexOf("*/") - codeText.indexOf("/*") + 2));
+
+            // Remove all complete (/* stuff */) multiline comments BEFORE valid code.
+            while(codeText.search(/^\s*\/\*(?:(?!\/\*).)*\*\//) !== -1) {
+                // Purpose: .indexOf() returns FIRST occurrence of characters, so in order to
+                // accurately change the indent lengths, we must go one-by-one.
+
+                //TODO: Speak to Greg if we replace with space or empty string. Arguments can be made for both.
+                codeText = codeText.replace(/^\s*\/\*(?:(?!\/\*).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
             }
-            if(codeText.indexOf("/*") !== -1) {
-                isComment = true;
+
+            // Remove all complete multiline comments AFTER valid code
+            if(codeText.indexOf("*/") !== -1) {
+                codeText = codeText.replace(/\/\*.*?\*\//, "");
             }
 
             if(isComment) return;
 
+            if(codeText.indexOf("//") !== -1) {
+                codeText = codeText.substr(0, codeText.indexOf("//"));
+            }
+
+            // Moved below return, we don't want to skip lines beginning a chain since they can contain code.
+            // If incomplete, comment must continue to next line to be valid code.
+            if(codeText.indexOf("/*") !== -1) {
+                isComment = true;
+                codeText = codeText.substring(0, codeText.indexOf("/*"));
+            }
+
             // Skip blank lines
             if (codeText.search(/\S/) === -1) return;
 
+
             if (codeText.trim().charAt(0) === "@") return;
-
-            if (codeText.trim().substr(0, 2) === "//") return;
-
-            if(codeText.indexOf("//") !== -1) codeText = codeText.substr(0, codeText.indexOf("//"));
 
             // Handle opening and closing braces updating indent size
             if (codeText.trim().indexOf("}") === 0) {
                 currentIndentationWidth -= singleIndentWidth;
+                isPrev = false;
             }
 
             if (isPrev && codeText.trim().charAt(0) === "{") { // Accounts for Allman braces
@@ -165,7 +185,7 @@ let indentation_module = {};
             }
 
             // If it doesn't end in a correct delimiter, it's a continuation of the previous line.
-            if (!isPrev && codeText.search(/(for|while|do|else|if)\W/) !== -1
+            if (!isPrev && codeText.search(/(for|while|do|else|if)\s/) !== -1
                 && codeText.trim().charAt(codeText.trim().length - 1) !== "{" && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
                 if (codeText.trim().charAt(codeText.trim().length - 1) !== ";" && (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length))) {
                     if(codeText.indexOf("}") === -1 || codeText.indexOf("{") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
@@ -189,7 +209,6 @@ let indentation_module = {};
             } else if (isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
                 if (isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
                     isPrev = false;
-
                 }
                 isNotAllman = stack.pop();
                 if (isNotAllman > 0) {
