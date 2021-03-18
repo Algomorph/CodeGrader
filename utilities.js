@@ -116,7 +116,6 @@ function getCheckedFileCode(filesToCheck) {
                 fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
             }
             const fileCode = fileCodeLines.join("\n");
-
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
@@ -290,15 +289,6 @@ function loadURL(url, domResponseHandler) {
     });
 }
 
-function reportToGradeServer(report) {
-    chrome.runtime.sendMessage({
-        action: "reportGradingResult",
-        report: report
-    }, function (response) {
-        //TODO
-    });
-}
-
 function stringDistance(s, t) {
     if (!s.length) return t.length;
     if (!t.length) return s.length;
@@ -381,7 +371,7 @@ function validateNumericInput(numberText, minimumValue, maximumValue) {
     } else {
         const score = parseInt(numberText);
         if (score < minimumValue || score > maximumValue) {
-            alert("You must enter a number between ");
+            alert("You must enter a number in range [" + minimumValue + ", " + maximumValue + "].");
             return [false, 0];
         } else {
             return [true, score];

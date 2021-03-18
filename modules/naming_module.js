@@ -144,10 +144,12 @@ let naming_module = {};
     /**
      * Checks a code name occurrence for potential problems.
      * @param {Declaration} declaration
+     * @param {Set.<string>} allowedSpecialWords special non-dictionary words/abbreviations/acronyms that are allowed
+     * per the assignment options
      * @param {boolean} numbersAllowedInNames are numbers considered fair game as part of the name
      * @return {Array.<NameCheckProblem>}
      */
-    function checkName(declaration, numbersAllowedInNames = true) {
+    function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
         let potentialProblems = []
         let name = declaration.name;
         if (numbersAllowedInNames) {
@@ -164,7 +166,7 @@ let naming_module = {};
             let words = splitCodeNameIntoWords(declaration);
             let nonDictionaryWords = [];
             for (const word of words) {
-                if (!usEnglishWordList.has(word)) {
+                if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
                     nonDictionaryWords.push(word);
                 }
             }
@@ -192,18 +194,22 @@ let naming_module = {};
      * @param {Array.<Declaration>} declarations
      * @param {string} color
      * @param {string} sectionTitle
+     * @param {Set.<string>} allowedSpecialWords
      * @param {boolean} numbersAllowedInNames
      * @param {boolean} uniqueOnly
      * @param {boolean} sortAlphabetically
      */
-    function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle, numbersAllowedInNames = true,
-                                               uniqueOnly = false, sortAlphabetically=false) {
+    function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle,
+                                               allowedSpecialWords ,
+                                               numbersAllowedInNames = true,
+                                               uniqueOnly = false,
+                                               sortAlphabetically = false) {
         $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
 
-        if(uniqueOnly){
+        if (uniqueOnly) {
             declarations = uniqueNames(declarations);
         }
-        if(sortAlphabetically){
+        if (sortAlphabetically) {
             declarations = declarations.sort(function (declarationA, declarationB) {
                 return declarationA.name < declarationB.name ? -1 : declarationA.name > declarationB.name ? 1 : 0;
             });
@@ -211,7 +217,7 @@ let naming_module = {};
 
 
         for (const declaration of declarations) {
-            let potentialProblems = checkName(declaration, numbersAllowedInNames);
+            let potentialProblems = checkName(declaration, allowedSpecialWords, numbersAllowedInNames);
             let problemsDescription = null;
             let labelStyleClass = "";
             let defaultMessageText = "";
@@ -235,6 +241,8 @@ let naming_module = {};
             );
         }
     }
+
+
 
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
@@ -285,17 +293,22 @@ let naming_module = {};
                 }
             }
         }
-        if(options.checkVariablesAndFields){
-            processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        const allowedSpecialWordsSet = new Set(options.allowedSpecialWords);
+        if (options.checkVariablesAndFields) {
+            processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields",
+                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
         }
-        if(options.checkMethods){
-            processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        if (options.checkMethods) {
+            processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods",
+                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
         }
-        if(options.checkConstants){
-            processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        if (options.checkConstants) {
+            processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants",
+                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
         }
-        if(options.checkTypes){
-            processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes, Interfaces, &amp; Enums", options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        if (options.checkTypes) {
+            processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes, Interfaces, &amp; Enums",
+                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
         }
 
     }

@@ -18,7 +18,7 @@
         "grade_server_module": {
             "enabled": true,
             "gradeServerAssignmentName": "P6",
-            "gradersName": "",
+            "graderName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 10,
             "minimumScoreAdjustment": -65
@@ -114,7 +114,8 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
+    "course": "CMSC132",
+    "semesterSeason": "spring",
     "submitServerAssignmentName": "Proj 6",
-    "year": "2020"
+    "year": "2021"
 }

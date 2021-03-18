@@ -3,7 +3,12 @@
    "short_name": "CodeGrader",
    "manifest_version": 2,
    "background": {
-      "scripts": [ "background.js" ],
+      "scripts": [
+         "background_utils.js",
+         "usage_statistics.js",
+         "tab_tracking.js",
+         "background.js"
+      ],
       "persistent": false
    },
    "content_scripts": [ 
@@ -63,7 +68,7 @@
       "default_icon": "icons/logo-A-19x19.png",
       "default_title": "A plugin to ease code style grading  of student project submissions at UMD/CP CS department."
    },
-   "permissions": [ "tabs", "storage", "activeTab", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
+   "permissions": [ "tabs", "storage", "activeTab", "idle", "alarms", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0",
    "version_name": "1.0 alpha"

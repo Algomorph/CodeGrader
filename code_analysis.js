@@ -221,10 +221,6 @@ let code_analysis = {};
             this.trCodeLine = trCodeLine;
             this.enclosingMethodScope = enclosingMethodScope;
             this.type = LoopTypeByNode.get(astNode.node);
-            //__DEBUG
-            if (this.type === undefined) {
-                console.log(this.astNode);
-            }
             this.methodIdentifier = "";
             if (enclosingMethodScope.astNode.node === "MethodDeclaration") {
                 const enclosingMethodIsStatic = code_analysis.methodIsStatic(enclosingMethodScope.astNode);
@@ -437,6 +433,46 @@ let code_analysis = {};
     }
 
     /**
+     * From attempts to construct a full argument type list from a MethodInvocationNode or a ClassInstanceCreationNode
+     * @param invocationOrCreationNode
+     */
+    this.getArgumentTypeListString = function (invocationOrCreationNode) {
+        const typeList = [];
+        for (const argument of invocationOrCreationNode.arguments) {
+            switch (argument.node) {
+                case "StringLiteral":
+                    typeList.push("String");
+                    break;
+                case "CharacterLiteral":
+                    typeList.push("char");
+                    break;
+                case "BooleanLiteral":
+                    typeList.push("bool");
+                    break;
+                case "NullLiteral":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("Object");
+                    break;
+                case "NumberLiteral":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("number")
+                    break;
+                case "MethodInvocation":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("[unknown]")
+                    break;
+                case "ClassInstanceCreation":
+                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(invocationOrCreationNode.type);
+                    const qualifiedTypeName = composeQualifiedTypeName(typeName, typeArguments);
+                    typeList.push(qualifiedTypeName);
+                    break;
+                //TODO: there are other possibilities here that should be handled, e.g. arrays
+            }
+        }
+        return typeList.join(", ");
+    }
+
+    /**
      * If the scope stack contains a scope with a MethodDeclaration astNode.node, return the most inner (last) scope
      * with a MethodDeclaration astNode.node, otherwise, return the last scope
      * @param {Array.<Scope>} scopeStack
@@ -470,7 +506,6 @@ let code_analysis = {};
         function continueProcessingCurrentScope() {
             currentScopeFullyProcessed = false;
         }
-
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration": {
@@ -483,8 +518,22 @@ let code_analysis = {};
             }
                 break;
             case "MethodDeclaration": {
+                let parameterTypeString = "..."; // we don't care for parameters in the general case
+                if (astNode.constructor) {
+                    const parameterTypes = []
+                    for (const parameter of astNode.parameters) {
+                        if (parameter.node === "SingleVariableDeclaration") {
+                            const [parameterTypeName, parameterTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
+                            parameterTypes.push(composeQualifiedTypeName(parameterTypeName, parameterTypeArguments));
+                        }
+
+                    }
+                    // for constructors, we now do care about parameters
+                    parameterTypeString = parameterTypes.join(', ')
+                }
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.set(astNode.name.identifier + "(...)", new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                scope.declarations.set(astNode.name.identifier + "(" + parameterTypeString + ")",
+                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
@@ -643,10 +692,11 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
-                const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
+                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                const argumentTypeListString = this.getArgumentTypeListString(astNode);
+                const name = composeUnqualifiedTypeName(typeName, typeArguments) + "(" + argumentTypeListString + ")";
                 const methodCall = new MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, methodReturnTypeName, methodReturnTypeName);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, typeName, typeName);
 
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
@@ -715,11 +765,6 @@ let code_analysis = {};
         for (const branchScope of branchScopes) {
             let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                //__DEBUG
-                if (childAstNode === undefined) {
-                    console.log(astNode);
-                    console.log(branchScope);
-                }
                 this.findEntitiesInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
             }
         }

@@ -1,33 +1,29 @@
 {
+    "course": "CMSC131",
     "filesToCheck": [
-        "src/processor/*"
+        "DrawingApp/src/main/java/app/DrawingApp.java|src/app/DrawingApp.java|app/DrawingApp.java"
     ],
     "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
-            "enabled": false,
+            "enabled": true,
             "markAllBraces": false
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "P7",
-            "gradersName": "Greg K.",
-            "maximumCodeStyleScore": 10,
+            "gradeServerAssignmentName": "P3",
+            "graderName": "",
+            "maximumCodeStyleScore": 8,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": -50
+            "minimumScoreAdjustment": 0
         },
         "indentation_module": {
             "enabled": true
         },
         "keyword_and_pattern_module": {
-            "enabled": true,
-            "keywords": [
-                "synchronized"
-            ],
-            "patterns": [
-                "[.]start\\s*\\(",
-                "[.]join\\s*\\("
-            ]
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
         },
         "loop_module": {
             "enabled": false,
@@ -46,9 +42,7 @@
         "naming_module": {
             "allowedSpecialWords": [
                 "min",
-                "max",
-                "ST",
-                "MT"
+                "max"
             ],
             "checkConstants": true,
             "checkMethods": true,
@@ -56,16 +50,19 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "global": []
+                "global": [
+                    "args",
+                    "main"
+                ]
             },
-            "numbersAllowedInNames": false,
+            "numbersAllowedInNames": true,
             "showUniqueOnly": true,
-            "sortAlphabetically": true
+            "sortAlphabetically": false
         },
         "spacing_module": {
             "checkSpacingAroundAssignmentOperators": true,
             "checkSpacingAroundBinaryOperators": true,
-            "enabled": false
+            "enabled": true
         },
         "test_module": {
             "enabled": false,
@@ -75,14 +72,18 @@
             "checkMethods": false,
             "checkTypes": false,
             "checkVariables": true,
-            "enabled": false,
+            "enabled": true,
             "ignoredNames": {
-                "global": []
+                "global": ["args"]
             },
             "markAllUsages": false
         }
     },
-    "semesterSeason": "fall",
-    "submitServerAssignmentName": "Proj7",
-    "year": "2020"
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 3",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": true
+    },
+    "year": "2021"
 }
