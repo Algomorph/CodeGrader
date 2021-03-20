@@ -80,6 +80,10 @@ function addListenerForOpeningStudentGradePage() {
                 let studentTableRow = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:has(td:contains('" + report.directoryId + "'))");
                 let headersTableCell = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:first td");
 
+                if (studentTableRow.length === 0) {
+                    alert("Error: No student with that directory ID found (student may have dropped or withdrawn from the course)");
+                    return;
+                }
                 if (studentTableRow.length !== 1) {
                     alert("Error: More than one student with that directory ID found");
                     return;
