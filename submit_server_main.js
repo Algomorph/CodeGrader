@@ -13,13 +13,16 @@ function main(options) {
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
         let tableSubmissions = $("table:contains('last submission')");
+        let acctColumn = $(tableSubmissions).find("tr").find("td:nth-child(3)");
         let onTimeColumn = $(tableSubmissions).find("tr").find("td:nth-child(8)");
         let lateColumn = $(tableSubmissions).find("tr").find("td:nth-child(9)");
         // let projectIndex = location.href.search(/projectPK=(\d+)/);
         for (let iStudent = 0; iStudent < onTimeColumn.length; iStudent++) {
             let onTimeTableCell = onTimeColumn[iStudent];
             let lateTableCell = lateColumn[iStudent];
-            if (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell)) {
+            let acctTableCell = acctColumn[iStudent];
+            if (isMemberOfStudentSet(acctTableCell, options.firstStudent, options.lastStudent)
+                && (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell))) {
                 let onTimeAutomaticTestScore = getAutomaticTestsScoreFromOverviewTableCell(onTimeTableCell);
                 let lateAutomaticTestScoreWithAdjustment =
                     getAutomaticTestsScoreFromOverviewTableCell(lateTableCell) + options.lateScoreAdjustment;

@@ -2,7 +2,6 @@
 * Copyright 2020 Gregory Kramida
 * */
 
-
 function hasSubmissionInOverviewTableCell(overviewTableCell) {
     return $(overviewTableCell).find("a")[0] !== undefined;
 }
@@ -38,6 +37,21 @@ function getAutomaticTestsScoreFromOverviewTableCell(overviewTableCell) {
         }
     }
     return score;
+}
+
+/**
+ * Check whether student in acctTableCell is between first & last student bounds
+ * @param {HTMLTableCellElement} acctTableCell
+ * @param {String} firstStudent
+ * @param {String} lastStudent
+ * @returns {boolean} whether the student is a member of the student set
+ */
+function isMemberOfStudentSet(acctTableCell, firstStudent, lastStudent) {
+    const acct = $(acctTableCell).find("a")[0].innerText; // hopefully this never fails :)
+
+    // Supposedly, JS string comparison can have "interesting" behavior depending on locale
+    // But this might not matter since directory IDs *shouldn't* be anything other than /[a-z][a-z0-9]{,7}/
+    return acct >= firstStudent && acct <= lastStudent;
 }
 
 /**
