@@ -168,7 +168,7 @@ let naming_module = {};
             // because the splitting relies on the notation.
             let words = splitCodeNameIntoWords(declaration);
             let nonDictionaryWords = [];
-            let singleLetterWords = [];
+
             if(words.length > 1 || words[0].length > 1) {
                 for (const word of words) {
                     if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
@@ -176,7 +176,9 @@ let naming_module = {};
                     }
                 }
             } else {
-                singleLetterWords.push(words[0]);
+                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
+                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
+                    " \"" + words[0] + "\" is a single letter."));
             }
             if (nonDictionaryWords.length > 0) {
                 if (nonDictionaryWords.length > 1) {
@@ -190,11 +192,6 @@ let naming_module = {};
                         " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has part \""
                         + nonDictionaryWords[0] + "\" that appears problematic."));
                 }
-            }
-            if (singleLetterWords.length > 0) {
-                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
-                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
-                    " \"" + singleLetterWords[0] + "\" is a single letter."));
             }
         }
         return potentialProblems;
