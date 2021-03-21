@@ -102,21 +102,26 @@ function getCheckedFileCode(filesToCheck) {
             const trCodeLinesForFile = getTrCodesForCodeFile(filename);
             let fileCodeLines = [];
             const iStartLine = iLine;
+            console.log("__DEBUG got to before each, 105 in utils.js (file: " + filename + ")")
             $.each(
                 trCodeLinesForFile,
                 function (trCodeLineIndex, trCodeLine) {
+                    console.log("__DEBUG line index: " + trCodeLineIndex)
                     const codeText = $($(trCodeLine).find("div.gwt-Label")[0]).text();
                     fileCodeLines.push(codeText)
                     iLine++;
                 }
             );
+            console.log("__DEBUG done with code line loop")
             const iEndLine = iLine;
             if (fileCodeLines.length > 0) {
                 // parser doesn't like comments after closing brace at the end of the last line of file for whatever reason
                 fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
             }
             const fileCode = fileCodeLines.join("\n");
+            console.log("__DEBUG got to before parser call, 122 in utils.js")
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
+            console.log("__DEBUG got to after parser call, 124 in utils.js")
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
         }
