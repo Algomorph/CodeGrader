@@ -114,17 +114,20 @@ let naming_module = {};
 
     const NameCheckProblemType = {
         NAMING_CONVENTION: 1,
-        NON_DICTIONARY_WORD: 2
+        NON_DICTIONARY_WORD: 2,
+        SINGLE_LETTER_WORD: 3
     }
 
     const NameCheckProblemTypeExplanation = {
         1: "Naming convention problem detected.",
-        2: "Non-descriptive variable name detected: the name includes a non-dictionary word, abbreviation, or uncommon acronym."
+        2: "Non-descriptive variable name detected: the name includes a non-dictionary word or abbreviation.",
+        3: "Single-letter variable name detected: the name is a single character."
     }
 
     const NameCheckProblemStyleClass = {
         1: "naming-convention-problem",
-        2: "naming-non-dictionary-word-problem"
+        2: "naming-non-dictionary-word-problem",
+        3: "naming-single-letter-word-problem"
     }
 
     /**
@@ -165,9 +168,14 @@ let naming_module = {};
             // because the splitting relies on the notation.
             let words = splitCodeNameIntoWords(declaration);
             let nonDictionaryWords = [];
+            let singleLetterWords = [];
             for (const word of words) {
                 if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
-                    nonDictionaryWords.push(word);
+                    if(word.length > 1) {
+                        nonDictionaryWords.push(word);
+                    } else {
+                        singleLetterWords.push(word);
+                    }
                 }
             }
             if (nonDictionaryWords.length > 0) {
@@ -182,6 +190,12 @@ let naming_module = {};
                         " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has part \""
                         + nonDictionaryWords[0] + "\" that appears problematic."));
                 }
+            }
+            if (singleLetterWords.length > 0) {
+                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
+                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
+                    " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has parts \""
+                    + singleLetterWords.join("\", \"") + "\" that appear problematic."));
             }
         }
         return potentialProblems;
