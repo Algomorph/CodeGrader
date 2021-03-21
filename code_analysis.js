@@ -747,6 +747,10 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
                 break;
+            case "CastExpression":
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
+                continueProcessingCurrentScope();
+                break;
             default:
                 break;
         }
