@@ -704,31 +704,32 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "MethodInvocation": {
-                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
-                const methodCall = new MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
-                enclosingTypeInformation.methodCalls.push(methodCall);
-                const unprocessedChildAstNodes = astNode.arguments;
-                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                    unprocessedChildAstNodes.push(astNode.expression);
+            case "MethodInvocation":
+                {
+                    const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
+                    const methodCall = new MethodCall(methodCallIdentifier,
+                        codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
+                    enclosingTypeInformation.methodCalls.push(methodCall);
+                    const unprocessedChildAstNodes = astNode.arguments;
+                    if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                        unprocessedChildAstNodes.push(astNode.expression);
+                    }
+                    getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                    scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
+                    continueProcessingCurrentScope();
                 }
-                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
-                scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
-                continueProcessingCurrentScope();
-            }
                 break;
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
                 scope.setNextBatchOfChildAstNodes(astNode.fragments);
-            {
-                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                for (const fragment of astNode.fragments) {
-                    scope.declarations.set(fragment.name.identifier,
-                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
+                {
+                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                    for (const fragment of astNode.fragments) {
+                        scope.declarations.set(fragment.name.identifier,
+                            new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
+                    }
                 }
-            }
                 continueProcessingCurrentScope();
                 break;
             case "VariableDeclarationFragment":
@@ -740,6 +741,14 @@ let code_analysis = {};
                 break;
             case "CatchClause":
                 scope.setNextBatchOfChildAstNodes(astNode.body.statements);
+                continueProcessingCurrentScope();
+                break;
+            case "AssertStatement":
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
+                continueProcessingCurrentScope();
+                break;
+            case "CastExpression":
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
                 break;
             default:
