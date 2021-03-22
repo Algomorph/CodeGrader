@@ -106,7 +106,7 @@ let grade_server_module = {};
                 // add graders name
                 finalComment += "Grader: " + options.graderName + "\n\n"
                 // add REVIEW link
-                finalComment += "You can view the code review at: " + location.href + "\n\n"
+                finalComment += "See feedback comments in your code online at: " + location.href + "\n\n"
                 // Using CSS selectors for majority of filtering
                 const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
                 classes.each(function () {
