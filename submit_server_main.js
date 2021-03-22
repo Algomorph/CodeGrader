@@ -13,13 +13,16 @@ function main(options) {
     // add 'review' buttons next to last submission date for directly going to review page
     if (location.href.indexOf('instructor') > -1) {
         let tableSubmissions = $("table:contains('last submission')");
+        let acctColumn = $(tableSubmissions).find("tr").find("td:nth-child(3)");
         let onTimeColumn = $(tableSubmissions).find("tr").find("td:nth-child(8)");
         let lateColumn = $(tableSubmissions).find("tr").find("td:nth-child(9)");
         // let projectIndex = location.href.search(/projectPK=(\d+)/);
         for (let iStudent = 0; iStudent < onTimeColumn.length; iStudent++) {
             let onTimeTableCell = onTimeColumn[iStudent];
             let lateTableCell = lateColumn[iStudent];
-            if (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell)) {
+            let acctTableCell = acctColumn[iStudent];
+            if (isMemberOfStudentSet(acctTableCell, options.firstStudent, options.lastStudent)
+                && (hasSubmissionInOverviewTableCell(onTimeTableCell) || hasSubmissionInOverviewTableCell(lateTableCell))) {
                 let onTimeAutomaticTestScore = getAutomaticTestsScoreFromOverviewTableCell(onTimeTableCell);
                 let lateAutomaticTestScoreWithAdjustment =
                     getAutomaticTestsScoreFromOverviewTableCell(lateTableCell) + options.lateScoreAdjustment;
@@ -34,11 +37,6 @@ function main(options) {
     }
 
     const semesterString = options.semesterSeason + options.year.toString();
-
-    //__DEBUG
-    console.log(location.href)
-    //__DEBUG
-    console.log(semesterString)
 
     // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
@@ -123,7 +121,6 @@ function constructUiPanel(options, filePaths) {
                 console.log(codeFile.parseError);
             }
         }
-
         keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
         naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);

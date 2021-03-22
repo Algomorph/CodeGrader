@@ -1,0 +1,106 @@
+{
+    "course": "CMSC131",
+    "filesToCheck": [
+        "NameClassProj/src/main/java/sysutilities/Name.java|src/sysutilities/Name.java|sysutilities/Name.java",
+        "NameClassProj/src/main/java/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java"
+    ],
+    "lateScoreAdjustment": -12,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P4",
+            "graderName": "",
+            "maximumCodeStyleScore": 8,
+            "maximumStudentTestsScore": 16,
+            "minimumScoreAdjustment": 0
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
+        },
+        "loop_module": {
+            "enabled": false,
+            "methodList": [],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max",
+                "args"
+            ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args",
+                    "main"
+                ]
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        },
+        "test_module": {
+            "enabled": true,
+            "methodsExpectedToBeTested": [
+                "$Name$.getFirstname",
+                "$Name$.getLastname",
+                "$Name$.getMiddlename",
+                "$Name$.setNickname",
+                "$Name$.getNickname",
+                "$Name$.setSeparator",
+                "$Name$.getSeparator",
+                "$Name$.equals",
+                "$Name$.toString",
+                "$Name$.compareTo",
+                "Name.getNumberOfNameObjects",
+                "Name.normalize"
+            ]
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args"
+                ]
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 4",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": true
+    },
+    "year": "2021"
+}

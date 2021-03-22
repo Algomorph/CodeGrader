@@ -433,6 +433,46 @@ let code_analysis = {};
     }
 
     /**
+     * From attempts to construct a full argument type list from a MethodInvocationNode or a ClassInstanceCreationNode
+     * @param invocationOrCreationNode
+     */
+    this.getArgumentTypeListString = function (invocationOrCreationNode) {
+        const typeList = [];
+        for (const argument of invocationOrCreationNode.arguments) {
+            switch (argument.node) {
+                case "StringLiteral":
+                    typeList.push("String");
+                    break;
+                case "CharacterLiteral":
+                    typeList.push("char");
+                    break;
+                case "BooleanLiteral":
+                    typeList.push("bool");
+                    break;
+                case "NullLiteral":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("Object");
+                    break;
+                case "NumberLiteral":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("number")
+                    break;
+                case "MethodInvocation":
+                    //TODO: resolve type post-factum in this case
+                    typeList.push("[unknown]")
+                    break;
+                case "ClassInstanceCreation":
+                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(invocationOrCreationNode.type);
+                    const qualifiedTypeName = composeQualifiedTypeName(typeName, typeArguments);
+                    typeList.push(qualifiedTypeName);
+                    break;
+                //TODO: there are other possibilities here that should be handled, e.g. arrays
+            }
+        }
+        return typeList.join(", ");
+    }
+
+    /**
      * If the scope stack contains a scope with a MethodDeclaration astNode.node, return the most inner (last) scope
      * with a MethodDeclaration astNode.node, otherwise, return the last scope
      * @param {Array.<Scope>} scopeStack
@@ -466,7 +506,6 @@ let code_analysis = {};
         function continueProcessingCurrentScope() {
             currentScopeFullyProcessed = false;
         }
-
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration": {
@@ -479,8 +518,22 @@ let code_analysis = {};
             }
                 break;
             case "MethodDeclaration": {
+                let parameterTypeString = "..."; // we don't care for parameters in the general case
+                if (astNode.constructor) {
+                    const parameterTypes = []
+                    for (const parameter of astNode.parameters) {
+                        if (parameter.node === "SingleVariableDeclaration") {
+                            const [parameterTypeName, parameterTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
+                            parameterTypes.push(composeQualifiedTypeName(parameterTypeName, parameterTypeArguments));
+                        }
+
+                    }
+                    // for constructors, we now do care about parameters
+                    parameterTypeString = parameterTypes.join(', ')
+                }
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.set(astNode.name.identifier + "(...)", new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                scope.declarations.set(astNode.name.identifier + "(" + parameterTypeString + ")",
+                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
@@ -639,10 +692,11 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
-                const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                const name = composeUnqualifiedTypeName(methodReturnTypeName, methodReturnTypeArguments) + "()";
+                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                const argumentTypeListString = this.getArgumentTypeListString(astNode);
+                const name = composeUnqualifiedTypeName(typeName, typeArguments) + "(" + argumentTypeListString + ")";
                 const methodCall = new MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, methodReturnTypeName, methodReturnTypeName);
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, typeName, typeName);
 
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
@@ -650,31 +704,32 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "MethodInvocation": {
-                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
-                const methodCall = new MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
-                enclosingTypeInformation.methodCalls.push(methodCall);
-                const unprocessedChildAstNodes = astNode.arguments;
-                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                    unprocessedChildAstNodes.push(astNode.expression);
+            case "MethodInvocation":
+                {
+                    const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
+                    const methodCall = new MethodCall(methodCallIdentifier,
+                        codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
+                    enclosingTypeInformation.methodCalls.push(methodCall);
+                    const unprocessedChildAstNodes = astNode.arguments;
+                    if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                        unprocessedChildAstNodes.push(astNode.expression);
+                    }
+                    getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                    scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
+                    continueProcessingCurrentScope();
                 }
-                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
-                scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
-                continueProcessingCurrentScope();
-            }
                 break;
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
                 scope.setNextBatchOfChildAstNodes(astNode.fragments);
-            {
-                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                for (const fragment of astNode.fragments) {
-                    scope.declarations.set(fragment.name.identifier,
-                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
+                {
+                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                    for (const fragment of astNode.fragments) {
+                        scope.declarations.set(fragment.name.identifier,
+                            new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
+                    }
                 }
-            }
                 continueProcessingCurrentScope();
                 break;
             case "VariableDeclarationFragment":
@@ -686,6 +741,14 @@ let code_analysis = {};
                 break;
             case "CatchClause":
                 scope.setNextBatchOfChildAstNodes(astNode.body.statements);
+                continueProcessingCurrentScope();
+                break;
+            case "AssertStatement":
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
+                continueProcessingCurrentScope();
+                break;
+            case "CastExpression":
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
                 break;
             default:

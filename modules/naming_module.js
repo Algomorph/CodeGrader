@@ -114,17 +114,20 @@ let naming_module = {};
 
     const NameCheckProblemType = {
         NAMING_CONVENTION: 1,
-        NON_DICTIONARY_WORD: 2
+        NON_DICTIONARY_WORD: 2,
+        SINGLE_LETTER_WORD: 3
     }
 
     const NameCheckProblemTypeExplanation = {
         1: "Naming convention problem detected.",
-        2: "Non-descriptive variable name detected: the name includes a non-dictionary word, abbreviation, or uncommon acronym."
+        2: "Non-descriptive variable name detected: the name includes a non-dictionary word or abbreviation.",
+        3: "Single-letter variable name detected: the name is a single character."
     }
 
     const NameCheckProblemStyleClass = {
         1: "naming-convention-problem",
-        2: "naming-non-dictionary-word-problem"
+        2: "naming-non-dictionary-word-problem",
+        3: "naming-single-letter-word-problem"
     }
 
     /**
@@ -165,10 +168,17 @@ let naming_module = {};
             // because the splitting relies on the notation.
             let words = splitCodeNameIntoWords(declaration);
             let nonDictionaryWords = [];
-            for (const word of words) {
-                if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
-                    nonDictionaryWords.push(word);
+
+            if(words.length > 1 || words[0].length > 1) {
+                for (const word of words) {
+                    if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
+                        nonDictionaryWords.push(word);
+                    }
                 }
+            } else {
+                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
+                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
+                    " \"" + words[0] + "\" is a single letter."));
             }
             if (nonDictionaryWords.length > 0) {
                 if (nonDictionaryWords.length > 1) {
