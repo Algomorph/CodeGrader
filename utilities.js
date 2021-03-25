@@ -102,6 +102,7 @@ function getCheckedFileCode(filesToCheck) {
             const trCodeLinesForFile = getTrCodesForCodeFile(filename);
             let fileCodeLines = [];
             const iStartLine = iLine;
+
             $.each(
                 trCodeLinesForFile,
                 function (trCodeLineIndex, trCodeLine) {
@@ -110,13 +111,16 @@ function getCheckedFileCode(filesToCheck) {
                     iLine++;
                 }
             );
+
             const iEndLine = iLine;
             if (fileCodeLines.length > 0) {
                 // parser doesn't like comments after closing brace at the end of the last line of file for whatever reason
                 fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
             }
             const fileCode = fileCodeLines.join("\n");
+
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
+
             fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
             trCodeLines.push(...trCodeLinesForFile);
         }
