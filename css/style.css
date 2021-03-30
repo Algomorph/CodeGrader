@@ -206,3 +206,7 @@
 a:visited {
 	color:#666 !important ;
 }
+
+body > div:nth-child(5) {
+    margin-right: 450px;
+}
