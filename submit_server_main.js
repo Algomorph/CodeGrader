@@ -103,6 +103,14 @@ function constructUiPanel(options, filePaths) {
     uiPanelContainer.appendChild(uiPanel);
     document.body.appendChild(uiPanelContainer);
 
+    // set margin-right of div containing page content so it doesn't overlap with the ui panel
+    document.body.querySelectorAll("body > div")[2].style.setProperty(
+        "margin-right",
+        // This gets the actual, computed width of the ui-panel so that the ui panel and primary
+        // page content exactly line up with each other without gap or overlap.
+        window.getComputedStyle(uiPanelContainer).width
+    );
+
     makeCodeFeedArrow();
 
     if (filePaths.length === 0) {
