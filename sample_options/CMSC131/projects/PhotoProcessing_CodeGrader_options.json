@@ -1,0 +1,106 @@
+{
+    "course": "CMSC131",
+    "filesToCheck": [
+        "PhotoProcessing/src/main/java/sysutilities/Address|src/sysutilities/Address.java|sysutilities/Address.java",
+        "PhotoProcessing/src/main/java/sysutilities/PhotoProcessingSys.java|src/sysutilities/PhotoProcessingSys.java|sysutilities/PhotoProcessingSys.java",
+        "PhotoProcessing/src/main/java/tests/StudentTests.java|src/tests/Address.java|tests/StudentTests.java"
+    ],
+    "firstStudent": "a",
+    "lastStudent": "{",
+    "lateScoreAdjustment": -12,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P5",
+            "graderName": "",
+            "maximumCodeStyleScore": 10,
+            "maximumStudentTestsScore": 10,
+            "minimumScoreAdjustment": 0
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
+        },
+        "loop_module": {
+            "enabled": false,
+            "methodList": [],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max",
+                "args"
+            ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args",
+                    "main"
+                ]
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        },
+        "test_module": {
+            "enabled": true,
+            "methodsExpectedToBeTested": [
+                "Address(String, String, String, String)",
+                "Address()",
+                "Address(Address)",
+                "Address(String)",
+                "$Address$.getCity",
+                "$Address$.getStreet",
+                "$Address$.getState",
+                "$Address$.getZipCode",
+                "$Address$.equals"
+            ]
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args"
+                ]
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 5",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": true
+    },
+    "year": "2021"
+}
