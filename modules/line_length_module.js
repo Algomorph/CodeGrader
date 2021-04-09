@@ -49,7 +49,17 @@ let line_length_moodule = {};
         if (!options.enabled) {
             return;
         }
-        console.log(document.body.style.fontSize)
+
+        $(uiPanel).append("<h3 style='color:#585896'>Line Length</h3>");
+        const fontSize = getCodeFontSize();
+        if(!fontSize.endsWith("px")){
+            $(uiPanel).append("<p>Warning: code size not specified in 'px', margin might not be drawn correctly.</p>");
+        }
+        const fontSizePixels = parseFloat(fontSize.match(/(\d+).*/)[1]);
+        const lineLengthMarginOffsetPixels = options.lineLengthLimit * fontSizePixels;
+        drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#585896" );
+
+
 
         for (const codeFile of fileDictionary.values()) {
 
@@ -59,7 +69,7 @@ let line_length_moodule = {};
 
             });
         }
-        $(uiPanel).append("<h3 style='color:#585896'>Line Length</h3>");
+
 
 
     }

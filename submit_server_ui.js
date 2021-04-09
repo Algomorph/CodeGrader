@@ -338,3 +338,20 @@ function getAbsoluteOffset(element) {
     }
     return {top: yOffset, left: xOffset};
 }
+
+/**
+ * Return font size of the code, as a CSS string
+ * @returns {string}
+ */
+function getCodeFontSize(){
+    return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
+}
+
+/**
+ * Draw a dotted vertical line in the code area at the specified offset from the left margin
+ * @param {number} leftOffset offset, in pixels, from the left margin
+ * @param {string} color color of the dotted line
+ */
+function drawDottedVerticalLineInCodeArea(leftOffset, color){
+    //TODO
+}
