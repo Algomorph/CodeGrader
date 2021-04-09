@@ -77,6 +77,10 @@
 	background-color: #7cc208;
 }
 
+.line-length-exceeded-problem{
+	background-color: #7c7cd2;
+}
+
 .checked-file-link{
 	color: #2e6f05;
 }
@@ -197,6 +201,14 @@
 	font-size: medium;
 	overflow: hidden;
 	color: rgba(107,65,16,0.7);
+}
+
+.line-length-margin {
+	background-color: #2162cc;
+	width: 2px;
+	opacity: 0.5;
+	position: absolute;
+	overflow: visible
 }
 
 .comment-text{

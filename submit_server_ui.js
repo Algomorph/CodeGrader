@@ -340,27 +340,27 @@ function getAbsoluteOffset(element) {
 }
 
 /**
- * Return font size of the code, as a CSS string
- * @returns {string}
- */
-function getCodeFontSize() {
-    return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
-}
-
-/**
- * Draw a dotted vertical line in the given trCodeLineStart range at the specified offset from the left margin
+ * Draw a dotted vertical line in the given table row at the specified offset from the left margin
  * @param {number} leftOffset offset, in pixels, from the left margin
  * @param {string} color color of the dotted line
- * @param {HTMLTableRowElement} trCodeLineStart starting html tag
- * @param {HTMLTableRowElement} trCodeLineEnd
+ * @param {HTMLTableRowElement} trCodeLineStart html table row tag at the very beginning of file
  */
 function drawDottedVerticalLineInCodeArea(leftOffset, color,
-                                          trCodeLineStart,
-                                          trCodeLineEnd) {
+                                          trCodeLineStart) {
     const tdLineNumber = trCodeLineStart.children[0];
-    const lineNumberOffsetPixels = getFloatAtStartOfString(window.getComputedStyle(tdLineNumber)
-        .getPropertyValue("width"));
-    const totalLeftOffset = lineNumberOffsetPixels + leftOffset;
-    //TODO: compute top offset within container, draw the div & style it
+    const tdLineNumberComputedStyle = window.getComputedStyle(tdLineNumber);
+    const lineNumberOffsetPixels =
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("width")) +
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("padding-right")) +
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("border-left-width"));
+    const table = trCodeLineStart.parentElement.parentElement;
+    const totalLeftOffset = Math.round(lineNumberOffsetPixels + leftOffset);
+    const lineDiv = document.createElement("div");
+    trCodeLineStart.appendChild(lineDiv);
+    lineDiv.classList.add("line-length-margin");
+    lineDiv.style.left = totalLeftOffset + "px";
+    lineDiv.style.height = table.clientHeight + "px";
+
 
 }
+

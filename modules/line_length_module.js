@@ -30,11 +30,11 @@ let line_length_moodule = {};
     // prototype for every single thing discovered and stored by code_analysis entity search.
     class LineLengthViolation {
         /**
-         * @param {string} lineLength
+         * @param {number} lineLength
          * @param {HTMLTableRowElement} trCodeLine
          */
         constructor(lineLength, trCodeLine) {
-            this.keyword = lineLength;
+            this.lineLength = lineLength;
             this.trCodeLine = trCodeLine;
         }
     }
@@ -50,26 +50,35 @@ let line_length_moodule = {};
             return;
         }
 
-        $(uiPanel).append("<h3 style='color:#585896'>Line Length</h3>");
-        const fontSize = getCodeFontSize();
-        if(!fontSize.endsWith("px")){
-            $(uiPanel).append("<p>Warning: code size not specified in 'px', margin might not be drawn correctly.</p>");
-        }
-        const fontSizePixels = getFloatAtStartOfString(fontSize);
-        const lineLengthMarginOffsetPixels = options.lineLengthLimit * fontSizePixels;
+        $(uiPanel).append("<h3 style='color:#7c7cd2'>Line Length</h3>");
+
+        const lineLengthViolations = [];
 
         for (const codeFile of fileDictionary.values()) {
-            drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#585896",
-                codeFile.trCodeLines[0], codeFile.trCodeLines[codeFile.trCodeLines.length - 1]);
+            const characterWidth = getMonospaceCharacterWidth(codeFile.trCodeLines[0]);
+            const lineLengthMarginOffsetPixels = (options.lineLengthLimit + 1) * characterWidth;
+            drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#7c7cd2", codeFile.trCodeLines[0]);
 
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {	// iterates each line of code below
                 const codeLine = codeFile.codeLines[codeLineIndex];
-
-
+                const lineLength = getLineCharacterWidth(codeLine);
+                if(lineLength > options.lineLengthLimit){
+                    lineLengthViolations.push(new LineLengthViolation(lineLength, trCodeLine))
+                }
             });
         }
 
 
+
+        for(const lineLengthViolation of lineLengthViolations){
+            const defaultMessageText = "Line length (" + lineLengthViolation.lineLength + ") exceeds " + options.lineLengthLimit + " characters.";
+            $(uiPanel).append(makeLabelWithClickToScroll("Long line", lineLengthViolation.trCodeLine,
+                "line-length-exceeded-problem", defaultMessageText ));
+            addButtonComment(
+                lineLengthViolation.trCodeLine,
+                "long line", defaultMessageText, "#7c7cd2"
+            );
+        }
 
     }
 
