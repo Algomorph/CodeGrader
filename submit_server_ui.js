@@ -343,15 +343,24 @@ function getAbsoluteOffset(element) {
  * Return font size of the code, as a CSS string
  * @returns {string}
  */
-function getCodeFontSize(){
+function getCodeFontSize() {
     return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
 }
 
 /**
- * Draw a dotted vertical line in the code area at the specified offset from the left margin
+ * Draw a dotted vertical line in the given trCodeLineStart range at the specified offset from the left margin
  * @param {number} leftOffset offset, in pixels, from the left margin
  * @param {string} color color of the dotted line
+ * @param {HTMLTableRowElement} trCodeLineStart starting html tag
+ * @param {HTMLTableRowElement} trCodeLineEnd
  */
-function drawDottedVerticalLineInCodeArea(leftOffset, color){
-    //TODO
+function drawDottedVerticalLineInCodeArea(leftOffset, color,
+                                          trCodeLineStart,
+                                          trCodeLineEnd) {
+    const tdLineNumber = trCodeLineStart.children[0];
+    const lineNumberOffsetPixels = getFloatAtStartOfString(window.getComputedStyle(tdLineNumber)
+        .getPropertyValue("width"));
+    const totalLeftOffset = lineNumberOffsetPixels + leftOffset;
+    //TODO: compute top offset within container, draw the div & style it
+
 }

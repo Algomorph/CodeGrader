@@ -392,3 +392,7 @@ function validateStringListOption(value, optionPath, allowedValues, defaultValue
     }
     return value;
 }
+
+function getFloatAtStartOfString(string){
+    return parseFloat(fontSize.match(/(\d+[.]?\d*).*/)[1]);
+}

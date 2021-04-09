@@ -55,13 +55,12 @@ let line_length_moodule = {};
         if(!fontSize.endsWith("px")){
             $(uiPanel).append("<p>Warning: code size not specified in 'px', margin might not be drawn correctly.</p>");
         }
-        const fontSizePixels = parseFloat(fontSize.match(/(\d+).*/)[1]);
+        const fontSizePixels = getFloatAtStartOfString(fontSize);
         const lineLengthMarginOffsetPixels = options.lineLengthLimit * fontSizePixels;
-        drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#585896" );
-
-
 
         for (const codeFile of fileDictionary.values()) {
+            drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#585896",
+                codeFile.trCodeLines[0], codeFile.trCodeLines[codeFile.trCodeLines.length - 1]);
 
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {	// iterates each line of code below
                 const codeLine = codeFile.codeLines[codeLineIndex];
