@@ -360,7 +360,5 @@ function drawDottedVerticalLineInCodeArea(leftOffset, color,
     lineDiv.classList.add("line-length-margin");
     lineDiv.style.left = totalLeftOffset + "px";
     lineDiv.style.height = table.clientHeight + "px";
-
-
 }
 

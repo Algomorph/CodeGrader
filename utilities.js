@@ -408,7 +408,10 @@ function getFloatAtStartOfString(string){
     return parseFloat(string.match(/(\d+[.]?\d*).*/)[1]);
 }
 
-
+/**
+ * Get width of the (presumably) monospace characters from the font in the computed style of the provided element.
+ * @param {Element} element HTML element whose computed style to use to get the font
+ */
 function getMonospaceCharacterWidth(element) {
     // if given, use cached canvas for better performance
     // else, create new canvas
