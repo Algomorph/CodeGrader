@@ -1,7 +1,7 @@
 /*
 * Copyright 2021 Gregory Kramida
 * */
-let line_length_moodule = {};
+let line_length_module = {};
 
 (function () {
 
@@ -82,4 +82,4 @@ let line_length_moodule = {};
 
     }
 
-}).apply(line_length_moodule);
+}).apply(line_length_module);
