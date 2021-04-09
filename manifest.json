@@ -33,6 +33,7 @@
             "modules/grade_server_module.js",
             "modules/indentation_module.js",
             "modules/keyword_and_pattern_module.js",
+            "modules/line_length_module.js",
             "modules/loop_module.js",
             "modules/method_call_module.js",
             "modules/naming_module.js",
