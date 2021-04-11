@@ -338,3 +338,48 @@ function getAbsoluteOffset(element) {
     }
     return {top: yOffset, left: xOffset};
 }
+
+/**
+ * For a table-row representing a code line in the Marmoset submit server,
+ * retrieves the total width (width + padding + offset) of the line number
+ * table cell that comes before the cell with the actual code.
+ * @param {HTMLTableRowElement} trCodeLine code line table row element
+ * @returns {number} left offset of the actual cell containing the code
+ */
+function getCodeCellLeftOffsetPixels(trCodeLine){
+    const tdLineNumber = trCodeLine.children[0];
+    const tdLineNumberComputedStyle = window.getComputedStyle(tdLineNumber);
+    const lineNumberOffsetPixels =
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("width")) +
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("padding-right")) +
+        getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("border-left-width"));
+    return lineNumberOffsetPixels;
+}
+
+/**
+ * In the Marmoset submit server review page,
+ * retrieve the height of the entire code area using the table row representing the code line.
+ * @param trCodeLine one of the table rows in the code area
+ * @returns {number} height of the code area
+ */
+function getCodeAreaHeightFromTrCodeLine(trCodeLine){
+    const table = trCodeLine.parentElement.parentElement;
+    return table.clientHeight;
+}
+
+/**
+ * Draw a vertical line in the given HTML Element at the specified left offset and with the specified height & style
+ * class
+ * @param {number} leftOffset offset from the left boundary of the element in pixels
+ * @param {number} height height of the line in pixels
+ * @param {string} styleClass style class to use for the line
+ * @param {HTMLElement} element HTML element, to whose children the new line will be appended to
+ */
+function drawVerticalLineInElement(leftOffset, height, styleClass, element) {
+    const lineDiv = document.createElement("div");
+    element.appendChild(lineDiv);
+    lineDiv.classList.add(styleClass);
+    lineDiv.style.left = leftOffset + "px";
+    lineDiv.style.height = height + "px";
+}
+
