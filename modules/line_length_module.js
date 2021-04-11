@@ -55,9 +55,14 @@ let line_length_module = {};
         const lineLengthViolations = [];
 
         for (const codeFile of fileDictionary.values()) {
-            const characterWidth = getMonospaceCharacterWidth(codeFile.trCodeLines[0]);
-            const lineLengthMarginOffsetPixels = (options.lineLengthLimit + 1) * characterWidth;
-            drawDottedVerticalLineInCodeArea(lineLengthMarginOffsetPixels, "#7c7cd2", codeFile.trCodeLines[0]);
+            const startTrCodeLine = codeFile.trCodeLines[0];
+            const characterWidth = getMonospaceCharacterWidth(startTrCodeLine);
+            const allowedPixelWidthOfCode = (options.lineLengthLimit + 1) * characterWidth;
+            const codeCellLeftOffset =  getCodeCellLeftOffsetPixels(startTrCodeLine);
+            const cutoffLineLeftOffset = allowedPixelWidthOfCode + codeCellLeftOffset;
+            const cutoffLineHeight = getCodeAreaHeightFromTrCodeLine(startTrCodeLine);
+
+            drawVerticalLineInElement(cutoffLineLeftOffset, cutoffLineHeight, "line-length-margin", startTrCodeLine);
 
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {	// iterates each line of code below
                 const codeLine = codeFile.codeLines[codeLineIndex];

@@ -340,25 +340,46 @@ function getAbsoluteOffset(element) {
 }
 
 /**
- * Draw a dotted vertical line in the given table row at the specified offset from the left margin
- * @param {number} leftOffset offset, in pixels, from the left margin
- * @param {string} color color of the dotted line
- * @param {HTMLTableRowElement} trCodeLineStart html table row tag at the very beginning of file
+ * For a table-row representing a code line in the Marmoset submit server,
+ * retrieves the total width (width + padding + offset) of the line number
+ * table cell that comes before the cell with the actual code.
+ * @param {HTMLTableRowElement} trCodeLine code line table row element
+ * @returns {number} left offset of the actual cell containing the code
  */
-function drawDottedVerticalLineInCodeArea(leftOffset, color,
-                                          trCodeLineStart) {
-    const tdLineNumber = trCodeLineStart.children[0];
+function getCodeCellLeftOffsetPixels(trCodeLine){
+    const tdLineNumber = trCodeLine.children[0];
     const tdLineNumberComputedStyle = window.getComputedStyle(tdLineNumber);
     const lineNumberOffsetPixels =
         getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("width")) +
         getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("padding-right")) +
         getFloatAtStartOfString(tdLineNumberComputedStyle.getPropertyValue("border-left-width"));
-    const table = trCodeLineStart.parentElement.parentElement;
-    const totalLeftOffset = Math.round(lineNumberOffsetPixels + leftOffset);
+    return lineNumberOffsetPixels;
+}
+
+/**
+ * In the Marmoset submit server review page,
+ * retrieve the height of the entire code area using the table row representing the code line.
+ * @param trCodeLine one of the table rows in the code area
+ * @returns {number} height of the code area
+ */
+function getCodeAreaHeightFromTrCodeLine(trCodeLine){
+    const table = trCodeLine.parentElement.parentElement;
+    return table.clientHeight;
+}
+
+/**
+ * Draw a vertical line in the given HTML Element at the specified left offset and with the specified height & style
+ * class
+ * @param {number} leftOffset offset from the left boundary of the element in pixels
+ * @param {number} height height of the line in pixels
+ * @param {string} styleClass style class to use for the line
+ * @param {HTMLElement} element HTML element, to whose children the new line will be appended to
+ */
+function drawVerticalLineInElement(leftOffset, height, styleClass, element) {
     const lineDiv = document.createElement("div");
-    trCodeLineStart.appendChild(lineDiv);
-    lineDiv.classList.add("line-length-margin");
-    lineDiv.style.left = totalLeftOffset + "px";
-    lineDiv.style.height = table.clientHeight + "px";
+    element.appendChild(lineDiv);
+    lineDiv.classList.add(styleClass);
+    lineDiv.style.left = leftOffset + "px";
+    lineDiv.style.height = height + "px";
 }
 
