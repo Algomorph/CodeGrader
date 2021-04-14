@@ -1,7 +1,7 @@
 {
     "course": "CMSC131",
     "filesToCheck": [
-        "PhotoProcessing/src/main/java/sysutilities/Address|src/sysutilities/Address.java|sysutilities/Address.java",
+        "PhotoProcessing/src/main/java/sysutilities/Address.java|src/sysutilities/Address.java|sysutilities/Address.java",
         "PhotoProcessing/src/main/java/sysutilities/PhotoProcessingSys.java|src/sysutilities/PhotoProcessingSys.java|sysutilities/PhotoProcessingSys.java",
         "PhotoProcessing/src/main/java/tests/StudentTests.java|src/tests/Address.java|tests/StudentTests.java"
     ],
@@ -28,6 +28,11 @@
             "enabled": false,
             "keywords": [],
             "patterns": []
+        },
+        "line_length_module": {
+            "enabled": true,
+            "lineLengthLimit": 80,
+            "tabCharacterWidth": 4
         },
         "loop_module": {
             "enabled": false,
