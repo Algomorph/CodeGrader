@@ -53,7 +53,8 @@ let indentation_module = {};
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
             if (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
-                while (getCodeFromTrCodeLine(trCodeLines[i]).trim().length === 0) { // Makes sure next isn't an empty line
+                while (stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])).search('\S') === -1 ||
+                    getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i])) === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
                 //assumes first line with indentation will have exactly one indent
