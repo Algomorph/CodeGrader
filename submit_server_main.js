@@ -129,6 +129,7 @@ function constructUiPanel(options, filePaths) {
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
         indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
+        line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
 
