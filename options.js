@@ -76,7 +76,7 @@ function restoreOptions(callback) {
 function saveOptions() {
     try {
         const optionsStr = document.getElementById("optionsTextArea").value;
-        let options = JSON.parse(optionsStr);
+        let options = JSON5.parse(optionsStr);
         if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
@@ -105,14 +105,17 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
+        // I understand this restores the previous code if the stringify is not the same however JSON5's stringify does not include comments so we wil remove this entirely  
+        // this seems like an extra check, since at this point its already parse-able
+        // Will clean this up after PR review
 
-        if (optionsStr !== JSON.stringify(options)) {
+        /*if (optionsStr !== JSON5.stringify(options)) {
             restoreOptionsLocal();
-        }
+        }*/
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
-            status.textContent = 'JSON Syntax Error(check console)';
+            status.textContent = 'JSON5 Syntax Error(check console)';
             setTimeout(function () {
                 status.textContent = '';
             }, 3000);
@@ -132,14 +135,14 @@ function saveOptions() {
 function restoreOptionsLocal() {
     restoreOptions(
         function (options) {
-            document.getElementById('optionsTextArea').value = JSON.stringify(options, null, 4);
+            document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
         }
     );
 }
 
 function restoreDefaults() {
     let options = new Options();
-    document.getElementById('optionsTextArea').value = JSON.stringify(options, null, 4);
+    document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
     saveOptions();
 }
 
