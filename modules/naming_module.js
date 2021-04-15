@@ -96,16 +96,15 @@ let naming_module = {};
     /**
      * Splits a name into "words" (or attempts to).
      * Assumes camelCase, PascalCase, or ALL_CAPS_SNAKE_CASE.
-     * @param {Declaration} declaration some string
+     * @param {string} name some string identifier in the code
      * @param {boolean} omitNumbers if true, will omit any numbers
      * @return {*|string[]}
      */
-    function splitCodeNameIntoWords(declaration, omitNumbers = true) {
-        let name = declaration.name;
+    function splitCodeNameIntoWords(name, omitNumbers = true) {
         if (omitNumbers) {
             name = name.replace(/\d+/g, "");
         }
-        if (declaration.nameType === code_analysis.NameType.CONSTANT) {
+        if (name.nameType === code_analysis.NameType.CONSTANT) {
             return name.split('_').map(word => word.toLowerCase());
         } else {
             return name.split(/(?=[A-Z])/).map(word => word.toLowerCase());
@@ -154,7 +153,7 @@ let naming_module = {};
      */
     function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
         let potentialProblems = []
-        let name = declaration.name;
+        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,'');
         if (numbersAllowedInNames) {
             name = name.replace(/\d+/g, "");
         }
@@ -166,7 +165,7 @@ let naming_module = {};
         } else {
             // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
             // because the splitting relies on the notation.
-            let words = splitCodeNameIntoWords(declaration);
+            let words = splitCodeNameIntoWords(name);
             let nonDictionaryWords = [];
 
             if(words.length > 1 || words[0].length > 1) {
