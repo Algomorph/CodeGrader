@@ -52,15 +52,13 @@ let indentation_module = {};
         // find first indent used and use that as standard
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
-            if (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
-                while (stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])).search('\S') === -1 ||
-                    getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i])) === 0) { // Makes sure next isn't an empty line
+                while (stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])).search(/\S/) === -1 ||
+                    getIndentationWidth(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))) === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
                 //assumes first line with indentation will have exactly one indent
                 singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
                 break;
-            }
         }
 
 
