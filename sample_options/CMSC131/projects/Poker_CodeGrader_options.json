@@ -1,0 +1,121 @@
+{
+    "course": "CMSC131",
+    "filesToCheck": [
+        "Poker/src/poker/Deck.java|src/poker/Deck.java|poker/Deck.java",
+        "Poker/src/poker/PokerHandEvaluator.java|src/poker/PokerHandEvaluator.java|poker/PokerHandEvaluator.java",
+        "Poker/src/poker/StudentTests.java|src/poker/StudentTests.java|poker/StudentTests.java"
+    ],
+    "firstStudent": "a",
+    "lastStudent": "{",
+    "lateScoreAdjustment": -12,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P7",
+            "graderName": "",
+            "maximumCodeStyleScore": 10,
+            "maximumStudentTestsScore": 10,
+            "minimumScoreAdjustment": -20
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_and_pattern_module": {
+            "enabled": true,
+            "keywords": [
+                "ArrayList",
+                "LinkedList",
+                "Set",
+                "Map",
+                "Arrays.sort",
+                "Collections.sort",
+                "sort",
+                "Sort",
+                "arrange",
+                "Arrange"
+            ],
+            "patterns": []
+        },
+        "line_length_module": {
+            "enabled": true,
+            "lineLengthLimit": 100,
+            "tabCharacterWidth": 4
+        },
+        "loop_module": {
+            "enabled": false,
+            "methodList": [],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max",
+                "args"
+            ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args",
+                    "main"
+                ]
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        },
+        "test_module": {
+            "enabled": true,
+            "methodsExpectedToBeTested": [
+                "PokerHandEvaluator.hasPair",
+                "PokerHandEvaluator.hasTwoPair",
+                "PokerHandEvaluator.hasThreeOfAKind",
+                "PokerHandEvaluator.hasStraight",
+                "PokerHandEvaluator.hasFlush",
+                "PokerHandEvaluator.hasFullHouse",
+                "PokerHandEvaluator.hasFourOfAKind",
+                "PokerHandEvaluator.hasStraightFlush"
+            ]
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                    "args"
+                ]
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 7",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": true
+    },
+    "year": "2021"
+}
