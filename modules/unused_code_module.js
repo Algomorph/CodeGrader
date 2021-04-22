@@ -43,7 +43,7 @@ let unused_code_module = {};
         [code_analysis.DeclarationType.VARIABLE, "variable"],
         [code_analysis.DeclarationType.CONSTANT, "constant"],
         [code_analysis.DeclarationType.FIELD, "field"],
-        [code_analysis.DeclarationType.CONSTANT_FIELD, "constant field"],
+        [code_analysis.DeclarationType.FINAL_INSTANCE_FIELD, "constant field"],
         [code_analysis.DeclarationType.THIS, "this class/enum"],
         [code_analysis.DeclarationType.CAST, "cast"],
         [code_analysis.DeclarationType.CONSTRUCTOR, "constructor"],
@@ -55,7 +55,7 @@ let unused_code_module = {};
         [code_analysis.DeclarationType.VARIABLE, "unused-variable-problem"],
         [code_analysis.DeclarationType.CONSTANT, "unused-variable-problem"],
         [code_analysis.DeclarationType.FIELD, "unused-variable-problem"],
-        [code_analysis.DeclarationType.CONSTANT_FIELD, "unused-variable-problem"],
+        [code_analysis.DeclarationType.FINAL_INSTANCE_FIELD, "unused-variable-problem"],
         [code_analysis.DeclarationType.THIS, ""],
         [code_analysis.DeclarationType.CAST, ""],
         [code_analysis.DeclarationType.CONSTRUCTOR, "unused-method-problem"],
@@ -88,7 +88,8 @@ let unused_code_module = {};
         }
         if (!options.checkVariables) {
             declarationTypesToIgnore.add(code_analysis.DeclarationType.FIELD);
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT_FIELD);
+            declarationTypesToIgnore.add(code_analysis.DeclarationType.FINAL_INSTANCE_FIELD);
+            declarationTypesToIgnore.add(code_analysis.DeclarationType.FINAL_STATIC_FIELD);
             declarationTypesToIgnore.add(code_analysis.DeclarationType.VARIABLE);
             declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT);
         }

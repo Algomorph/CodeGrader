@@ -37,10 +37,11 @@ let code_analysis = {};
         VARIABLE: 3,
         CONSTANT: 4,
         FIELD: 5,
-        CONSTANT_FIELD: 6,
+        FINAL_INSTANCE_FIELD: 6,
         THIS: 7,
         CAST: 8,
-        CONSTRUCTOR: 9
+        CONSTRUCTOR: 9,
+        FINAL_STATIC_FIELD: 10
     }
 
 
@@ -56,28 +57,6 @@ let code_analysis = {};
         "This": DeclarationType.THIS,
         "CastExpression": DeclarationType.CAST
     }
-
-    const NameType = {
-        METHOD: 'method',
-        VARIABLE: 'variable',
-        TYPE: 'type',
-        CONSTANT: 'constant',
-        NONE: 'none'
-    }
-
-    this.NameType = NameType
-
-    const NameTypeByDeclarationType = new Map([
-        [DeclarationType.TYPE, NameType.TYPE],
-        [DeclarationType.METHOD, NameType.METHOD],
-        [DeclarationType.CONSTANT, NameType.CONSTANT],
-        [DeclarationType.VARIABLE, NameType.VARIABLE],
-        [DeclarationType.FIELD, NameType.VARIABLE],
-        [DeclarationType.CONSTANT_FIELD, NameType.CONSTANT],
-        [DeclarationType.THIS, NameType.NONE],
-        [DeclarationType.CAST, NameType.NONE],
-        [DeclarationType.CONSTRUCTOR, NameType.NONE] // matches the type name, hence constructor name holds no additional information and doesn't need to be inspected
-    ]);
 
 
     class Declaration {
@@ -98,11 +77,16 @@ let code_analysis = {};
             }
 
             if (this.declarationType === DeclarationType.FIELD || this.declarationType === DeclarationType.VARIABLE) {
-                if (astNode.modifiers.map(modifier => modifier.keyword).includes("final")) {
+                const modifierKeywords = astNode.modifiers.map(modifier => modifier.keyword)
+                if (modifierKeywords.includes("final")) {
                     this.final = true;
                     switch (this.declarationType) {
                         case DeclarationType.FIELD:
-                            this.declarationType = DeclarationType.CONSTANT_FIELD;
+                            if (modifierKeywords.includes("static")) {
+                                this.declarationType = DeclarationType.FINAL_STATIC_FIELD;
+                            } else {
+                                this.declarationType = DeclarationType.FINAL_INSTANCE_FIELD;
+                            }
                             break;
                         case DeclarationType.VARIABLE:
                             this.declarationType = DeclarationType.CONSTANT;
@@ -110,7 +94,7 @@ let code_analysis = {};
                     }
                 }
             }
-            this.nameType = NameTypeByDeclarationType.get(this.declarationType);
+            this.nameType = null;
         }
     }
 
@@ -506,6 +490,7 @@ let code_analysis = {};
         function continueProcessingCurrentScope() {
             currentScopeFullyProcessed = false;
         }
+
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration": {
@@ -704,32 +689,31 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "MethodInvocation":
-                {
-                    const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
-                    const methodCall = new MethodCall(methodCallIdentifier,
-                        codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
-                    enclosingTypeInformation.methodCalls.push(methodCall);
-                    const unprocessedChildAstNodes = astNode.arguments;
-                    if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
-                        unprocessedChildAstNodes.push(astNode.expression);
-                    }
-                    getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
-                    scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
-                    continueProcessingCurrentScope();
+            case "MethodInvocation": {
+                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
+                const methodCall = new MethodCall(methodCallIdentifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
+                enclosingTypeInformation.methodCalls.push(methodCall);
+                const unprocessedChildAstNodes = astNode.arguments;
+                if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
+                    unprocessedChildAstNodes.push(astNode.expression);
                 }
+                getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
+                continueProcessingCurrentScope();
+            }
                 break;
             case "VariableDeclarationStatement":
             case "VariableDeclarationExpression":
             case "FieldDeclaration":
                 scope.setNextBatchOfChildAstNodes(astNode.fragments);
-                {
-                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                    for (const fragment of astNode.fragments) {
-                        scope.declarations.set(fragment.name.identifier,
-                            new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
-                    }
+            {
+                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
+                for (const fragment of astNode.fragments) {
+                    scope.declarations.set(fragment.name.identifier,
+                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
                 }
+            }
                 continueProcessingCurrentScope();
                 break;
             case "VariableDeclarationFragment":
