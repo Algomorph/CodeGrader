@@ -105,13 +105,7 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-        // I understand this restores the previous code if the stringify is not the same however JSON5's stringify does not include comments so we wil remove this entirely  
-        // this seems like an extra check, since at this point its already parse-able
-        // Will clean this up after PR review
-
-        /*if (optionsStr !== JSON5.stringify(options)) {
-            restoreOptionsLocal();
-        }*/
+        
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
