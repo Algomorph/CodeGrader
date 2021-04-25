@@ -54,8 +54,8 @@ let indentation_module = {};
         // find first indent used and use that as standard
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
-                while (stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])).search(/\S/) === -1 ||
-                    getIndentationWidth(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))) === 0) { // Makes sure next isn't an empty line
+                while (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))).search(/\S/) === -1 ||
+                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
                 //assumes first line with indentation will have exactly one indent
