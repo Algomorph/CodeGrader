@@ -41,7 +41,7 @@ let test_module = {};
             return;
         }
         $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
-        const untestedMethods = new Set(options.methodsExpectedToBeTested);
+        let untestedMethods = new Set(options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
@@ -55,25 +55,7 @@ let test_module = {};
                 if (testScopes.length > 0 && codeFileToPlaceLackOfTestLabels === null) {
                     codeFileToPlaceLackOfTestLabels = codeFile;
                 }
-                for (const scope of testScopes) {
-                    for (const call of scope.methodCalls) {
-                        if (untestedMethods.has(call.name)) {
-                            const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
-
-                            if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
-                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
-                                addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
-                                    "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
-                            } else {
-                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
-                                addButtonComment(trCodeLine, "Method call from test: " + call.name,
-                                    "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
-                            }
-
-                            untestedMethods.delete(call.name);
-                        }
-                    }
-                }
+                untestedMethods = searchScopes(uiPanel, untestedMethods, testScopes, typeInformation, codeFile);
             }
         }
         if (parsedCodeFiles.length === 0) {
@@ -94,6 +76,34 @@ let test_module = {};
             // addButtonComment(trCodeLine, "Method was not tested: " + call.name,
             //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");
         }
+    }
+
+    function searchScopes(uiPanel, untestedMethods, testScopes, typeInformation, codeFile) {
+        for (const scope of testScopes) {
+            for (const call of scope.methodCalls) {
+                console.log(call);
+                // If the method is from the tests class, check its calls
+                if(call.name.substring(0, 5) === "this.") {
+                    untestedMethods = searchScopes(uiPanel, untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation, codeFile);
+                }
+                if (untestedMethods.has(call.name)) {
+                    const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
+
+                    if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
+                        addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
+                            "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
+                    } else {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
+                        addButtonComment(trCodeLine, "Method call from test: " + call.name,
+                            "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
+                    }
+
+                    untestedMethods.delete(call.name);
+                }
+            }
+        }
+        return untestedMethods;
     }
 
 
