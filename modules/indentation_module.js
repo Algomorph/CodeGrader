@@ -48,15 +48,12 @@ let indentation_module = {};
         let isComment = false;
         let isNotAllman = 0;
         let expectedIndent = 0;
-        let isFirstSwitch = false, isSwitch = false;
-        let switchIndent = 0;
 
         // find first indent used and use that as standard
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
             if (getCodeFromTrCodeLine(trCodeLines[i++]).includes('{')) {
-                while (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))).search(/\S/) === -1 ||
-                getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0) { // Makes sure next isn't an empty line
+                while (getCodeFromTrCodeLine(trCodeLines[i]).trim().length === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
                 //assumes first line with indentation will have exactly one indent
@@ -64,6 +61,7 @@ let indentation_module = {};
                 break;
             }
         }
+
 
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
         let currentIndentationWidth = 0; // in white spaces
@@ -117,10 +115,6 @@ let indentation_module = {};
 
             // Handle opening and closing braces updating indent size
             if (codeText.trim().indexOf("}") === 0) {
-                if(isSwitch && currentIndentationWidth - 2 * singleIndentWidth <= switchIndent) {
-                    currentIndentationWidth = switchIndent + singleIndentWidth;
-                    isSwitch = isFirstSwitch = false;
-                }
                 currentIndentationWidth -= singleIndentWidth;
                 isPrev = false;
             }
@@ -130,10 +124,6 @@ let indentation_module = {};
                 if (isNotAllman > 0) {
                     isNotAllman--;
                 }
-            }
-
-            if(!isFirstSwitch && codeText.search(/(case\s|default\s|default:)/) !== -1) {
-                currentIndentationWidth -= singleIndentWidth;
             }
 
             if (isNotAllman > 0) {
@@ -194,21 +184,10 @@ let indentation_module = {};
                 isNotAllman = stack.pop(); // Somehow, this fixes nested if's with AND without braces
             }
 
-            if(codeText.search(/(case\s|default\s|default:)/) !== -1) {
-                isFirstSwitch = false;
-                currentIndentationWidth += singleIndentWidth;
-            }
-
-            // I don't want to think about nested switch statements. People who do that are maniacal!
-            if(codeText.search(/switch(\s|\()/) !== -1) {
-                switchIndent = currentIndentationWidth - singleIndentWidth;
-                isSwitch = isFirstSwitch = true;
-            }
-
             // If it doesn't end in a correct delimiter, it's a continuation of the previous line.
-            if (!isPrev && codeText.search(/(for|while|do|else|if)(\s|\()/) !== -1
+            if (!isPrev && codeText.search(/(for|while|do|else|if)\s/) !== -1
                 && codeText.trim().charAt(codeText.trim().length - 1) !== "{" && codeText.trim().charAt(codeText.trim().length - 1) !== ";") {
-                if ((codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length))) {
+                if (codeText.trim().charAt(codeText.trim().length - 1) !== ";" && (codeText.indexOf(")") === codeText.indexOf("(") || (codeText.indexOf(")") !== -1 && codeText.match(/\(/g).length === codeText.match(/\)/g).length))) {
                     if(codeText.indexOf("}") === -1 || codeText.indexOf("{") === -1 || codeText.match(/{/g).length !== codeText.match(/}/g).length) {
                         isPrev = true;
                         isNotAllman++;
