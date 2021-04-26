@@ -41,7 +41,7 @@ let test_module = {};
             return;
         }
         $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
-        let untestedMethods = new Set(options.methodsExpectedToBeTested);
+        let methodsExptectedToBeTestedSet = new Set(options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
@@ -55,8 +55,7 @@ let test_module = {};
                 if (testScopes.length > 0 && codeFileToPlaceLackOfTestLabels === null) {
                     codeFileToPlaceLackOfTestLabels = codeFile;
                 }
-                let [testedMethods, untestedMethodValues] = searchScopes(untestedMethods, testScopes, typeInformation);
-                untestedMethods = untestedMethodValues;
+                const [testedMethods, untestedMethods] = searchScopes(methodsExptectedToBeTestedSet, testScopes, typeInformation);
 
                 for(const call of testedMethods) {
                     const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
