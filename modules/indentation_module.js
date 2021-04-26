@@ -54,8 +54,8 @@ let indentation_module = {};
         // find first indent used and use that as standard
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
-                while (stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])).search(/\S/) === -1 ||
-                    getIndentationWidth(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))) === 0) { // Makes sure next isn't an empty line
+                while (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))).search(/\S/) === -1 ||
+                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0) { // Makes sure next isn't an empty line
                     i++;
                 }
                 //assumes first line with indentation will have exactly one indent
@@ -141,7 +141,9 @@ let indentation_module = {};
             }
 
             // verify current indent is correct
-            if ((!isPrev && getIndentationWidth(codeText) !== currentIndentationWidth) || (isPrev && getIndentationWidth(codeText) < expectedIndent)) {
+            if ((isSwitch && codeText.search(/(case\s|default\s|default:)/) !== -1 && ![0, singleIndentWidth].includes(getIndentationWidth(codeText) - switchIndent))
+                || (isSwitch && codeText.search(/(case\s|default\s|default:)/) === -1 && ![0, singleIndentWidth].includes(currentIndentationWidth - getIndentationWidth(codeText)))
+                || (!isPrev && !isSwitch && getIndentationWidth(codeText) !== currentIndentationWidth) || (isPrev && getIndentationWidth(codeText) < expectedIndent)) {
                 let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
                 let newProblem = false;
                 let shortProblemDescription = "";
@@ -216,7 +218,7 @@ let indentation_module = {};
                     isPrev = true;
                     expectedIndent = currentIndentationWidth;
                 }
-            } else if (!isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
+            } else if (!isPrev && [";", "{", "}", ":"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
                 if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
                     codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
 
@@ -226,7 +228,7 @@ let indentation_module = {};
                     expectedIndent = currentIndentationWidth;
 
                 }
-            } else if (isPrev && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
+            } else if (isPrev && [";", "{", "}", ":"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
                 if (isNotAllman === 0) { //Aman Sheth's P2 has REALLY GOOD edge cases for this stuff...
                     isPrev = false;
                 }

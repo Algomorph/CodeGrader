@@ -41,7 +41,7 @@ let test_module = {};
             return;
         }
         $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
-        const untestedMethods = new Set(options.methodsExpectedToBeTested);
+        let methodsExptectedToBeTestedSet = new Set(options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
@@ -55,27 +55,25 @@ let test_module = {};
                 if (testScopes.length > 0 && codeFileToPlaceLackOfTestLabels === null) {
                     codeFileToPlaceLackOfTestLabels = codeFile;
                 }
-                for (const scope of testScopes) {
-                    for (const call of scope.methodCalls) {
-                        if (untestedMethods.has(call.name)) {
-                            const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
+                const [testedMethods, untestedMethods] = searchScopes(methodsExptectedToBeTestedSet, testScopes, typeInformation);
 
-                            if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
-                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
-                                addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
-                                    "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
-                            } else {
-                                $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
-                                addButtonComment(trCodeLine, "Method call from test: " + call.name,
-                                    "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
-                            }
+                for(const call of testedMethods) {
+                    const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
 
-                            untestedMethods.delete(call.name);
-                        }
+                    if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
+                        addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
+                            "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
+                    } else {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
+                        addButtonComment(trCodeLine, "Method call from test: " + call.name,
+                            "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
                     }
                 }
             }
         }
+
+
         if (parsedCodeFiles.length === 0) {
             return;
         }
@@ -94,6 +92,33 @@ let test_module = {};
             // addButtonComment(trCodeLine, "Method was not tested: " + call.name,
             //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");
         }
+    }
+
+    /**
+     * Searches all scopes for the methods expected to be tested, returning the newly tested with the
+     * currently untested ones.
+     *
+     * @param {Set.<string>} untestedMethods
+     * @param {Array.<Scope>} testScopes
+     * @param {TypeInformation} typeInformation
+     * @returns {(Set<any>|*)[]} Array of both set of tested and untested methods
+     */
+    function searchScopes(untestedMethods, testScopes, typeInformation) {
+        let testedMethods = new Set();
+        for (const scope of testScopes) {
+            for (const call of scope.methodCalls) {
+                // If the method is from the tests class, check its calls
+                if(call.name.substring(0, 5) === "this.") {
+                    [testedMethodVals, untestedMethods] = searchScopes(untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation);
+                    testedMethodVals.forEach(call => testedMethods.add(call));
+                }
+                if (untestedMethods.has(call.name)) {
+                    testedMethods.add(call);
+                    untestedMethods.delete(call.name);
+                }
+            }
+        }
+        return [testedMethods, untestedMethods];
     }
 
 
