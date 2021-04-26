@@ -42,7 +42,6 @@ let test_module = {};
         }
         $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
         let methodsExpectedToBeTestedSet = new Set(options.methodsExpectedToBeTested);
-        console.log(methodsExpectedToBeTestedSet);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
         for (const codeFile of codeFileDictionary.values()) {
