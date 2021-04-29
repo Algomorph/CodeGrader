@@ -2139,7 +2139,7 @@ analogousness
 analogue
 analogues
 analogy
-code_analysis
+analysis
 analyst
 analysts
 analytic
@@ -19013,7 +19013,7 @@ discoverers
 discoveries
 discovering
 discovers
-code_analysis
+discovery
 discredit
 discreditable
 discreditably
