@@ -71,7 +71,7 @@
 
     this.methodIsStatic = function (astNode) {
         if (astNode.node !== "MethodDeclaration") {
-            throw TypeError("astNode.node needs to be MethodDeclaration and the astNode needs to follow the javaparser PEG.js convention for that node type.");
+            throw TypeError("astNode.node needs to be MethodDeclaration and the astNode needs to follow the JavaParser PEG.js convention for that node type.");
         }
         for (const modifier of astNode.modifiers) {
             if (modifier.keyword === "static") {
@@ -123,7 +123,7 @@
                 break;
             case "CastExpression": {
                 const [typeName, typeArguments] = code_analysis.getTypeNameAndArgumentsFromTypeNode(usageAstNode.type);
-                declaration = new this.Declaration(usageAstNode.identifier, typeName, typeArguments, usageAstNode, codeFile);
+                declaration = new Declaration(usageAstNode.identifier, typeName, typeArguments, usageAstNode, codeFile);
             }
                 break;
             case "ParenthesizedExpression":
@@ -183,7 +183,7 @@
                 calledType = calledDeclaration.typeName;
                 name = this.generateMethodStringIdentifier(calledDeclaration.typeName,
                     methodInvocationNode.name.identifier,
-                    calledDeclaration.declarationType === this.DeclarationType.TYPE);
+                    calledDeclaration.declarationType === DeclarationType.TYPE);
             }
         } else {
             name = "this." + methodInvocationNode.name.identifier;

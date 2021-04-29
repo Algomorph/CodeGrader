@@ -9,17 +9,17 @@ class TypeInformation {
     constructor() {
         /** @type {Array.<MethodCall>}*/
         this.methodCalls = [];
-        /** @type {Array.<code_analysis.Declaration>}*/
+        /** @type {Array.<Declaration>}*/
         this.declarations = [];
-        /** @type {Array.<code_analysis.Loop>}*/
+        /** @type {Array.<Loop>}*/
         this.loops = [];
-        /** @type {Array.<code_analysis.Scope>}*/
+        /** @type {Array.<Scope>}*/
         this.scopes = [];
         this.ternaryExpressions = [];
         this.binaryExpressions = [];
         this.unaryExpressions = [];
         this.assignments = [];
-        /** @type {Array.<code_analysis.Usage>}*/
+        /** @type {Array.<Usage>}*/
         this.usages = [];
         this.typeScope = null;
     }

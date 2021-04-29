@@ -26,9 +26,11 @@
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration": {
-                const typeScope = new this.Scope(astNode,
-                    [new this.Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
-                        new this.Declaration(astNode.name.identifier, "type", [], astNode, codeFile)],
+                const typeScope = new Scope(astNode,
+                    [
+                        new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
+                        new Declaration(astNode.name.identifier, "type", [], astNode, codeFile)
+                    ],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope]));
                 branchScopes.push(typeScope);
                 enclosingTypeInformation.typeScope = typeScope;
@@ -40,7 +42,8 @@
                     const parameterTypes = []
                     for (const parameter of astNode.parameters) {
                         if (parameter.node === "SingleVariableDeclaration") {
-                            const [parameterTypeName, parameterTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
+                            const [parameterTypeName, parameterTypeArguments] =
+                                this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
                             parameterTypes.push(this.composeQualifiedTypeName(parameterTypeName, parameterTypeArguments));
                         }
 
@@ -48,14 +51,17 @@
                     // for constructors, we now do care about parameters
                     parameterTypeString = parameterTypes.join(', ')
                 }
-                const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
+                const [methodReturnTypeName, methodReturnTypeArguments] =
+                    this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
                 scope.declarations.set(astNode.name.identifier + "(" + parameterTypeString + ")",
-                    new this.Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode,
+                        codeFile));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
-                        branchScopeDeclarations.push(new this.Declaration(parameter.name.identifier, typeName, typeArguments, parameter, codeFile));
+                        branchScopeDeclarations.push(
+                            new Declaration(parameter.name.identifier, typeName, typeArguments, parameter, codeFile));
                     }
                 }
                 // body will be null if it's an abstract or interface method.
@@ -64,7 +70,7 @@
                     const isTest = astNode.hasOwnProperty("modifiers") && astNode.modifiers.reduce(function (isTest, modifier) {
                         return isTest |= modifier.node === "MarkerAnnotation" && modifier.typeName.identifier === "Test"
                     }, false);
-                    branchScopes.push(new this.Scope(astNode, branchScopeDeclarations, astNode.body.statements, scope.scopeStack.concat([scope]), isTest));
+                    branchScopes.push(new Scope(astNode, branchScopeDeclarations, astNode.body.statements, scope.scopeStack.concat([scope]), isTest));
                 }
                 break;
             case "Block":
@@ -77,13 +83,13 @@
                 } else {
                     if (astNode.elseStatement.node === "Block") {
                         scope.setNextBatchOfChildAstNodes([astNode.expression]);
-                        branchScopes.push(new this.Scope(astNode.elseStatement, [], [astNode.elseStatement], scope.scopeStack.concat([scope])));
+                        branchScopes.push(new Scope(astNode.elseStatement, [], [astNode.elseStatement], scope.scopeStack.concat([scope])));
                     } else {
                         scope.setNextBatchOfChildAstNodes([astNode.expression, astNode.elseStatement]);
                     }
                 }
                 continueProcessingCurrentScope();
-                branchScopes.push(new this.Scope(astNode, [], [astNode.thenStatement], scope.scopeStack.concat([scope])));
+                branchScopes.push(new Scope(astNode, [], [astNode.thenStatement], scope.scopeStack.concat([scope])));
                 break;
             case "ForStatement":
                 for (const initializer of astNode.initializers) {
@@ -91,12 +97,12 @@
                         // only add declaration(s) in case assignment(s) to existing variable(s) isn't/aren't used as initializer(s)
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(initializer.type);
                         for (const fragment of initializer.fragments) {
-                            branchScopeDeclarations.push(new this.Declaration(fragment.name.identifier, typeName, typeArguments, initializer, codeFile));
+                            branchScopeDeclarations.push(new Declaration(fragment.name.identifier, typeName, typeArguments, initializer, codeFile));
                         }
                     }
                 }
                 branchScopes.push(
-                    new this.Scope(
+                    new Scope(
                         astNode, branchScopeDeclarations,
                         astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body]),
                         scope.scopeStack.concat([scope])
@@ -105,21 +111,21 @@
                 break;
             case "EnhancedForStatement": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
-                branchScopeDeclarations.push(new this.Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
+                branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
             }
-                branchScopes.push(new this.Scope(astNode, branchScopeDeclarations,
+                branchScopes.push(new Scope(astNode, branchScopeDeclarations,
                     [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
                 break;
             case "WhileStatement":
-                branchScopes.push(new this.Scope(astNode, [],
+                branchScopes.push(new Scope(astNode, [],
                     [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
                 break;
             case "DoStatement":
-                branchScopes.push(new this.Scope(astNode, [],
+                branchScopes.push(new Scope(astNode, [],
                     [astNode.body, astNode.expression],
                     scope.scopeStack.concat([scope]))
                 );
@@ -150,17 +156,17 @@
                 }
                 break;
             case "TryStatement":
-                branchScopes.push(new this.Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
+                branchScopes.push(new Scope(astNode, [], astNode.body.statements, scope.scopeStack.concat([scope])));
                 if (astNode.catchClauses !== null) {
                     for (const catchClause of astNode.catchClauses) {
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(catchClause["exception"].type);
-                        branchScopes.push(new this.Scope(catchClause.body,
-                            [new this.Declaration(catchClause["exception"].name.identifier, typeName, typeArguments, catchClause["exception"], codeFile)],
+                        branchScopes.push(new Scope(catchClause.body,
+                            [new Declaration(catchClause["exception"].name.identifier, typeName, typeArguments, catchClause["exception"], codeFile)],
                             [catchClause], scope.scopeStack.concat([scope])));
                     }
                 }
                 if (astNode.finally !== null) {
-                    branchScopes.push(new this.Scope(astNode.finally, [], [astNode.finally.statements], scope.scopeStack.concat([scope])));
+                    branchScopes.push(new Scope(astNode.finally, [], [astNode.finally.statements], scope.scopeStack.concat([scope])));
                 }
                 break;
             case "InstanceOfExpression":
@@ -191,8 +197,8 @@
                 continueProcessingCurrentScope();
                 break;
             case "SuperMethodInvocation": {
-                const methodCall = new this.MethodCall("super." + astNode.name.identifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, this.MethodCallType.SUPER_METHOD, astNode.name.identifier, null);
+                const methodCall = new MethodCall("super." + astNode.name.identifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_METHOD, astNode.name.identifier, null);
                 this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -200,8 +206,8 @@
                 continueProcessingCurrentScope();
                 break;
             case "SuperConstructorInvocation": {
-                const methodCall = new this.MethodCall("super(...)",
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, this.MethodCallType.SUPER_CONSTRUCTOR, "super", null);
+                const methodCall = new MethodCall("super(...)",
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.SUPER_CONSTRUCTOR, "super", null);
                 this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
@@ -212,8 +218,8 @@
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 const argumentTypeListString = this.getArgumentTypeListString(astNode);
                 const name = this.composeUnqualifiedTypeName(typeName, typeArguments) + "(" + argumentTypeListString + ")";
-                const methodCall = new this.MethodCall(name,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, this.MethodCallType.CONSTRUCTOR, typeName, typeName);
+                const methodCall = new MethodCall(name,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, typeName, typeName);
 
                 this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
@@ -223,8 +229,8 @@
                 break;
             case "MethodInvocation": {
                 const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
-                const methodCall = new this.MethodCall(methodCallIdentifier,
-                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, this.MethodCallType.METHOD, astNode.name.identifier, calledType)
+                const methodCall = new MethodCall(methodCallIdentifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
                 enclosingTypeInformation.methodCalls.push(methodCall);
                 const unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
@@ -243,7 +249,7 @@
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
                 for (const fragment of astNode.fragments) {
                     scope.declarations.set(fragment.name.identifier,
-                        new this.Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
+                        new Declaration(fragment.name.identifier, typeName, typeArguments, astNode, codeFile));
                 }
             }
                 continueProcessingCurrentScope();
@@ -268,13 +274,13 @@
                 break;
         }
         // handle loops
-        if (this.LoopTypeByNode.has(astNode.node)) {
-            enclosingTypeInformation.loops.push(new this.Loop(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], this.getEnclosingMethodFromScopeStack(fullScopeStack), enclosingTypeInformation.typeScope.astNode));
+        if (LoopTypeByNode.has(astNode.node)) {
+            enclosingTypeInformation.loops.push(new Loop(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], this.getEnclosingMethodFromScopeStack(fullScopeStack), enclosingTypeInformation.typeScope.astNode));
         }
 
         const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);
         if (possibleDeclarationForUsage != null) {
-            enclosingTypeInformation.usages.push(new this.Usage(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], possibleDeclarationForUsage));
+            enclosingTypeInformation.usages.push(new Usage(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], possibleDeclarationForUsage));
         }
 
         if (!currentScopeFullyProcessed) {
@@ -303,7 +309,7 @@
             //iterate over classes / enums / etc.
             for (const typeNode of syntaxTree.types) {
                 let typeInformation = new TypeInformation();
-                const fileScope = new this.Scope(syntaxTree, [], [], []);
+                const fileScope = new Scope(syntaxTree, [], [], []);
                 typeInformation.scopes.push(fileScope);
                 this.findEntitiesInAstNode(typeNode, fileScope, codeFile, typeInformation);
                 for (const scope of typeInformation.scopes) {
@@ -311,14 +317,14 @@
                 }
 
                 //method invocations occur before definitions sometimes, account for those.
-                const methodUsageSet = new Set(typeInformation.usages.filter(usage => usage.declaration.declarationType === this.DeclarationType.METHOD ||
-                    usage.declaration.declarationType === this.DeclarationType.CONSTRUCTOR).map(usage => usage.astNode));
+                const methodUsageSet = new Set(typeInformation.usages.filter(usage => usage.declaration.declarationType === DeclarationType.METHOD ||
+                    usage.declaration.declarationType === DeclarationType.CONSTRUCTOR).map(usage => usage.astNode));
                 //TODO: somehow, also account for fields in a similar way
                 for (const methodCall of typeInformation.methodCalls) {
                     if (!methodUsageSet.has(methodCall.astNode)) {
                         const possibleDeclarationForUsage = this.findDeclaration(methodCall.astNode, [typeInformation.typeScope], codeFile);
                         if (possibleDeclarationForUsage != null) {
-                            typeInformation.usages.push(new this.Usage(methodCall.astNode, codeFile.trCodeLines[methodCall.astNode.location.start.line - 1], possibleDeclarationForUsage));
+                            typeInformation.usages.push(new Usage(methodCall.astNode, codeFile.trCodeLines[methodCall.astNode.location.start.line - 1], possibleDeclarationForUsage));
                         }
                     }
                 }
