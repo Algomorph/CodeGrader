@@ -65,16 +65,16 @@ let naming_module = {};
     this.NameType = NameType
 
     const NameTypeByDeclarationType = new Map([
-        [code_analysis.DeclarationType.TYPE, NameType.TYPE],
-        [code_analysis.DeclarationType.METHOD, NameType.METHOD],
-        [code_analysis.DeclarationType.CONSTANT, NameType.CONSTANT],
-        [code_analysis.DeclarationType.VARIABLE, NameType.VARIABLE],
-        [code_analysis.DeclarationType.FIELD, NameType.VARIABLE],
-        [code_analysis.DeclarationType.FINAL_INSTANCE_FIELD, NameType.VARIABLE],
-        [code_analysis.DeclarationType.THIS, NameType.NONE],
-        [code_analysis.DeclarationType.CAST, NameType.NONE],
-        [code_analysis.DeclarationType.CONSTRUCTOR, NameType.NONE], // matches the type name, hence constructor name holds no additional information and doesn't need to be inspected
-        [code_analysis.DeclarationType.FINAL_STATIC_FIELD, NameType.CONSTANT]
+        [DeclarationType.TYPE, NameType.TYPE],
+        [DeclarationType.METHOD, NameType.METHOD],
+        [DeclarationType.CONSTANT, NameType.CONSTANT],
+        [DeclarationType.VARIABLE, NameType.VARIABLE],
+        [DeclarationType.FIELD, NameType.VARIABLE],
+        [DeclarationType.FINAL_INSTANCE_FIELD, NameType.VARIABLE],
+        [DeclarationType.THIS, NameType.NONE],
+        [DeclarationType.CAST, NameType.NONE],
+        [DeclarationType.CONSTRUCTOR, NameType.NONE], // matches the type name, hence constructor name holds no additional information and doesn't need to be inspected
+        [DeclarationType.FINAL_STATIC_FIELD, NameType.CONSTANT]
     ]);
 
 
@@ -319,7 +319,7 @@ let naming_module = {};
                             case NameType.VARIABLE:
                                 // in accordance to options, pick whether a final instance field is to be
                                 // treated as constant or not
-                                if(declaration.declarationType === code_analysis.DeclarationType.FINAL_INSTANCE_FIELD
+                                if(declaration.declarationType === DeclarationType.FINAL_INSTANCE_FIELD
                                    && options.treatInstanceFinalFieldsAsConstants){
                                     declaration.nameType = NameType.CONSTANT;
                                 }

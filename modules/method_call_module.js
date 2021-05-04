@@ -91,17 +91,17 @@ let method_call_module = {};
             let problemMessageBase = "This call ";
 
             switch (methodCall.callType) {
-                case code_analysis.MethodCallType.METHOD:
+                case MethodCallType.METHOD:
                     problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
                         + (methodCall.nameOfCalledType != null ? " of class \"" + methodCall.nameOfCalledType + "\"" : "")
                     break;
-                case code_analysis.MethodCallType.SUPER_METHOD:
+                case MethodCallType.SUPER_METHOD:
                     problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
                     break;
-                case code_analysis.MethodCallType.SUPER_CONSTRUCTOR:
+                case MethodCallType.SUPER_CONSTRUCTOR:
                     problemMessageBase = "Call to this " + methodCall.callType;
                     break;
-                case code_analysis.MethodCallType.CONSTRUCTOR:
+                case MethodCallType.CONSTRUCTOR:
                     problemMessageBase = "Call to this " + methodCall.callType + " of class \"" +
                         methodCall.nameOfCalledType + "\"";
                     break;
