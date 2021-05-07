@@ -29,18 +29,16 @@
       "enabled": true
     },
     "keyword_and_pattern_module": {
-      "enabled": false,
+      "enabled": true,
       "keywords": [
         "ArrayList",
         "LinkedList",
-        "Set",
+        "HashSet",
         "Map",
-        "Arrays.sort",
-        "Collections.sort",
-        "sort",
-        "Sort",
-        "arrange",
-        "Arrange"
+        "Vector",
+        "PriorityQueue",
+        "Hashtable",
+        "Map"
       ],
       "patterns": []
     },

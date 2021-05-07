@@ -1,0 +1,112 @@
+{
+    course: 'CMSC131',
+    filesToCheck: [
+        'Quiz5/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java'
+    ],
+    firstStudent: 'a',
+    lastStudent: '{',
+    lateScoreAdjustment: -5,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: false,
+            markAllBraces: false,
+        },
+        grade_server_module: {
+            enabled: true,
+            gradeServerAssignmentName: 'Q5',
+            graderName: '',
+            maximumCodeStyleScore: 0,
+            maximumStudentTestsScore: 0,
+            minimumScoreAdjustment: -30,
+        },
+        indentation_module: {
+            enabled: false,
+        },
+        keyword_and_pattern_module: {
+            enabled: false,
+            keywords: [],
+            patterns: [],
+        },
+        line_length_module: {
+            enabled: false,
+            lineLengthLimit: 100,
+            tabCharacterWidth: 4,
+        },
+        loop_module: {
+            enabled: true,
+            methodList: [
+              "Utilities.findOddMin", 
+              "Utilities.getRowSums"
+             ],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: true,
+            ignoredMethods: {
+                global: [
+                   "this.findOddMin", 
+                   "type.findOddMin",
+                   "this.getRowSums",
+                   "type.getRowSums",
+                   "$ArrayList$.add",
+                   "ArrayList<>()",
+                   "this.sum",
+                   "type.sum"
+                ]
+            },
+            ignoredTypes: [],
+            showUniqueOnly: false,
+        },
+        naming_module: {
+            allowedSpecialWords: [
+                'min',
+                'max',
+                'args',
+            ],
+            checkConstants: true,
+            checkMethods: true,
+            checkTypes: true,
+            checkVariablesAndFields: true,
+            enabled: false,
+            ignoredNames: {
+                global: [
+                    'args',
+                    'main',
+                ],
+            },
+            numbersAllowedInNames: true,
+            showUniqueOnly: true,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: false,
+        },
+        test_module: {
+            enabled: false,
+            methodsExpectedToBeTested: [],
+        },
+        unused_code_module: {
+            checkMethods: false,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: false,
+            ignoredNames: {
+                global: [
+                    'args',
+                ],
+            },
+            markAllUsages: false,
+        },
+    },
+    semesterSeason: 'spring',
+    submitServerAssignmentName: 'Quiz 5',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    },
+    year: '2021',
+}
