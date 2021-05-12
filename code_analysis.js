@@ -622,10 +622,12 @@ let code_analysis = {};
                 continueProcessingCurrentScope();
                 break;
             case "ReturnStatement":
+            case "YieldStatement":
             case "ExpressionStatement":
             case "ParenthesizedExpression":
             case "ThrowStatement":
             case "SwitchCase":
+            case "SuperFieldAccess":
             case "FieldAccess":
                 if (astNode.expression != null) {
                     scope.setNextBatchOfChildAstNodes([astNode.expression]);
@@ -646,7 +648,7 @@ let code_analysis = {};
                     branchScopes.push(new Scope(astNode.finally, [], [astNode.finally.statements], scope.scopeStack.concat([scope])));
                 }
                 break;
-            case "InstanceOfExpression":
+            case "InstanceofExpression":
             case "InfixExpression":
                 scope.setNextBatchOfChildAstNodes([astNode.leftOperand, astNode.rightOperand]);
                 enclosingTypeInformation.binaryExpressions.push(astNode);
@@ -688,7 +690,13 @@ let code_analysis = {};
                 getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
-                scope.setNextBatchOfChildAstNodes(astNode.arguments);
+                // I'm not sure if there's an issue with calling the method twice in one scope
+                // So I'm playing it safe with concat
+                if(astNode.expression != null) {
+                    scope.setNextBatchOfChildAstNodes(astNode.arguments.concat(astNode.expression));
+                } else {
+                    scope.setNextBatchOfChildAstNodes(astNode.arguments);
+                }
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
@@ -739,6 +747,7 @@ let code_analysis = {};
                     continueProcessingCurrentScope();
                 }
                 break;
+            case "LambdaExpression":
             case "CatchClause":
                 scope.setNextBatchOfChildAstNodes(astNode.body.statements);
                 continueProcessingCurrentScope();
@@ -748,6 +757,18 @@ let code_analysis = {};
                 scope.setNextBatchOfChildAstNodes([astNode.expression]);
                 continueProcessingCurrentScope();
                 break;
+            case "ArrayInitializer":
+                scope.setNextBatchOfChildAstNodes(astNode.expressions);
+                continueProcessingCurrentScope();
+                break;
+            case "SynchronizedStatement":
+                scope.setNextBatchOfChildAstNodes(astNode.body.statements.concat(astNode.expression));
+                continueProcessingCurrentScope();
+                break;
+            case "ConstructorInvocation":
+                scope.setNextBatchOfChildAstNodes(astNode.arguments);
+                continueProcessingCurrentScope();
+                break;
             default:
                 break;
         }
@@ -755,6 +776,7 @@ let code_analysis = {};
         if (LoopTypeByNode.has(astNode.node)) {
             enclosingTypeInformation.loops.push(new Loop(astNode, codeFile.trCodeLines[astNode.location.start.line - 1], getEnclosingMethodFromScopeStack(fullScopeStack), enclosingTypeInformation.typeScope.astNode));
         }
+
 
         const possibleDeclarationForUsage = this.findDeclaration(astNode, fullScopeStack, codeFile);
         if (possibleDeclarationForUsage != null) {
