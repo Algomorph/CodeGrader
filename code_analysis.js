@@ -511,7 +511,7 @@ let code_analysis = {};
             case "TypeDeclaration": {
                 const typeScope = new Scope(astNode,
                     [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
-                        new Declaration(astNode.name.identifier, "type", [], astNode, codeFile)],
+                        new Declaration(astNode.name.identifier, astNode.name.identifier, [], astNode, codeFile)],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope]));
                 branchScopes.push(typeScope);
                 enclosingTypeInformation.typeScope = typeScope;
