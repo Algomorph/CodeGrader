@@ -455,7 +455,11 @@ let code_analysis = {};
                     break;
                 case "NumberLiteral":
                     //TODO: resolve type post-factum in this case
-                    typeList.push("number")
+                    if(Number.isInteger(Number(argument.token))) {
+                        typeList.push("int");
+                    } else {
+                        typeList.push("number"); // Maybe this should be double?
+                    }
                     break;
                 case "MethodInvocation":
                     //TODO: resolve type post-factum in this case
