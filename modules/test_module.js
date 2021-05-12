@@ -107,7 +107,6 @@ let test_module = {};
         let testedMethods = new Set();
         for (const scope of testScopes) {
             for (const call of scope.methodCalls) {
-                console.log(call);
                 // If the method is from the tests class, check its calls
                 if(call.name.substring(0, 5) === "this.") {
                     let testedMethodValues = searchScopes(untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation);
