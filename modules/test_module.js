@@ -113,7 +113,6 @@ let test_module = {};
                     testedMethodValues.forEach(call => testedMethods.add(call));
                 }
 
-
                 if(untestedMethods.has(call.name)) {
                     testedMethods.add(call);
                     untestedMethods.delete(call.name);
@@ -122,8 +121,8 @@ let test_module = {};
                 // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
                 else if (untestedMethods.has(call.name.replaceAll("$", ""))) {
-                    testedMethods.add(call);
-                    untestedMethods.delete(call.name.replaceAll("$", ""));
+                        testedMethods.add(call);
+                        untestedMethods.delete(call.name.replaceAll("$", ""));
                 }
             }
         }

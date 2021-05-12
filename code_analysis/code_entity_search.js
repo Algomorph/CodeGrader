@@ -27,10 +27,8 @@
         switch (astNode.node) {
             case "TypeDeclaration": {
                 const typeScope = new Scope(astNode,
-                    [
-                        new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
-                        new Declaration(astNode.name.identifier, "type", [], astNode, codeFile)
-                    ],
+                    [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
+                        new Declaration(astNode.name.identifier, astNode.name.identifier, [], astNode, codeFile)],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope]));
                 branchScopes.push(typeScope);
                 enclosingTypeInformation.typeScope = typeScope;
@@ -42,8 +40,7 @@
                     const parameterTypes = []
                     for (const parameter of astNode.parameters) {
                         if (parameter.node === "SingleVariableDeclaration") {
-                            const [parameterTypeName, parameterTypeArguments] =
-                                this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
+                            const [parameterTypeName, parameterTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
                             parameterTypes.push(this.composeQualifiedTypeName(parameterTypeName, parameterTypeArguments));
                         }
 
@@ -51,17 +48,14 @@
                     // for constructors, we now do care about parameters
                     parameterTypeString = parameterTypes.join(', ')
                 }
-                const [methodReturnTypeName, methodReturnTypeArguments] =
-                    this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
+                const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
                 scope.declarations.set(astNode.name.identifier + "(" + parameterTypeString + ")",
-                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode,
-                        codeFile));
+                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
                         const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
-                        branchScopeDeclarations.push(
-                            new Declaration(parameter.name.identifier, typeName, typeArguments, parameter, codeFile));
+                        branchScopeDeclarations.push(new Declaration(parameter.name.identifier, typeName, typeArguments, parameter, codeFile));
                     }
                 }
                 // body will be null if it's an abstract or interface method.
@@ -145,10 +139,12 @@
                 continueProcessingCurrentScope();
                 break;
             case "ReturnStatement":
+            case "YieldStatement":
             case "ExpressionStatement":
             case "ParenthesizedExpression":
             case "ThrowStatement":
             case "SwitchCase":
+            case "SuperFieldAccess":
             case "FieldAccess":
                 if (astNode.expression != null) {
                     scope.setNextBatchOfChildAstNodes([astNode.expression]);
@@ -169,7 +165,7 @@
                     branchScopes.push(new Scope(astNode.finally, [], [astNode.finally.statements], scope.scopeStack.concat([scope])));
                 }
                 break;
-            case "InstanceOfExpression":
+            case "InstanceofExpression":
             case "InfixExpression":
                 scope.setNextBatchOfChildAstNodes([astNode.leftOperand, astNode.rightOperand]);
                 enclosingTypeInformation.binaryExpressions.push(astNode);
@@ -211,7 +207,13 @@
                 this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 enclosingTypeInformation.methodCalls.push(methodCall);
             }
-                scope.setNextBatchOfChildAstNodes(astNode.arguments);
+                // I'm not sure if there's an issue with calling the method twice in one scope
+                // So I'm playing it safe with concat
+                if(astNode.expression != null) {
+                    scope.setNextBatchOfChildAstNodes(astNode.arguments.concat(astNode.expression));
+                } else {
+                    scope.setNextBatchOfChildAstNodes(astNode.arguments);
+                }
                 continueProcessingCurrentScope();
                 break;
             case "ClassInstanceCreation": {
@@ -227,7 +229,8 @@
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "MethodInvocation": {
+            case "MethodInvocation":
+            {
                 const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
                 const methodCall = new MethodCall(methodCallIdentifier,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
@@ -261,6 +264,7 @@
                     continueProcessingCurrentScope();
                 }
                 break;
+            case "LambdaExpression":
             case "CatchClause":
                 scope.setNextBatchOfChildAstNodes(astNode.body.statements);
                 continueProcessingCurrentScope();
@@ -268,6 +272,18 @@
             case "AssertStatement":
             case "CastExpression":
                 scope.setNextBatchOfChildAstNodes([astNode.expression]);
+                continueProcessingCurrentScope();
+                break;
+            case "ArrayInitializer":
+                scope.setNextBatchOfChildAstNodes(astNode.expressions);
+                continueProcessingCurrentScope();
+                break;
+            case "SynchronizedStatement":
+                scope.setNextBatchOfChildAstNodes(astNode.body.statements.concat(astNode.expression));
+                continueProcessingCurrentScope();
+                break;
+            case "ConstructorInvocation":
+                scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
             default:

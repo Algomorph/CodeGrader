@@ -217,7 +217,7 @@ let brace_style_module = {};
         ["SwitchStatement", new BraceScopeBehavior(null, BracePairLocationType.SWITCH_BODY, [])],
         ["ForStatement", new BraceScopeBehavior("body", BracePairLocationType.FOR_LOOP, [])],
         ["EnhancedForStatement", new BraceScopeBehavior("body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
-        ["WhileStatement", new BraceScopeBehavior("body", BracePairLocationType.ENHANCED_FOR_LOOP, [])],
+        ["WhileStatement", new BraceScopeBehavior("body", BracePairLocationType.WHILE_LOOP, [])],
         ["DoStatement", new BraceScopeBehavior("body", BracePairLocationType.DO_WHILE_LOOP, [])],
         ["TryStatement", new BraceScopeBehavior("body", BracePairLocationType.TRY_BODY, [])],
         ["TypeDeclaration", new BraceScopeBehavior(null, BracePairLocationType.TYPE_BODY, [])],
