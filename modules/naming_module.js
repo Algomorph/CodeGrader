@@ -22,6 +22,8 @@ let naming_module = {};
          * @param {boolean} checkMethods check methods in the code
          * @param {boolean} checkConstants check constants and constant fields in the code
          * @param {boolean} checkTypes check types (classes/enums/interfaces) in the code
+         * @param {boolean} treatInstanceFinalFieldsAsConstants expect usage of the convention reserved for
+         * constants for the instance (non-static) final fields in Java as well
          */
         constructor(enabled = false,
                     allowedSpecialWords = ["min", "max"],
@@ -32,7 +34,8 @@ let naming_module = {};
                     checkVariablesAndFields = true,
                     checkMethods = true,
                     checkConstants = true,
-                    checkTypes = true) {
+                    checkTypes = true,
+                    treatInstanceFinalFieldsAsConstants = false) {
             this.enabled = enabled;
             this.allowedSpecialWords = allowedSpecialWords;
             this.ignoredNames = ignoredNames;
@@ -43,12 +46,36 @@ let naming_module = {};
             this.checkMethods = checkMethods;
             this.checkConstants = checkConstants;
             this.checkTypes = checkTypes;
+            this.treatInstanceFinalFieldsAsConstants = treatInstanceFinalFieldsAsConstants;
         }
     }
 
     this.getDefaultOptions = function () {
         return new Options();
     }
+
+    const NameType = {
+        METHOD: 'method',
+        VARIABLE: 'variable',
+        TYPE: 'type',
+        CONSTANT: 'constant',
+        NONE: 'none'
+    }
+
+    this.NameType = NameType
+
+    const NameTypeByDeclarationType = new Map([
+        [DeclarationType.TYPE, NameType.TYPE],
+        [DeclarationType.METHOD, NameType.METHOD],
+        [DeclarationType.CONSTANT, NameType.CONSTANT],
+        [DeclarationType.VARIABLE, NameType.VARIABLE],
+        [DeclarationType.FIELD, NameType.VARIABLE],
+        [DeclarationType.FINAL_INSTANCE_FIELD, NameType.VARIABLE],
+        [DeclarationType.THIS, NameType.NONE],
+        [DeclarationType.CAST, NameType.NONE],
+        [DeclarationType.CONSTRUCTOR, NameType.NONE], // matches the type name, hence constructor name holds no additional information and doesn't need to be inspected
+        [DeclarationType.FINAL_STATIC_FIELD, NameType.CONSTANT]
+    ]);
 
 
     const NameTypeConvention = {
@@ -96,16 +123,16 @@ let naming_module = {};
     /**
      * Splits a name into "words" (or attempts to).
      * Assumes camelCase, PascalCase, or ALL_CAPS_SNAKE_CASE.
-     * @param {Declaration} declaration some string
+     * @param {string} name some string identifier in the code
+     * @param {number} nameType name type
      * @param {boolean} omitNumbers if true, will omit any numbers
      * @return {*|string[]}
      */
-    function splitCodeNameIntoWords(declaration, omitNumbers = true) {
-        let name = declaration.name;
+    function splitCodeNameIntoWords(name, nameType, omitNumbers = true) {
         if (omitNumbers) {
             name = name.replace(/\d+/g, "");
         }
-        if (declaration.nameType === code_analysis.NameType.CONSTANT) {
+        if (nameType === NameType.CONSTANT) {
             return name.split('_').map(word => word.toLowerCase());
         } else {
             return name.split(/(?=[A-Z])/).map(word => word.toLowerCase());
@@ -154,7 +181,7 @@ let naming_module = {};
      */
     function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
         let potentialProblems = []
-        let name = declaration.name;
+        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,'');
         if (numbersAllowedInNames) {
             name = name.replace(/\d+/g, "");
         }
@@ -166,7 +193,7 @@ let naming_module = {};
         } else {
             // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
             // because the splitting relies on the notation.
-            let words = splitCodeNameIntoWords(declaration);
+            let words = splitCodeNameIntoWords(name, declaration.nameType);
             let nonDictionaryWords = [];
 
             if(words.length > 1 || words[0].length > 1) {
@@ -286,18 +313,27 @@ let naming_module = {};
                     let declarationsForType = typeInformation.declarations.filter(declaration => !ignoredNamesForType.has(declaration.name));
 
                     for (const declaration of declarationsForType) {
+                        declaration.nameType = NameTypeByDeclarationType.get(declaration.declarationType);
+
                         switch (declaration.nameType) {
-                            case code_analysis.NameType.VARIABLE:
+                            case NameType.VARIABLE:
+                                // in accordance to options, pick whether a final instance field is to be
+                                // treated as constant or not
+                                if(declaration.declarationType === DeclarationType.FINAL_INSTANCE_FIELD
+                                   && options.treatInstanceFinalFieldsAsConstants){
+                                    declaration.nameType = NameType.CONSTANT;
+                                }
                                 variableNames.push(declaration);
                                 break;
-                            case code_analysis.NameType.METHOD:
+                            case NameType.METHOD:
                                 methodNames.push(declaration);
                                 break;
-                            case code_analysis.NameType.CONSTANT:
+                            case NameType.CONSTANT:
                                 constantNames.push(declaration);
                                 break;
-                            case code_analysis.NameType.TYPE:
+                            case NameType.TYPE:
                                 typeNames.push(declaration);
+
                         }
                     }
                 }

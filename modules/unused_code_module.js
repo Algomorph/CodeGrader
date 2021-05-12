@@ -38,27 +38,27 @@ let unused_code_module = {};
     }
 
     let UsageTypeByDeclarationType = new Map([
-        [code_analysis.DeclarationType.METHOD, "method"],
-        [code_analysis.DeclarationType.TYPE, "class/enum/interface"],
-        [code_analysis.DeclarationType.VARIABLE, "variable"],
-        [code_analysis.DeclarationType.CONSTANT, "constant"],
-        [code_analysis.DeclarationType.FIELD, "field"],
-        [code_analysis.DeclarationType.CONSTANT_FIELD, "constant field"],
-        [code_analysis.DeclarationType.THIS, "this class/enum"],
-        [code_analysis.DeclarationType.CAST, "cast"],
-        [code_analysis.DeclarationType.CONSTRUCTOR, "constructor"],
+        [DeclarationType.METHOD, "method"],
+        [DeclarationType.TYPE, "class/enum/interface"],
+        [DeclarationType.VARIABLE, "variable"],
+        [DeclarationType.CONSTANT, "constant"],
+        [DeclarationType.FIELD, "field"],
+        [DeclarationType.FINAL_INSTANCE_FIELD, "constant field"],
+        [DeclarationType.THIS, "this class/enum"],
+        [DeclarationType.CAST, "cast"],
+        [DeclarationType.CONSTRUCTOR, "constructor"],
     ]);
 
     let ButtonClassByDeclarationType = new Map([
-        [code_analysis.DeclarationType.METHOD, "unused-method-problem"],
-        [code_analysis.DeclarationType.TYPE, "unused-type-problem"],
-        [code_analysis.DeclarationType.VARIABLE, "unused-variable-problem"],
-        [code_analysis.DeclarationType.CONSTANT, "unused-variable-problem"],
-        [code_analysis.DeclarationType.FIELD, "unused-variable-problem"],
-        [code_analysis.DeclarationType.CONSTANT_FIELD, "unused-variable-problem"],
-        [code_analysis.DeclarationType.THIS, ""],
-        [code_analysis.DeclarationType.CAST, ""],
-        [code_analysis.DeclarationType.CONSTRUCTOR, "unused-method-problem"],
+        [DeclarationType.METHOD, "unused-method-problem"],
+        [DeclarationType.TYPE, "unused-type-problem"],
+        [DeclarationType.VARIABLE, "unused-variable-problem"],
+        [DeclarationType.CONSTANT, "unused-variable-problem"],
+        [DeclarationType.FIELD, "unused-variable-problem"],
+        [DeclarationType.FINAL_INSTANCE_FIELD, "unused-variable-problem"],
+        [DeclarationType.THIS, ""],
+        [DeclarationType.CAST, ""],
+        [DeclarationType.CONSTRUCTOR, "unused-method-problem"],
     ]);
 
     /**
@@ -78,19 +78,20 @@ let unused_code_module = {};
         $(uiPanel).append("<h3 style='color:" + unusedCodeOccurrenceColor + "'>Unused Code</h3>");
 
         // configure ignored declaration types
-        const declarationTypesToIgnore = new Set([code_analysis.DeclarationType.CAST, code_analysis.DeclarationType.THIS]);
+        const declarationTypesToIgnore = new Set([DeclarationType.CAST, DeclarationType.THIS]);
         if (!options.checkTypes) {
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.TYPE);
+            declarationTypesToIgnore.add(DeclarationType.TYPE);
         }
         if (!options.checkMethods) {
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.METHOD);
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTRUCTOR);
+            declarationTypesToIgnore.add(DeclarationType.METHOD);
+            declarationTypesToIgnore.add(DeclarationType.CONSTRUCTOR);
         }
         if (!options.checkVariables) {
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.FIELD);
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT_FIELD);
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.VARIABLE);
-            declarationTypesToIgnore.add(code_analysis.DeclarationType.CONSTANT);
+            declarationTypesToIgnore.add(DeclarationType.FIELD);
+            declarationTypesToIgnore.add(DeclarationType.FINAL_INSTANCE_FIELD);
+            declarationTypesToIgnore.add(DeclarationType.FINAL_STATIC_FIELD);
+            declarationTypesToIgnore.add(DeclarationType.VARIABLE);
+            declarationTypesToIgnore.add(DeclarationType.CONSTANT);
         }
 
         const globalIgnoredNames = options.ignoredNames.global;

@@ -25,8 +25,14 @@
             "third_party/underscore-min.js", 
             "third_party/mustache.js", 
             "third_party/bootstrap.min.js",
+            "third_party/json5.min.js",
+            "code_analysis/module.js",
+            "code_analysis/code_entity_types.js",
+            "code_analysis/auxiliary_analytic_routines.js",
+            "code_analysis/code_entity_search.js",
+            "code_analysis/code_file.js",
+            "code_analysis/type_information.js",
             "options.js",
-            "code_analysis.js",
             "utilities.js",
             "submit_server_ui.js",
             "modules/brace_style_module.js",
@@ -72,5 +78,5 @@
    "permissions": [ "tabs", "storage", "activeTab", "idle", "alarms", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0",
-   "version_name": "1.0 alpha"
+   "version_name": "1.0 beta"
 }

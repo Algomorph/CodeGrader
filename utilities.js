@@ -5,53 +5,6 @@
 // UTILITY FUNCTIONS & CLASSES
 
 
-class TypeInformation {
-    constructor() {
-        /** @type {Array.<MethodCall>}*/
-        this.methodCalls = [];
-        /** @type {Array.<Declaration>}*/
-        this.declarations = [];
-        /** @type {Array.<Loop>}*/
-        this.loops = [];
-        /** @type {Array.<Scope>}*/
-        this.scopes = [];
-        this.ternaryExpressions = [];
-        this.binaryExpressions = [];
-        this.unaryExpressions = [];
-        this.assignments = [];
-        /** @type {Array.<Usage>}*/
-        this.usages = [];
-        this.typeScope = null;
-    }
-}
-
-class CodeFile {
-    constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
-        this.filename = filename;
-        this.sourceCode = sourceCode;
-        this.codeLines = sourceCode.split("\n");
-        this.codeLineLengths = this.codeLines.map(codeLine => codeLine.length);
-        let offset = 0;
-        /** @type {Array.<Number>}*/
-        this.lineStartOffsets = [];
-        /** @type {Array.<Number>}*/
-        this.lineEndOffsets = [];
-        $.each(this.codeLineLengths, (iLine, length) => {
-            this.lineStartOffsets.push(offset);
-            offset += length;
-            this.lineEndOffsets.push(offset);
-        });
-        this.trCodeLines = trCodeLines;
-        this.abstractSyntaxTree = abstractSyntaxTree;
-        this.parseError = parseError;
-        this.fromLineIndex = fromLineIndex;
-        this.toLineIndex = toLineIndex;
-
-        /**@type {Map.<string, TypeInformation>}*/
-        this.types = new Map();
-    }
-}
-
 function parseJavaCode(fileCode) {
     let abstractSyntaxTree = null;
     let parseError = null;
@@ -147,7 +100,7 @@ function getIndentationWidth(codeLine, tabWidth = 4) {
  * @param {number} tabWidth assumed tab width
  * @return {number} code line character count
  */
-function getLineCharacterWidth(codeLine, tabWidth = 4){
+function getLineCharacterWidth(codeLine, tabWidth = 4) {
     const tabReplacement = " ".repeat(tabWidth);
     return codeLine.replaceAll("\t", tabReplacement).length;
 }
@@ -404,7 +357,7 @@ function validateStringListOption(value, optionPath, allowedValues, defaultValue
 }
 
 
-function getFloatAtStartOfString(string){
+function getFloatAtStartOfString(string) {
     return parseFloat(string.match(/(\d+[.]?\d*).*/)[1]);
 }
 

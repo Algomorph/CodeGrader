@@ -27,7 +27,7 @@ let line_length_module = {};
     }
 
     //TODO: make class below inherit from a CodeEntity class. This class should also be used as
-    // prototype for every single thing discovered and stored by code_analysis entity search.
+    // prototype for every single thing discovered and stored by code_entity_search entity search.
     class LineLengthViolation {
         /**
          * @param {number} lineLength

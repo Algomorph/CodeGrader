@@ -60,7 +60,7 @@ let test_module = {};
                 for(const call of testedMethods) {
                     const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
 
-                    if (call.callType === code_analysis.MethodCallType.CONSTRUCTOR) {
+                    if (call.callType === MethodCallType.CONSTRUCTOR) {
                         $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
                         addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
                             "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
@@ -112,6 +112,7 @@ let test_module = {};
                     let testedMethodValues = searchScopes(untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation);
                     testedMethodValues.forEach(call => testedMethods.add(call));
                 }
+
                 if(untestedMethods.has(call.name)) {
                     testedMethods.add(call);
                     untestedMethods.delete(call.name);

@@ -1,16 +1,12 @@
 {
+    "course": "CMSC131",
     "filesToCheck": [
-        "WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java",
-        "WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java",
-        "WebPageGen/src/main/java/model/Element.java|src/model/Element.java",
-        "WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java",
-        "WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java",
-        "WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java",
-        "WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java",
-        "WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java",
-        "WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java",
-        "WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java"
+        "Poker/src/poker/Deck.java|src/poker/Deck.java|poker/Deck.java",
+        "Poker/src/poker/PokerHandEvaluator.java|src/poker/PokerHandEvaluator.java|poker/PokerHandEvaluator.java",
+        "Poker/src/poker/StudentTests.java|src/poker/StudentTests.java|poker/StudentTests.java"
     ],
+    "firstStudent": "a",
+    "lastStudent": "{",
     "lateScoreAdjustment": -12,
     "moduleOptions": {
         "brace_style_module": {
@@ -19,19 +15,35 @@
         },
         "grade_server_module": {
             "enabled": true,
-            "gradeServerAssignmentName": "P2",
+            "gradeServerAssignmentName": "P7",
             "graderName": "",
             "maximumCodeStyleScore": 10,
-            "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": 0
+            "maximumStudentTestsScore": 10,
+            "minimumScoreAdjustment": -20
         },
         "indentation_module": {
             "enabled": true
         },
         "keyword_and_pattern_module": {
-            "enabled": false,
-            "keywords": [],
+            "enabled": true,
+            "keywords": [
+                "ArrayList",
+                "LinkedList",
+                "Set",
+                "Map",
+                "Arrays.sort",
+                "Collections.sort",
+                "sort",
+                "Sort",
+                "arrange",
+                "Arrange"
+            ],
             "patterns": []
+        },
+        "line_length_module": {
+            "enabled": true,
+            "lineLengthLimit": 100,
+            "tabCharacterWidth": 4
         },
         "loop_module": {
             "enabled": false,
@@ -50,7 +62,8 @@
         "naming_module": {
             "allowedSpecialWords": [
                 "min",
-                "max"
+                "max",
+                "args"
             ],
             "checkConstants": true,
             "checkMethods": true,
@@ -58,11 +71,10 @@
             "checkVariablesAndFields": true,
             "enabled": true,
             "ignoredNames": {
-                "WebPage": [
-                    "findElem",
-                    "stats"
-                ],
-                "global": []
+                "global": [
+                    "args",
+                    "main"
+                ]
             },
             "numbersAllowedInNames": true,
             "showUniqueOnly": true,
@@ -74,8 +86,17 @@
             "enabled": true
         },
         "test_module": {
-            "enabled": false,
-            "methodsExpectedToBeTested": []
+            "enabled": true,
+            "methodsExpectedToBeTested": [
+                "PokerHandEvaluator.hasPair",
+                "PokerHandEvaluator.hasTwoPair",
+                "PokerHandEvaluator.hasThreeOfAKind",
+                "PokerHandEvaluator.hasStraight",
+                "PokerHandEvaluator.hasFlush",
+                "PokerHandEvaluator.hasFullHouse",
+                "PokerHandEvaluator.hasFourOfAKind",
+                "PokerHandEvaluator.hasStraightFlush"
+            ]
         },
         "unused_code_module": {
             "checkMethods": false,
@@ -83,13 +104,18 @@
             "checkVariables": true,
             "enabled": true,
             "ignoredNames": {
-                "global": []
+                "global": [
+                    "args"
+                ]
             },
             "markAllUsages": false
         }
     },
-    "course": "CMSC132",
     "semesterSeason": "spring",
-    "submitServerAssignmentName": "Proj 2",
+    "submitServerAssignmentName": "Proj 7",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": true
+    },
     "year": "2021"
 }

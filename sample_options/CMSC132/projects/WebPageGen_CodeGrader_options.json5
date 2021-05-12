@@ -1,0 +1,96 @@
+{
+    // Comment Testing
+    "filesToCheck": [
+        "WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java",
+        "WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java",
+        "WebPageGen/src/main/java/model/Element.java|src/model/Element.java",
+        "WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java",
+        "WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java",
+        "WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java",
+        "WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java",
+        "WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java",
+        "WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java",
+        "WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java"
+    ],
+    "lateScoreAdjustment": -12,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": true,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "P2",
+            "graderName": "",
+            "maximumCodeStyleScore": 10,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": 0
+        },
+        "indentation_module": {
+            "enabled": true
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
+        },
+        "loop_module": {
+            "enabled": false,
+            "methodList": [],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": false,
+            "ignoredMethods": {
+                "global": []
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max"
+            ],
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": true,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "WebPage": [
+                    "findElem",
+                    "stats"
+                ],
+                "global": []
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": true
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": []
+            },
+            "markAllUsages": false
+        }
+    },
+    "course": "CMSC132",
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Proj 2",
+    "year": "2021"
+}

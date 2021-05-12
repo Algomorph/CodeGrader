@@ -87,7 +87,7 @@ let loop_module = {};
                     );
                     addButtonComment(
                         loop.trCodeLine,
-                        capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
+                        capitalize(LoopDescriptionByType.get(loop.type)),
                         problemDescription, problemColor
                     );
                 }
@@ -99,7 +99,7 @@ let loop_module = {};
                         );
                         addButtonComment(
                             loop.trCodeLine,
-                            capitalize(code_analysis.LoopDescriptionByType.get(loop.type)),
+                            capitalize(LoopDescriptionByType.get(loop.type)),
                             "", noteColor
                         );
                     }
