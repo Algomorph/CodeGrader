@@ -1,0 +1,121 @@
+{
+    "course": "CMSC131",
+    "filesToCheck": [
+        "FinalExam/src/main/java/sysImplementation/UtilitiesRec.java|src/sysImplementation/UtilitiesRec.java|sysImplementation/UtilitiesRec.java"
+    ],
+    "firstStudent": "a",
+    "lastStudent": "{",
+    "lateScoreAdjustment": -30,
+    "moduleOptions": {
+        "brace_style_module": {
+            "enabled": false,
+            "markAllBraces": false
+        },
+        "grade_server_module": {
+            "enabled": true,
+            "gradeServerAssignmentName": "FE",
+            "graderName": "",
+            "maximumCodeStyleScore": 0,
+            "maximumStudentTestsScore": 0,
+            "minimumScoreAdjustment": -74
+        },
+        "indentation_module": {
+            "enabled": false
+        },
+        "keyword_and_pattern_module": {
+            "enabled": false,
+            "keywords": [],
+            "patterns": []
+        },
+        "line_length_module": {
+            "enabled": false,
+            "lineLengthLimit": 100,
+            "tabCharacterWidth": 4
+        },
+        "loop_module": {
+            "enabled": true,
+            "methodList": [
+                "UtilitiesRec.changeArrays",
+                "UtilitiesRec.changeList"
+            ],
+            "methodListUsage": "disallowed",
+            "showAll": true
+        },
+        "method_call_module": {
+            "enabled": true,
+            "ignoredMethods": {
+                "global": [
+                    "$ArrayList$.get",
+                    "$ArrayList$.set",
+                    "this.changeList",
+                    "this.changeArrays",
+                    "$ArrayList$.size"
+                ]
+            },
+            "ignoredTypes": [],
+            "showUniqueOnly": false
+        },
+        "naming_module": {
+            "allowedSpecialWords": [
+                "min",
+                "max",
+                "args"
+            ],
+
+            "checkConstants": true,
+            "checkMethods": true,
+            "checkTypes": false,
+            "checkVariablesAndFields": true,
+            "enabled": true,
+            "ignoredNames": {
+                "global": [
+                  "array1", "array2", "arrayOne", "arrayTwo", "array1Value",
+                  "array2Value", "arrayOneValue", "arrayTwoValue", "index", "temp", "temp1", "temp2", "tmp",
+                  "myList", "start", "end", "one", "two", "x", "answer", "myData", "data",
+                  "small", "large", "min", "max", "hold", "holder", "placeholder", "placeHolder",
+                  "odd", "isOdd", "even", "isEven", "arr1", "arr2",
+                  "tempOne", "tempTwo", "num", "value", "val", "val1", "val2", "value1", "value2",
+                  "array1Value", "array2Value", "smallerValue", "smaller", "largerValue", "larger",
+                  "lastValue", "last", "first", "firstValue", "greater", "greaterValue", "startValue",
+                  "start", "started", "endValue", "end", "biggernumber", "bigger", "biggerValue",
+                  "pointer", "s", "size", "length", "len", "index", "tempIndex", "tmpIndex", "idx",
+                  "tmpIdx", "smallest", "smallestValue", "smallestLength", "middle", "middleVal", "middleIndex",
+                  "swap", "swap1", "swap2", "largerNumber", "smallerNumber", "greaterNumber", "startNumber", "minNumber",
+                  "maxNumber", "a", "b", "otherValue", "otherIndex", "otherNumber"
+                ]
+            },
+            "numbersAllowedInNames": true,
+            "showUniqueOnly": true,
+            "sortAlphabetically": false,
+            "treatInstanceFinalFieldsAsConstants": false
+        },
+        "spacing_module": {
+            "checkSpacingAroundAssignmentOperators": true,
+            "checkSpacingAroundBinaryOperators": true,
+            "enabled": false
+        },
+        "test_module": {
+            "enabled": false,
+            "methodsExpectedToBeTested": []
+        },
+        "unused_code_module": {
+            "checkMethods": false,
+            "checkTypes": false,
+            "checkVariables": true,
+            "enabled": false,
+            "ignoredNames": {
+                "global": [
+                    "args"
+                ]
+            },
+            "markAllUsages": false
+        }
+    },
+    "semesterSeason": "spring",
+    "submitServerAssignmentName": "Final Exam",
+    "usageStatisticsOptions": {
+        "anonymizeUser": true,
+        "enabled": false
+    },
+    "year": "2021"
+}

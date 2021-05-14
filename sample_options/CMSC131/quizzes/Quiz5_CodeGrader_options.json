@@ -1,7 +1,7 @@
 {
   "course": "CMSC131",
   "filesToCheck": [
-    "Quiz5/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java"
+    "Quiz5/src/main/java/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java"
   ],
   "firstStudent": "a",
   "lastStudent": "{",
