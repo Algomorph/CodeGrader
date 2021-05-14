@@ -265,6 +265,9 @@
                 }
                 break;
             case "LambdaExpression":
+                scope.setNextBatchOfChildAstNodes([astNode.body]);
+                continueProcessingCurrentScope();
+                break;
             case "CatchClause":
                 scope.setNextBatchOfChildAstNodes(astNode.body.statements);
                 continueProcessingCurrentScope();
