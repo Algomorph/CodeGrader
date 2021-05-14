@@ -17,7 +17,7 @@
             "graderName": "",
             "maximumCodeStyleScore": 0,
             "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": -74
+            "minimumScoreAdjustment": -40
         },
         "indentation_module": {
             "enabled": false
