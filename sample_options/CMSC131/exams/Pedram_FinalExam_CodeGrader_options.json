@@ -115,7 +115,7 @@
     "submitServerAssignmentName": "Final Exam",
     "usageStatisticsOptions": {
         "anonymizeUser": true,
-        "enabled": false
+        "enabled": true
     },
     "year": "2021"
 }
