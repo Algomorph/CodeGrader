@@ -49,7 +49,9 @@
                     "$ArrayList$.set",
                     "this.changeList",
                     "this.changeArrays",
-                    "$ArrayList$.size"
+                    "$ArrayList$.size",
+                    "UtilitiesRec.changeArrays",
+                    "UtilitiesRec.changeList"
                 ]
             },
             "ignoredTypes": [],
