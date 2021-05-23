@@ -104,11 +104,13 @@ let grade_server_module = {};
                 const directoryId = $("h1").text().split("(")[1].split(")")[0]
                 let finalComment = ""
                 // add graders name
+                const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
+                
                 finalComment += "Grader: " + options.graderName + "\n\n"
                 // add REVIEW link
-                finalComment += "See feedback comments in your code online at: " + location.href + "\n\n"
+                if (classes.length > 0 ) {finalComment += "See feedback comments in your code online at: " + location.href + "\n\n"}
                 // Using CSS selectors for majority of filtering
-                const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
+                
                 classes.each(function () {
                     const className = $(this).find("div.GMYHEHOCNK").text().split('/').slice(-1)[0]
                     finalComment += className + "\n";
