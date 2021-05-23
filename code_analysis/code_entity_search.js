@@ -377,6 +377,8 @@
                 break;
             case "InfixExpression":
                 return this.getOperandStart(operandAstNode.leftOperand);
+            case "SimpleType":
+                return operandAstNode.name.location.start;
             default:
                 return operandAstNode.location.start;
         }

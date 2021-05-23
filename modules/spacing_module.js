@@ -51,6 +51,11 @@ let spacing_module = {};
                     let rightHandSide;
                     let operator;
                     switch (expression.node) {
+                        case "InstanceofExpression":
+                            leftHandSide = expression.leftOperand;
+                            rightHandSide = expression.rightOperand;
+                            operator = "instanceof";
+                            break;
                         case "InfixExpression":
                             leftHandSide = expression.leftOperand;
                             rightHandSide = expression.rightOperand;
@@ -67,7 +72,6 @@ let spacing_module = {};
                             operator = "=";
                             break;
                     }
-
 
                     const textBetweenOperandsStart = code_analysis.getOperandEnd(leftHandSide);
                     //TODO: from code design perspective, these corrections should also be inside the getOperandEnd/getOperandStart functions, not here
