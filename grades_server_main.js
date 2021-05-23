@@ -77,7 +77,7 @@ function addListenerForOpeningStudentGradePage() {
             // this if block only returns the link of the page where you insert grades
             if (message.action === "openStudentGradesPage") {
                 let report = message.report;
-                let studentTableRow = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:has(td:contains('" + report.directoryId + "'))");
+                let studentTableRow = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:has(td:containsExact('" + report.directoryId + "'))");
                 let headersTableCell = $("form[action=\"enterGrades.cgi\"]>table>tbody>tr:first td");
 
                 if (studentTableRow.length === 0) {
@@ -125,5 +125,43 @@ function main() {
         addListenerForOpeningStudentGradePage();
     }
 }
+//  Jquery selector extension for exact contains match
+$.extend( $.expr[":"], {
+    containsExact: $.expr.createPseudo ?
+     $.expr.createPseudo(function(text) {
+      return function(elem) {
+       return $.trim(elem.innerHTML.toLowerCase()) === text.toLowerCase();
+      };
+     }) :
+     // support: jQuery <1.8
+     function(elem, i, match) {
+      return $.trim(elem.innerHTML.toLowerCase()) === match[3].toLowerCase();
+     },
+   
+    containsExactCase: $.expr.createPseudo ?
+     $.expr.createPseudo(function(text) {
+      return function(elem) {
+       return $.trim(elem.innerHTML) === text;
+      };
+     }) :
+     // support: jQuery <1.8
+     function(elem, i, match) {
+      return $.trim(elem.innerHTML) === match[3];
+     },
+   
+    containsRegex: $.expr.createPseudo ?
+     $.expr.createPseudo(function(text) {
+      var reg = /^\/((?:\\\/|[^\/]) )\/([mig]{0,3})$/.exec(text);
+      return function(elem) {
+       return RegExp(reg[1], reg[2]).test($.trim(elem.innerHTML));
+      };
+     }) :
+     // support: jQuery <1.8
+     function(elem, i, match) {
+      var reg = /^\/((?:\\\/|[^\/]) )\/([mig]{0,3})$/.exec(match[3]);
+      return RegExp(reg[1], reg[2]).test($.trim(elem.innerHTML));
+     }
+   
+   });
 
 $(document).ready(main);
