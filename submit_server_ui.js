@@ -383,3 +383,4 @@ function drawVerticalLineInElement(leftOffset, height, styleClass, element) {
     lineDiv.style.height = height + "px";
 }
 
+

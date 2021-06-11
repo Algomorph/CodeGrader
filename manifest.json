@@ -27,6 +27,7 @@
             "third_party/bootstrap.min.js",
             "third_party/json5.min.js",
             "code_analysis/module.js",
+            "code_analysis/code_entity.js",
             "code_analysis/code_entity_types.js",
             "code_analysis/auxiliary_analytic_routines.js",
             "code_analysis/code_entity_search.js",
