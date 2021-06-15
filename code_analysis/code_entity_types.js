@@ -105,6 +105,7 @@ class Declaration extends CodeEntity{
         SINGLE_LETTER_WORD: new CodeEntity.Category("single-letter declaration", -1, true, null,
             "naming-single-letter-word-problem",
             "The declaration is a single character, which is not descriptive-enough in most cases.")
+        // TODO: "compound problem"
     }
 
 }
