@@ -50,8 +50,10 @@ let DeclarationTypeByNode = {
 }
 
 
-class Declaration {
+class Declaration extends CodeEntity{
+
     constructor(name, typeName, typeArguments, astNode, codeFile) {
+        super();
         this.name = name;
         this.typeName = typeName; // for methods, the return type
         this.typeArguments = typeArguments;
@@ -86,7 +88,25 @@ class Declaration {
             }
         }
         this.nameType = null;
+        this.potentialProblems = [];
+        this.problematicNameParts = [];
     }
+
+    // code entity categories
+    static #Categories = {
+        NO_PROBLEMS: new CodeEntity.Category("declaration", 0, false, null, "", "",
+            "No problems were automatically detected."),
+        NAMING_CONVENTION: new CodeEntity.Category(
+            "declaration not following naming convention", -1, true, null,
+            "naming-convention-problem","The declaration doesn't seem to follow the allowed naming convention."),
+        NON_DICTIONARY_WORD: new CodeEntity.Category("declaration with a non-dictionary word",
+            -1, true, null, "naming-non-dictionary-word-problem",
+            "The declaration includes a non-dictionary word or an abbreviation. The former are not descriptive and the latter are ambiguous."),
+        SINGLE_LETTER_WORD: new CodeEntity.Category("single-letter declaration", -1, true, null,
+            "naming-single-letter-word-problem",
+            "The declaration is a single character, which is not descriptive-enough in most cases.")
+    }
+
 }
 
 /**

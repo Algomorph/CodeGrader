@@ -85,7 +85,7 @@ let loop_module = {};
                         loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
                         loop.trCodeLine, "disallowed-loop-problem", problemDescription)
                     );
-                    addButtonComment(
+                    addCodeTagWithComment(
                         loop.trCodeLine,
                         capitalize(LoopDescriptionByType.get(loop.type)),
                         problemDescription, problemColor
@@ -97,7 +97,7 @@ let loop_module = {};
                             loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
                             loop.trCodeLine, "", "No problems were automatically detected.")
                         );
-                        addButtonComment(
+                        addCodeTagWithComment(
                             loop.trCodeLine,
                             capitalize(LoopDescriptionByType.get(loop.type)),
                             "", noteColor

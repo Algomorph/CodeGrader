@@ -146,9 +146,9 @@ let naming_module = {};
     }
 
     const NameCheckProblemTypeExplanation = {
-        1: "Naming convention problem detected.",
-        2: "Non-descriptive variable name detected: the name includes a non-dictionary word or abbreviation.",
-        3: "Single-letter variable name detected: the name is a single character."
+        1: "The name doesn't seem to follow the allowed naming convention.",
+        2: "The name includes a non-dictionary word or an abbreviation. The former are difficult to understand and the latter are ambiguous.",
+        3: "The name is a single character, which is not descriptive-enough in most cases."
     }
 
     const NameCheckProblemStyleClass = {
@@ -271,7 +271,7 @@ let naming_module = {};
                 problemsDescription = "No problems were automatically detected.";
             }
             $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, declaration.trCodeLine, labelStyleClass, problemsDescription));
-            addButtonComment(
+            addCodeTagWithComment(
                 declaration.trCodeLine,
                 capitalize(declaration.nameType) + " name: " + declaration.name,
                 defaultMessageText, color

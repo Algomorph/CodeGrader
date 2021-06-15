@@ -118,7 +118,7 @@ let method_call_module = {};
                     potentialProblemMessage));
             }
 
-            addButtonComment(
+            addCodeTagWithComment(
                 methodCall.trCodeLine, capitalize(methodCall.callType) + " call: " + methodCall.name, problemMessage, "#b3769f"
             );
         }
