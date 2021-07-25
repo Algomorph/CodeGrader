@@ -224,6 +224,60 @@ let naming_module = {};
         return potentialProblems;
     }
 
+
+    /**
+     * Checks a code name occurrence for potential problems.
+     * @param {Declaration} declaration
+     * @param {Set.<string>} allowedSpecialWords special non-dictionary words/abbreviations/acronyms that are allowed
+     * per the assignment options
+     * @param {boolean} numbersAllowedInNames are numbers considered fair game as part of the name
+     * @return {Array.<NameCheckProblem>}
+     */
+    function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
+        let potentialProblems = []
+        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,'');
+        if (numbersAllowedInNames) {
+            name = name.replace(/\d+/g, "");
+        }
+        if (!NameTypeConventionCheck[declaration.nameType](name)) {
+            potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION,
+                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION] + " "
+                + capitalize(declaration.nameType) + " \"" + declaration.name + "\" doesn&#39;t seem to follow the "
+                + NameTypeConvention[declaration.nameType] + " convention."));
+        } else {
+            // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
+            // because the splitting relies on the notation.
+            let words = splitCodeNameIntoWords(name, declaration.nameType);
+            let nonDictionaryWords = [];
+
+            if(words.length > 1 || words[0].length > 1) {
+                for (const word of words) {
+                    if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
+                        nonDictionaryWords.push(word);
+                    }
+                }
+            } else {
+                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
+                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
+                    " \"" + words[0] + "\" is a single letter."));
+            }
+            if (nonDictionaryWords.length > 0) {
+                if (nonDictionaryWords.length > 1) {
+                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
+                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
+                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has parts \""
+                        + nonDictionaryWords.join("\", \"") + "\" that appear problematic."));
+                } else {
+                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
+                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
+                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has part \""
+                        + nonDictionaryWords[0] + "\" that appears problematic."));
+                }
+            }
+        }
+        return potentialProblems;
+    }
+
     /**
      * Process an array of code name objects: add a UI button for each code name,
      * as well as an in-code label with a hidden text area.
