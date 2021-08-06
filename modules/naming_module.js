@@ -6,6 +6,196 @@ let naming_module = {};
 
 (function () {
 
+    class DeclarationHighlight extends CodeEntity {
+        static #TagColorByType = {
+            'method': "#4fa16b",
+            'variable': "#4fa16b",
+            'type': "orange",
+            'constant': "#4f72e3",
+            'none': "#555555"
+        }
+
+        /** @type {Declaration} */
+        #declaration = null
+
+        /** @param {Declaration} declaration */
+        constructor(declaration) {
+            super(declaration.trCodeLine);
+            this.#declaration = declaration;
+        }
+
+        get _labelName() {
+            return this.#declaration.name;
+        }
+
+        get _tagName() {
+            return capitalize(this.#declaration.nameType) + " " + this.#declaration.name;
+        }
+
+        get _tagColor() {
+            return DeclarationHighlight.#TagColorByType[this.#declaration.nameType];
+        }
+
+        get declaration() {
+            return this.#declaration;
+        }
+    }
+
+    class NamingIssue extends DeclarationHighlight {
+        /** @param {Declaration} declaration */
+        constructor(declaration) {
+            super(declaration);
+        }
+
+        get points() {
+            return -1;
+        }
+
+        get isIssue() {
+            return true;
+        }
+
+        get _toolTip() {
+            return this._defaultMessageText;
+        }
+    }
+
+
+    class NamingConventionIssue extends NamingIssue {
+        static #NameTypeConvention = {
+            'method': 'camelCase',
+            'variable': 'camelCase',
+            'type': 'PascalCase',
+            'constant': 'ALL_CAPS_SNAKE_CASE',
+        }
+
+        /** @param {Declaration} declaration */
+        constructor(declaration) {
+            super(declaration);
+        }
+
+        get _labelStyleClass() {
+            return "naming-convention-problem";
+        }
+
+        get _defaultMessageText() {
+            return capitalize(this.declaration.nameType) + " \"" + this.declaration.name +
+                "\" doesn&#39;t seem to follow the " + NamingConventionIssue.#NameTypeConvention[this.declaration.nameType]
+                + " convention.";
+        }
+
+        get _tagColor() {
+            return "#cf821f";
+        }
+    }
+
+    class NonDictionaryWordIssue extends NamingIssue {
+
+        /** @type {[string]}*/
+        #nonDictionaryWords
+        #isSingleWord;
+
+        /**
+         * @param {Declaration} declaration
+         * @param {[string]} nonDictionaryWords
+         * @param {boolean} isSingleWord
+         */
+        constructor(declaration, nonDictionaryWords, isSingleWord = false) {
+            super(declaration);
+            this.#nonDictionaryWords = nonDictionaryWords;
+            this.#isSingleWord = isSingleWord;
+        }
+
+        get _labelStyleClass() {
+            return "naming-non-dictionary-word-problem";
+        }
+
+        get _defaultMessageText() {
+            if (this.#nonDictionaryWords.length === 0) {
+                throw "Need at least one problematic word in non-dictionary word array, got an array of length 0.";
+            }
+            let description = "";
+            if (this.#isSingleWord) {
+                description = capitalize(this.declaration.nameType) + " \"" + this.declaration.name +
+                    "\" is a non-dictionary word or an abbreviation. The former are not descriptive and the latter are ambiguous.";
+            } else {
+                let concatenatedNonDictionaryWords;
+                let parts = "parts";
+                let appear = "appear";
+                let abbreviations = "non-dictionary words and/or abbreviations.";
+                if (this.#nonDictionaryWords.length > 2) {
+                    concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords.slice(-1).join("\", \"") +
+                        ", and \"" + this.#nonDictionaryWords.slice(-1) + "\"";
+                } else if (this.#nonDictionaryWords.length === 2) {
+                    concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords.join(" and ") + "\"";
+                } else {
+                    concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords[0] + "\"";
+                    parts = "part";
+                    appear = "appears";
+                    abbreviations = "a non-dictionary word or an abbreviation.";
+                }
+                description = capitalize(this.declaration.nameType) + " \"" + this.declaration.name + "\" has " +
+                    parts + " " + concatenatedNonDictionaryWords + " that " + appear + " to be " + abbreviations;
+                description += " The former are not descriptive and the latter are ambiguous.";
+            }
+
+            return description;
+        }
+
+        get _tagColor() {
+            return "#9e9711";
+        }
+    }
+
+    class SingleLetterNameIssue extends NamingIssue {
+        /**
+         * @param {Declaration} declaration
+         */
+        constructor(declaration) {
+            super(declaration);
+        }
+
+        get _labelStyleClass() {
+            return "naming-single-letter-word-problem";
+        }
+
+        get _defaultMessageText() {
+            return capitalize(this.declaration.nameType) + " \"" + this.declaration.name + "\" is a single letter. " +
+                "Single-character declarations are not descriptive-enough in most cases.";
+        }
+
+        get _tagColor() {
+            return "#b29241";
+        }
+    }
+
+    class NamingCompoundIssue extends NamingIssue {
+        #issues
+
+        /**
+         * @param {Declaration} declaration
+         * @param {[NamingIssue]} issues
+         */
+        constructor(declaration, issues) {
+            super(declaration);
+            this.#issues = issues;
+        }
+
+        get _labelStyleClass() {
+            return "naming-compound-problem";
+        }
+
+        get _defaultMessageText() {
+            return "Compound naming problem detected in " + this.declaration.nameType + " \"" + this.declaration.name
+                + "\". " + this.#issues.map((issue) => issue.description).join(", ") + "."
+        }
+
+        get _tagColor() {
+            return "#e35d10";
+        }
+    }
+
+
     class Options {
         /**
          * Make options for this module.
@@ -139,143 +329,54 @@ let naming_module = {};
         }
     }
 
-    const NameCheckProblemType = {
-        NAMING_CONVENTION: 1,
-        NON_DICTIONARY_WORD: 2,
-        SINGLE_LETTER_WORD: 3
-    }
-
-    const NameCheckProblemTypeExplanation = {
-        1: "The name doesn't seem to follow the allowed naming convention.",
-        2: "The name includes a non-dictionary word or an abbreviation. The former are difficult to understand and the latter are ambiguous.",
-        3: "The name is a single character, which is not descriptive-enough in most cases."
-    }
-
-    const NameCheckProblemStyleClass = {
-        1: "naming-convention-problem",
-        2: "naming-non-dictionary-word-problem",
-        3: "naming-single-letter-word-problem"
-    }
-
-    /**
-     * Represents a potential problem detected with a name in Java code.
-     */
-    class NameCheckProblem {
-        /**
-         * @param {number} type
-         * @param {string} description
-         */
-        constructor(type, description) {
-            this.type = type;
-            this.description = description;
-        }
-    }
-
     /**
      * Checks a code name occurrence for potential problems.
      * @param {Declaration} declaration
      * @param {Set.<string>} allowedSpecialWords special non-dictionary words/abbreviations/acronyms that are allowed
      * per the assignment options
      * @param {boolean} numbersAllowedInNames are numbers considered fair game as part of the name
-     * @return {Array.<NameCheckProblem>}
+     * @return {DeclarationHighlight}
      */
-    function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
-        let potentialProblems = []
-        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,'');
+    function checkName(declaration, allowedSpecialWords, numbersAllowedInNames = true) {
+        let potentialIssues = []
+        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g, '');
         if (numbersAllowedInNames) {
             name = name.replace(/\d+/g, "");
         }
         if (!NameTypeConventionCheck[declaration.nameType](name)) {
-            potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION,
-                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION] + " "
-                + capitalize(declaration.nameType) + " \"" + declaration.name + "\" doesn&#39;t seem to follow the "
-                + NameTypeConvention[declaration.nameType] + " convention."));
+            potentialIssues.push(new NamingConventionIssue(declaration));
         } else {
             // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
             // because the splitting relies on the notation.
             let words = splitCodeNameIntoWords(name, declaration.nameType);
             let nonDictionaryWords = [];
 
-            if(words.length > 1 || words[0].length > 1) {
+            if (words.length > 1 || words[0].length > 1) {
                 for (const word of words) {
                     if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
                         nonDictionaryWords.push(word);
                     }
                 }
-            } else {
-                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
-                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
-                    " \"" + words[0] + "\" is a single letter."));
-            }
-            if (nonDictionaryWords.length > 0) {
-                if (nonDictionaryWords.length > 1) {
-                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
-                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
-                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has parts \""
-                        + nonDictionaryWords.join("\", \"") + "\" that appear problematic."));
-                } else {
-                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
-                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
-                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has part \""
-                        + nonDictionaryWords[0] + "\" that appears problematic."));
+                if (nonDictionaryWords.length > 0) {
+                    if (words.length === 1) {
+                        potentialIssues.push(new NonDictionaryWordIssue(declaration, nonDictionaryWords, true));
+                    } else {
+                        potentialIssues.push(new NonDictionaryWordIssue(declaration, nonDictionaryWords, false));
+                    }
                 }
+            } else {
+                potentialIssues.push(new SingleLetterNameIssue(declaration))
             }
         }
-        return potentialProblems;
-    }
-
-
-    /**
-     * Checks a code name occurrence for potential problems.
-     * @param {Declaration} declaration
-     * @param {Set.<string>} allowedSpecialWords special non-dictionary words/abbreviations/acronyms that are allowed
-     * per the assignment options
-     * @param {boolean} numbersAllowedInNames are numbers considered fair game as part of the name
-     * @return {Array.<NameCheckProblem>}
-     */
-    function checkName(declaration, allowedSpecialWords , numbersAllowedInNames = true) {
-        let potentialProblems = []
-        let name = declaration.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,'');
-        if (numbersAllowedInNames) {
-            name = name.replace(/\d+/g, "");
-        }
-        if (!NameTypeConventionCheck[declaration.nameType](name)) {
-            potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NAMING_CONVENTION,
-                NameCheckProblemTypeExplanation[NameCheckProblemType.NAMING_CONVENTION] + " "
-                + capitalize(declaration.nameType) + " \"" + declaration.name + "\" doesn&#39;t seem to follow the "
-                + NameTypeConvention[declaration.nameType] + " convention."));
+        let namingHighlight;
+        if (potentialIssues.length === 0) {
+            namingHighlight = new DeclarationHighlight(declaration);
+        } else if (potentialIssues.length === 1) {
+            namingHighlight = potentialIssues[0];
         } else {
-            // Note that currently, we cannot detect non-dictionary problem if the variable does not use proper notation,
-            // because the splitting relies on the notation.
-            let words = splitCodeNameIntoWords(name, declaration.nameType);
-            let nonDictionaryWords = [];
-
-            if(words.length > 1 || words[0].length > 1) {
-                for (const word of words) {
-                    if (!usEnglishWordList.has(word) && !allowedSpecialWords.has(word)) {
-                        nonDictionaryWords.push(word);
-                    }
-                }
-            } else {
-                potentialProblems.push(new NameCheckProblem(NameCheckProblemType.SINGLE_LETTER_WORD,
-                    NameCheckProblemTypeExplanation[NameCheckProblemType.SINGLE_LETTER_WORD] +
-                    " \"" + words[0] + "\" is a single letter."));
-            }
-            if (nonDictionaryWords.length > 0) {
-                if (nonDictionaryWords.length > 1) {
-                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
-                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
-                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has parts \""
-                        + nonDictionaryWords.join("\", \"") + "\" that appear problematic."));
-                } else {
-                    potentialProblems.push(new NameCheckProblem(NameCheckProblemType.NON_DICTIONARY_WORD,
-                        NameCheckProblemTypeExplanation[NameCheckProblemType.NON_DICTIONARY_WORD] +
-                        " " + capitalize(declaration.nameType) + " \"" + declaration.name + "\" has part \""
-                        + nonDictionaryWords[0] + "\" that appears problematic."));
-                }
-            }
+            namingHighlight = new NamingCompoundIssue(declaration, potentialIssues);
         }
-        return potentialProblems;
+        return namingHighlight;
     }
 
     /**
@@ -291,7 +392,7 @@ let naming_module = {};
      * @param {boolean} sortAlphabetically
      */
     function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle,
-                                               allowedSpecialWords ,
+                                               allowedSpecialWords,
                                                numbersAllowedInNames = true,
                                                uniqueOnly = false,
                                                sortAlphabetically = false) {
@@ -305,34 +406,12 @@ let naming_module = {};
                 return declarationA.name < declarationB.name ? -1 : declarationA.name > declarationB.name ? 1 : 0;
             });
         }
-
-
         for (const declaration of declarations) {
-            let potentialProblems = checkName(declaration, allowedSpecialWords, numbersAllowedInNames);
-            let problemsDescription = null;
-            let labelStyleClass = "";
-            let defaultMessageText = "";
-
-            if (potentialProblems.length > 0) {
-                problemsDescription = potentialProblems.map(problem => problem.description).join(" ");
-                if (potentialProblems.length > 1) {
-                    labelStyleClass = "naming-compound-problem";
-                } else {
-                    labelStyleClass = NameCheckProblemStyleClass[potentialProblems[0].type];
-                }
-                defaultMessageText = problemsDescription;
-            } else {
-                problemsDescription = "No problems were automatically detected.";
-            }
-            $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, declaration.trCodeLine, labelStyleClass, problemsDescription));
-            addCodeTagWithComment(
-                declaration.trCodeLine,
-                capitalize(declaration.nameType) + " name: " + declaration.name,
-                defaultMessageText, color
-            );
+            let declarationHighlight = checkName(declaration, allowedSpecialWords, numbersAllowedInNames);
+            declarationHighlight.addAsLabelToPanel(uiPanel);
+            declarationHighlight.addAsCodeTagWithDefaultComment();
         }
     }
-
 
 
     /**
@@ -373,8 +452,8 @@ let naming_module = {};
                             case NameType.VARIABLE:
                                 // in accordance to options, pick whether a final instance field is to be
                                 // treated as constant or not
-                                if(declaration.declarationType === DeclarationType.FINAL_INSTANCE_FIELD
-                                   && options.treatInstanceFinalFieldsAsConstants){
+                                if (declaration.declarationType === DeclarationType.FINAL_INSTANCE_FIELD
+                                    && options.treatInstanceFinalFieldsAsConstants) {
                                     declaration.nameType = NameType.CONSTANT;
                                 }
                                 variableNames.push(declaration);

@@ -49,27 +49,7 @@ let DeclarationTypeByNode = {
     "CastExpression": DeclarationType.CAST
 }
 
-
-const DeclarationCategoryCode = {
-    NAMING_CONVENTION: 0,
-    NON_DICTIONARY_WORD: 1,
-    SINGLE_LETTER_WORD: 2,
-    COMPOUND_NAMING_PROBLEM: 3
-}
-
-class Declaration extends CodeEntity {
-
-    // relevant code entity categories
-    static EntityCategories = new Map([
-        [DeclarationCategoryCode.NAMING_CONVENTION, new CodeEntity.Category(
-            "declaration not following naming convention", -1, true, null, "naming-convention-problem")],
-        [DeclarationCategoryCode.NON_DICTIONARY_WORD, new CodeEntity.Category("declaration with a non-dictionary word",
-            -1, true, null, "naming-non-dictionary-word-problem", "")],
-        [DeclarationCategoryCode.SINGLE_LETTER_WORD, new CodeEntity.Category("single-letter declaration", -1, true, null,
-            "naming-single-letter-word-problem")],
-        [DeclarationCategoryCode.COMPOUND_NAMING_PROBLEM, new CodeEntity.Category("compound naming problem", -2, true, null,
-            "naming-compound-problem")]
-    ]);
+class Declaration {
 
     static NameType = {
         METHOD: 'method',
@@ -79,31 +59,15 @@ class Declaration extends CodeEntity {
         NONE: 'none'
     }
 
-    static #TagColorByType = {
-        'method': "#4fa16b",
-        'variable': "#4fa16b",
-        'type': "orange",
-        'constant': "#4f72e3",
-        'none': "#555555"
-    }
-
-    static #NameTypeConvention = {
-        'method': 'camelCase',
-        'variable': 'camelCase',
-        'type': 'PascalCase',
-        'constant': 'ALL_CAPS_SNAKE_CASE',
-    }
-
-    #nonDictionaryWordsInName
-    #categories
-    #category
-
     constructor(name, typeName, typeArguments, astNode, codeFile, trCodeLine) {
-        super(astNode, trCodeLine);
+
         this.name = name;
         this.typeName = typeName; // for methods, the return type
         this.typeArguments = typeArguments;
         this.declarationType = DeclarationTypeByNode[astNode.node];
+        this.astNode = astNode;
+        this.trCodeLine = trCodeLine;
+
         if (this.declarationType === DeclarationType.METHOD && astNode.hasOwnProperty("constructor") && astNode.constructor) {
             this.declarationType = DeclarationType.CONSTRUCTOR;
         }
@@ -134,89 +98,9 @@ class Declaration extends CodeEntity {
         }
         // type for inferring what kind of naming convention the name should follow
         this.nameType = 'none';
-        this.#nonDictionaryWordsInName = [];
-        this.#categories = [];
-        this.#category = CodeEntity.NO_DETECTED_PROBLEMS;
-    }
-
-    #generateNamingConventionProblemDescription() {
-        return "" + capitalize(this.nameType) + " \"" + this.name + "\" doesn&#39;t seem to follow the "
-            + Declaration.#NameTypeConvention[this.nameType] + " convention.";
-    }
-
-    #generateNonDictionaryWordProblemDescription() {
-        if (this.#nonDictionaryWordsInName.length === 0) {
-            throw "Need at least one problematic word in non-dictionary word array, got an array of length 0.";
-        }
-        let description = "";
-        if (this.#nonDictionaryWordsInName.length === 1) {
-            description = "The declaration includes a non-dictionary word or an abbreviation.";
-        } else {
-            description = "The declaration includes non-dictionary words and/or abbreviations.";
-        }
-        description += "The former are not descriptive and the latter are ambiguous.";
-        description += capitalize(this.nameType) + " \"" + this.name + "\" has parts \""
-            + this.#nonDictionaryWordsInName.join("\", \"") + "\" that appear problematic.";
-        return description;
-    }
-
-    #generateSingleLetterNameProblemDescription() {
-        return capitalize(this.nameType) + " \"" + this.name + "\" is a single letter." +
-            "Single-character declarations are not descriptive-enough in most cases." ;
-    }
-
-    #generateCompoundProblemDescription(){
-        return "Compound naming problem detected." +
-            this.#categories.map((category) => category.description).join(", ") + "."
-    }
-
-    #ProblemDescriptionByCategory = new Map([
-        [DeclarationCategoryCode.NAMING_CONVENTION, this.#generateNamingConventionProblemDescription],
-        [DeclarationCategoryCode.NON_DICTIONARY_WORD, this.#generateNonDictionaryWordProblemDescription],
-        [DeclarationCategoryCode.SINGLE_LETTER_WORD, this.#generateSingleLetterNameProblemDescription],
-        [DeclarationCategoryCode.COMPOUND_NAMING_PROBLEM, this.#generateCompoundProblemDescription]
-    ]);
-
-    #generateMessageText = function (){
-        return super.defaultMessageText;
-    }
-
-    /**
-     * @param {[number]} categoryCodes
-     * @param {[string]} nonDictionaryWords
-     */
-    setNameCheckResult(categoryCodes = [], nonDictionaryWords = [] ){
-        this.#nonDictionaryWordsInName = nonDictionaryWords;
-        if(categoryCodes.length > 1){
-            this.#category = this.#categories.COMPOUND_NAMING_PROBLEM;
-            this.#categories = categoryCodes.map(code => Declaration.EntityCategories[code]);
-            this.#generateMessageText = this.#ProblemDescriptionByCategory[DeclarationCategoryCode.COMPOUND_NAMING_PROBLEM].bind(this);
-        } else if (categoryCodes.length === 1) {
-            const categoryCode = categoryCodes[0]
-            this.#category = Declaration.EntityCategories[categoryCode];
-            this.#generateMessageText = this.#ProblemDescriptionByCategory[categoryCode].bind(this);
-        }
-    }
-
-    get category(){
-        return this.#category;
-    }
-
-    get defaultMessageText() {
-        return this.#generateMessageText();
-    }
-
-    get toolTip() {
-        if (this.#category === CodeEntity.NO_DETECTED_PROBLEMS){
-            return super.toolTip;
-        }
-        return this.#generateMessageText();
-    }
-
-    get tagColor(){
-        return Declaration.#TagColorByType[this.nameType];
     }
 }
+
 
 /**
  * Represents a single scope (stack) in the code.
