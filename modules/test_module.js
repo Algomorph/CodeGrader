@@ -44,11 +44,15 @@ let test_module = {};
         let methodsExpectedToBeTestedSet = new Set(options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
+
         for (const codeFile of codeFileDictionary.values()) {
             if (codeFile.parseError != null) {
                 continue;
             }
             parsedCodeFiles.push(codeFile);
+            if(codeFile.filename.includes('StudentTests.java')) {
+                codeFileToPlaceLackOfTestLabels = codeFile;
+            }
             for (const typeInformation of codeFile.types.values()) {
                 /** @type {Array.<Scope>} */
                 const testScopes = typeInformation.scopes.filter(scope => scope.isTest);
@@ -73,6 +77,30 @@ let test_module = {};
             }
         }
 
+        if(codeFileToPlaceLackOfTestLabels != null) {
+            // Check all other methods in the test file. If the other methods test something not yet tested, it is most
+            // likely an issue of missing "@Test". Note helper methods won't be hit by this, as they are tested already.
+            for (const typeInformation of codeFileToPlaceLackOfTestLabels.types.values()) {
+                /** @type {Array.<Scope>} */
+                const semiTestScopes = typeInformation.scopes.filter(scope => !scope.isTest);
+
+                const semiTestedMethods = searchScopes(methodsExpectedToBeTestedSet, semiTestScopes, typeInformation);
+
+                for (const call of semiTestedMethods) {
+                    const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[call.astNode.location.start.line - 1];
+
+                    if (call.callType === MethodCallType.CONSTRUCTOR) {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in code without @Test (click to scroll)."));
+                        addButtonComment(trCodeLine, "Constructor call from method without annotation: " + call.name,
+                            "The constructor '" + call.name + "' is not tested correctly.", "#7c3518");
+                    } else {
+                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in code without @Test (click to scroll)."));
+                        addButtonComment(trCodeLine, "Method call from method without annotation: " + call.name,
+                            "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c3518");
+                    }
+                }
+            }
+        }
 
         if (parsedCodeFiles.length === 0) {
             return;
@@ -121,8 +149,8 @@ let test_module = {};
                 // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
                 else if (untestedMethods.has(call.name.replaceAll("$", ""))) {
-                        testedMethods.add(call);
-                        untestedMethods.delete(call.name.replaceAll("$", ""));
+                    testedMethods.add(call);
+                    untestedMethods.delete(call.name.replaceAll("$", ""));
                 }
             }
         }
