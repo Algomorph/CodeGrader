@@ -1,0 +1,50 @@
+{
+  "name": "code-grader",
+  "version": "0.1.0",
+  "description": "code style grading aid",
+  "keywords": [
+    "java",
+    "js",
+    "code",
+    "grader"
+  ],
+  "homepage": "codegrader.net",
+  "bugs": {
+    "url": "https://github.com/Algomorph/CodeGrader/issues",
+    "email": "authors@codegrader.net"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Gregory Kramida",
+  "contributors": [
+    "William Siew"
+  ],
+  "maintainers": [
+    "Matthew Simmons",
+    "Andrej Rasevic"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Algomorph/CodeGrader.git"
+  },
+  "jest": {
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "modules/*.js",
+      "code_analysis/*.js"
+    ],
+    "coverageReporters": [
+      "json",
+      "html"
+    ]
+  },
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "jest": "^27.0.6",
+    "js-beautify": "^1.14.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "browserify options.js -o bundle.js"
+  }
+}
