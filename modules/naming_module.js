@@ -6,14 +6,24 @@ let naming_module = {};
 
 (function () {
 
-    class DeclarationHighlight extends CodeEntity {
-        static #TagColorByType = {
-            'method': "#4fa16b",
-            'variable': "#4fa16b",
-            'type': "orange",
-            'constant': "#4f72e3",
-            'none': "#555555"
-        }
+    const TagAndSectionColorByNameType = {
+        'method': "#4fa16b",
+        'variable': "#4fa16b",
+        'type': "orange",
+        'constant': "#4f72e3",
+        'none': "#555555"
+    }
+
+
+    const NameType = {
+        METHOD: 'method',
+        VARIABLE: 'variable',
+        TYPE: 'type',
+        CONSTANT: 'constant',
+        NONE: 'none'
+    }
+
+    class MarkedDeclaration extends CodeEntity {
 
         /** @type {Declaration} */
         #declaration = null
@@ -33,7 +43,7 @@ let naming_module = {};
         }
 
         get _tagColor() {
-            return DeclarationHighlight.#TagColorByType[this.#declaration.nameType];
+            return TagAndSectionColorByNameType[this.#declaration.nameType];
         }
 
         get declaration() {
@@ -41,7 +51,7 @@ let naming_module = {};
         }
     }
 
-    class NamingIssue extends DeclarationHighlight {
+    class NamingIssue extends MarkedDeclaration {
         /** @param {Declaration} declaration */
         constructor(declaration) {
             super(declaration);
@@ -195,7 +205,6 @@ let naming_module = {};
         }
     }
 
-
     class Options {
         /**
          * Make options for this module.
@@ -242,14 +251,6 @@ let naming_module = {};
 
     this.getDefaultOptions = function () {
         return new Options();
-    }
-
-    const NameType = {
-        METHOD: 'method',
-        VARIABLE: 'variable',
-        TYPE: 'type',
-        CONSTANT: 'constant',
-        NONE: 'none'
     }
 
     this.NameType = NameType
@@ -335,7 +336,7 @@ let naming_module = {};
      * @param {Set.<string>} allowedSpecialWords special non-dictionary words/abbreviations/acronyms that are allowed
      * per the assignment options
      * @param {boolean} numbersAllowedInNames are numbers considered fair game as part of the name
-     * @return {DeclarationHighlight}
+     * @return {MarkedDeclaration}
      */
     function checkName(declaration, allowedSpecialWords, numbersAllowedInNames = true) {
         let potentialIssues = []
@@ -370,7 +371,7 @@ let naming_module = {};
         }
         let namingHighlight;
         if (potentialIssues.length === 0) {
-            namingHighlight = new DeclarationHighlight(declaration);
+            namingHighlight = new MarkedDeclaration(declaration);
         } else if (potentialIssues.length === 1) {
             namingHighlight = potentialIssues[0];
         } else {
@@ -379,57 +380,120 @@ let naming_module = {};
         return namingHighlight;
     }
 
-    /**
-     * Process an array of code name objects: add a UI button for each code name,
-     * as well as an in-code label with a hidden text area.
-     * @param uiPanel
-     * @param {Array.<Declaration>} declarations
-     * @param {string} color
-     * @param {string} sectionTitle
-     * @param {Set.<string>} allowedSpecialWords
-     * @param {boolean} numbersAllowedInNames
-     * @param {boolean} uniqueOnly
-     * @param {boolean} sortAlphabetically
-     */
-    function processCodeNameArrayAndAddSection(uiPanel, declarations, color, sectionTitle,
-                                               allowedSpecialWords,
-                                               numbersAllowedInNames = true,
-                                               uniqueOnly = false,
-                                               sortAlphabetically = false) {
-        $(uiPanel).append("<h4 style='color:" + color + "'>" + sectionTitle + "</h4>");
+    class Section {
+        /** @type{string} **/
+        #title
+        /** @type{string} **/
+        #titleColor
+        /** @type{Array.<MarkedDeclaration>} **/
+        #marked_declarations
+        /** @type{Options} **/
+        #options
+        /** @type{boolean} **/
+        #uiEnabled
 
-        if (uniqueOnly) {
-            declarations = uniqueNames(declarations);
+        /**
+         * @param {string} title
+         * @param {string} titleColor
+         * @param {Options} options
+         * @param {boolean} uiEnabled
+         */
+        constructor(title, titleColor, options, uiEnabled) {
+            this.#title = title;
+            this.#titleColor = titleColor;
+            this.#options = options;
+            this.declarations = []
+            this.#uiEnabled = uiEnabled;
         }
-        if (sortAlphabetically) {
-            declarations = declarations.sort(function (declarationA, declarationB) {
-                return declarationA.name < declarationB.name ? -1 : declarationA.name > declarationB.name ? 1 : 0;
-            });
+
+        /**
+         * Process an array of code name objects: conjure a highlight for each code name that contains (if any)
+         * detected problem information.
+         * */
+        processDeclarations() {
+            const allowedSpecialWordsSet = new Set(this.#options.allowedSpecialWords);
+            this.#marked_declarations = Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
+                this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically);
         }
-        for (const declaration of declarations) {
-            let declarationHighlight = checkName(declaration, allowedSpecialWords, numbersAllowedInNames);
-            declarationHighlight.addAsLabelToPanel(uiPanel);
-            declarationHighlight.addAsCodeTagWithDefaultComment();
+
+        /**
+         * Process an array of code name objects: conjure a highlight for each code name that contains (if any)
+         * detected problem information.
+         * @param {Array.<Declaration>} declarations
+         * @param {Set.<string>} allowedSpecialWords
+         * @param {boolean} numbersAllowedInNames
+         * @param {boolean} uniqueOnly
+         * @param {boolean} sortAlphabetically
+         * @return {Array.<MarkedDeclaration>}
+         */
+        static #checkDeclarationArray(declarations, allowedSpecialWords,
+                                      numbersAllowedInNames = true, uniqueOnly = false,
+                                      sortAlphabetically = false) {
+            const marked_declarations = [];
+            if (uniqueOnly) {
+                declarations = uniqueNames(declarations);
+            }
+            if (sortAlphabetically) {
+                declarations = declarations.sort(function (declarationA, declarationB) {
+                    return declarationA.name < declarationB.name ? -1 : declarationA.name > declarationB.name ? 1 : 0;
+                });
+            }
+            for (const declaration of declarations) {
+                marked_declarations.push(checkName(declaration, allowedSpecialWords, numbersAllowedInNames));
+            }
+            return marked_declarations;
+        }
+
+        /**
+         * Add a section title, UI label for each declaration highlight,
+         * and an in-code tag with a hidden text area triggered on click
+         * to the provided UI panel.
+         * @param {HTMLDivElement} uiPanel
+         */
+        addToUiPanel(uiPanel) {
+            if (this.#uiEnabled) {
+                $(uiPanel).append("<h4 style='color:" + this.#titleColor + "'>" + this.#title + "</h4>");
+                for (const declarationHighlight of this.#marked_declarations) {
+                    declarationHighlight.addAsLabelToPanel(uiPanel);
+                    declarationHighlight.addAsCodeTagWithDefaultComment();
+                }
+            }
+        }
+
+        get marked_declarations(){
+            return this.#marked_declarations;
         }
     }
 
+    let initialized = false;
 
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
-     * @param {HTMLDivElement} uiPanel
-     * @param {Map.<string, CodeFile>} fileDictionary
-     * @param {Options} options
+     * Initialize the module
+     * @param {{moduleOptions : {naming_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, fileDictionary, options) {
+    this.initialize = function ( global_options) {
+        const options = global_options.moduleOptions.naming_module;
+
         if (!options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
 
-        let variableNames = [];
-        let methodNames = [];
-        let constantNames = [];
-        let typeNames = [];
+        this.variableSection = new Section("Variables/Fields", TagAndSectionColorByNameType[NameType.VARIABLE], options, options.checkVariablesAndFields);
+        this.methodSection = new Section("Methods", TagAndSectionColorByNameType[NameType.METHOD], options, options.checkMethods);
+        this.constantSection = new Section("Constants", TagAndSectionColorByNameType[NameType.CONSTANT], options, options.checkConstants);
+        this.typeSection = new Section("Classes, Interfaces, &amp; Enums", TagAndSectionColorByNameType[NameType.TYPE], options, options.checkTypes);
+        this.sections = [this.variableSection, this.methodSection, this.constantSection, this.typeSection];
+        this.options = options;
+
+        initialized = true;
+    }
+
+    /**
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
+     */
+    this.processCode = function(fileDictionary) {
+        const options = this.options;
 
         const globalIgnoredNames = options.ignoredNames.global;
 
@@ -455,41 +519,46 @@ let naming_module = {};
                                 if (declaration.declarationType === DeclarationType.FINAL_INSTANCE_FIELD
                                     && options.treatInstanceFinalFieldsAsConstants) {
                                     declaration.nameType = NameType.CONSTANT;
+                                    this.constantSection.declarations.push(declaration);
+                                } else {
+                                    this.variableSection.declarations.push(declaration);
                                 }
-                                variableNames.push(declaration);
                                 break;
                             case NameType.METHOD:
-                                methodNames.push(declaration);
+                                this.methodSection.declarations.push(declaration);
                                 break;
                             case NameType.CONSTANT:
-                                constantNames.push(declaration);
+                                this.constantSection.declarations.push(declaration);
                                 break;
                             case NameType.TYPE:
-                                typeNames.push(declaration);
-
+                                this.typeSection.declarations.push(declaration);
+                                break;
                         }
                     }
                 }
             }
         }
-        const allowedSpecialWordsSet = new Set(options.allowedSpecialWords);
-        if (options.checkVariablesAndFields) {
-            processCodeNameArrayAndAddSection(uiPanel, variableNames, "#4fa16b", "Variables/Fields",
-                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
+        for (const section of this.sections) {
+            section.processDeclarations();
         }
-        if (options.checkMethods) {
-            processCodeNameArrayAndAddSection(uiPanel, methodNames, "#4fa16b", "Methods",
-                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        }
-        if (options.checkConstants) {
-            processCodeNameArrayAndAddSection(uiPanel, constantNames, "#4f72e3", "Constants",
-                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        }
-        if (options.checkTypes) {
-            processCodeNameArrayAndAddSection(uiPanel, typeNames, "orange", "Classes, Interfaces, &amp; Enums",
-                allowedSpecialWordsSet, options.numbersAllowedInNames, options.showUniqueOnly, options.sortAlphabetically);
-        }
+    }
 
+    /**
+     * Add each section of naming information to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel){
+        $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
+        for (const section of this.sections) {
+            section.addToUiPanel(uiPanel);
+        }
+    }
+
+    this.getCodeEntities = function (){
+        if (!initialized){
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return this.sections.reduce((accumulator, section) => { accumulator.push(...section.marked_declarations)}, [])
     }
 
 }).apply(naming_module);

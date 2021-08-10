@@ -30,7 +30,7 @@
             "code_analysis/code_components.js",
             "code_analysis/code_entity.js",
             "code_analysis/auxiliary_analytic_routines.js",
-            "code_analysis/code_entity_search.js",
+            "code_analysis/code_component_search.js",
             "code_analysis/code_file.js",
             "code_analysis/type_information.js",
             "options.js",

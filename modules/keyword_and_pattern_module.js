@@ -23,8 +23,6 @@ let keyword_and_pattern_module = {};
         return new Options();
     }
 
-    //TODO: make both of the classes below inherit from a single CodeEntity class. This class should also be used as
-    // prototype for every single thing discovered and stored by code_entity_search entity search.
     class KeywordOccurrence {
         /**
          * @param {string} keyword
