@@ -105,7 +105,7 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-        
+        document.getElementById('optionsTextArea').value = beautify(optionsStr, { indent_size: 4, space_in_empty_paren: true });
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
