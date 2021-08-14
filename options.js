@@ -1,7 +1,6 @@
 /*
 * Copyright 2020 Gregory Kramida
 * */
-const beautify = require('js-beautify').js;
 
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
@@ -106,7 +105,6 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-        console.log(beautify(options.text(), { indent_size: 2, space_in_empty_paren: true }));
         
     } catch (error) {
         if (error instanceof SyntaxError) {

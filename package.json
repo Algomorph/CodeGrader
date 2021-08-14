@@ -45,6 +45,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build": "browserify options.js -o bundle.js"
+    "build": "browserify options.js -o options_compiled.js"
   }
 }

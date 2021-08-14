@@ -38,7 +38,7 @@ function main(options) {
 
     const semesterString = options.semesterSeason + options.year.toString();
 
-    // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
+    // condition: URL contains 'codeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
         const assignmentName = options.submitServerAssignmentName;
         let filePaths = expandFilePathEntryList(options.filesToCheck);
