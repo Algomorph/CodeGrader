@@ -473,8 +473,9 @@ let naming_module = {};
      */
     this.initialize = function ( global_options) {
         const options = global_options.moduleOptions.naming_module;
+        this.options = options;
 
-        if (!options.enabled) {
+        if (!this.options.enabled) {
             return;
         }
 
@@ -483,7 +484,6 @@ let naming_module = {};
         this.constantSection = new Section("Constants", TagAndSectionColorByNameType[NameType.CONSTANT], options, options.checkConstants);
         this.typeSection = new Section("Classes, Interfaces, &amp; Enums", TagAndSectionColorByNameType[NameType.TYPE], options, options.checkTypes);
         this.sections = [this.variableSection, this.methodSection, this.constantSection, this.typeSection];
-        this.options = options;
 
         initialized = true;
     }
@@ -493,6 +493,9 @@ let naming_module = {};
      * @param {Map.<string, CodeFile>} fileDictionary
      */
     this.processCode = function(fileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
         const options = this.options;
 
         const globalIgnoredNames = options.ignoredNames.global;
@@ -548,6 +551,9 @@ let naming_module = {};
      * @param {HTMLDivElement} uiPanel
      */
     this.addInfoToUiPanel = function (uiPanel){
+        if (!this.options.enabled) {
+            return;
+        }
         $(uiPanel).append("<h3 style='color:#ffa500'>Naming</h3>");
         for (const section of this.sections) {
             section.addToUiPanel(uiPanel);
@@ -555,6 +561,9 @@ let naming_module = {};
     }
 
     this.getCodeEntities = function (){
+        if (!this.options.enabled) {
+            return [];
+        }
         if (!initialized){
             throw ("Module not initialized. Please call the initialize function first.");
         }
