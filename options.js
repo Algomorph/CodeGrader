@@ -122,7 +122,9 @@ function saveOptions() {
             }, 3000);
             throw error;
         }
+
     }
+
 }
 
 // Restores options based on values stored in chrome.storage.
