@@ -6,7 +6,6 @@ function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     let currentSeason = "winter";
-    console.log(currentMonth);
     if (currentMonth > 0 && currentMonth < 4) {
         currentSeason = "spring";
     } else if (currentMonth < 8) {
