@@ -23,8 +23,6 @@ let keyword_and_pattern_module = {};
         return new Options();
     }
 
-    //TODO: make both of the classes below inherit from a single CodeEntity class. This class should also be used as
-    // prototype for every single thing discovered and stored by code_entity_search entity search.
     class KeywordOccurrence {
         /**
          * @param {string} keyword
@@ -88,14 +86,14 @@ let keyword_and_pattern_module = {};
         for (const keywordOccurrence of keywordOccurrencesFound) {
             //TODO: highlight keyword in line's text (store the start & end first)
             $(uiPanel).append(makeLabelWithClickToScroll(keywordOccurrence.keyword, keywordOccurrence.trCodeLine));
-            addButtonComment(keywordOccurrence.trCodeLine, "Keyword: " + keywordOccurrence.keyword, "",
+            addCodeTagWithComment(keywordOccurrence.trCodeLine, "Keyword: " + keywordOccurrence.keyword, "",
                 "#92b9d1");
         }
         $(uiPanel).append("<h3 style='color:#92b9d1'>Patterns</h3>");
         for (const patternOccurrence of patternOccurrencesFound) {
             //TODO: highlight pattern in line's text (store the start & end first)
             $(uiPanel).append(makeLabelWithClickToScroll(patternOccurrence.pattern.source, patternOccurrence.trCodeLine));
-            addButtonComment(patternOccurrence.trCodeLine, "Pattern: " + patternOccurrence.pattern.source, "",
+            addCodeTagWithComment(patternOccurrence.trCodeLine, "Pattern: " + patternOccurrence.pattern.source, "",
                 "#92b9d1");
         }
 

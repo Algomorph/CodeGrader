@@ -109,10 +109,9 @@ function constructUiPanel(options, filePaths) {
         $(uiPanel).append(makeWarning("Note: no files found matching to the entries provided in \"filesToCheck\" in " +
             "plugin options, continuing with review modules disabled."));
     } else {
-
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filePaths);
         for (const codeFile of codeFileDictionary.values()) {
-            code_analysis.findEntitiesInCodeFileAst(codeFile);
+            code_analysis.findComponentsInCodeFileAst(codeFile);
         }
         for (const [fileName, codeFile] of codeFileDictionary.entries()) {
             if (codeFile.parseError !== null) {
@@ -122,7 +121,13 @@ function constructUiPanel(options, filePaths) {
             }
         }
         keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
-        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
+
+        // TODO: every module should contain these three methods, as well as the getCodeEntities() method to test them.
+        //  This way, we can just stick them into an array and call these three functions while traversing it.
+        naming_module.initialize(options);
+        naming_module.processCode(codeFileDictionary);
+        naming_module.addInfoToUiPanel(uiPanel);
+
         method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);

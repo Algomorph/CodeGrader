@@ -66,11 +66,11 @@ let test_module = {};
 
                     if (call.callType === MethodCallType.CONSTRUCTOR) {
                         $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
-                        addButtonComment(trCodeLine, "Constructor call from test: " + call.name,
+                        addCodeTagWithComment(trCodeLine, "Constructor call from test: " + call.name,
                             "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
                     } else {
                         $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
-                        addButtonComment(trCodeLine, "Method call from test: " + call.name,
+                        addCodeTagWithComment(trCodeLine, "Method call from test: " + call.name,
                             "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
                     }
                 }

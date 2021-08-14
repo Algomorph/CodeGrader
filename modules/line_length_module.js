@@ -79,7 +79,7 @@ let line_length_module = {};
             const defaultMessageText = "Line length (" + lineLengthViolation.lineLength + ") exceeds " + options.lineLengthLimit + " characters.";
             $(uiPanel).append(makeLabelWithClickToScroll("Long line", lineLengthViolation.trCodeLine,
                 "line-length-exceeded-problem", defaultMessageText ));
-            addButtonComment(
+            addCodeTagWithComment(
                 lineLengthViolation.trCodeLine,
                 "long line", defaultMessageText, "#7c7cd2"
             );

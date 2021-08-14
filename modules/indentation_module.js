@@ -165,7 +165,7 @@ let indentation_module = {};
                     }
                 }
                 if (newProblem) {
-                    addButtonComment(trCodeLine, shortProblemDescription, defaultMessage, "#92b9d1");
+                    addCodeTagWithComment(trCodeLine, shortProblemDescription, defaultMessage, "#92b9d1");
                 }
             } else {
                 lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;

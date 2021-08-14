@@ -5,7 +5,7 @@
 
 
     /**
-     * Recursively traverse Abstract Syntax Tree node in search for entities (DFS),
+     * Recursively traverse Abstract Syntax Tree node in search for relevant components for code-checking modules (DFS),
      * append results to the provided type information object.
      *
      * @param {Object} astNode AST node to search
@@ -13,7 +13,7 @@
      * @param {CodeFile} codeFile information about the current code file
      * @param {TypeInformation} enclosingTypeInformation
      */
-    this.findEntitiesInAstNode = function (astNode, scope, codeFile, enclosingTypeInformation) {
+    this.findCodeComponentsInAstNode = function (astNode, scope, codeFile, enclosingTypeInformation) {
         let branchScopes = [];
         let branchScopeDeclarations = [];
         let currentScopeFullyProcessed = true;
@@ -305,14 +305,14 @@
         if (!currentScopeFullyProcessed) {
             let unprocessedBranchNodes = [...scope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                this.findEntitiesInAstNode(childAstNode, scope, codeFile, enclosingTypeInformation);
+                this.findCodeComponentsInAstNode(childAstNode, scope, codeFile, enclosingTypeInformation);
             }
         }
 
         for (const branchScope of branchScopes) {
             let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                this.findEntitiesInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
+                this.findCodeComponentsInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
             }
         }
         enclosingTypeInformation.scopes.push(...branchScopes);
@@ -321,7 +321,7 @@
      * Finds code entities (declarations, method calls, etc.) from the AST of a code file.
      * @param {CodeFile} codeFile Information about a code file
      */
-    this.findEntitiesInCodeFileAst = function (codeFile) {
+    this.findComponentsInCodeFileAst = function (codeFile) {
         if (codeFile.abstractSyntaxTree !== null) {
             const syntaxTree = codeFile.abstractSyntaxTree;
 
@@ -330,7 +330,7 @@
                 let typeInformation = new TypeInformation();
                 const fileScope = new Scope(syntaxTree, [], [], []);
                 typeInformation.scopes.push(fileScope);
-                this.findEntitiesInAstNode(typeNode, fileScope, codeFile, typeInformation);
+                this.findCodeComponentsInAstNode(typeNode, fileScope, codeFile, typeInformation);
                 for (const scope of typeInformation.scopes) {
                     typeInformation.declarations.push(...scope.declarations.values());
                 }

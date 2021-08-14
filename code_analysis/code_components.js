@@ -4,7 +4,7 @@
 
 // Defines different entities that are found in code
 
-this.MethodCallType = {
+MethodCallType = {
     METHOD: "method",
     INSTANCE_METHOD: "instance method",
     STATIC_METHOD: "static method",
@@ -49,14 +49,25 @@ let DeclarationTypeByNode = {
     "CastExpression": DeclarationType.CAST
 }
 
-
 class Declaration {
-    constructor(name, typeName, typeArguments, astNode, codeFile) {
+
+    static NameType = {
+        METHOD: 'method',
+        VARIABLE: 'variable',
+        TYPE: 'type',
+        CONSTANT: 'constant',
+        NONE: 'none'
+    }
+
+    constructor(name, typeName, typeArguments, astNode, codeFile, trCodeLine) {
+
         this.name = name;
         this.typeName = typeName; // for methods, the return type
         this.typeArguments = typeArguments;
-        this.astNode = astNode;
         this.declarationType = DeclarationTypeByNode[astNode.node];
+        this.astNode = astNode;
+        this.trCodeLine = trCodeLine;
+
         if (this.declarationType === DeclarationType.METHOD && astNode.hasOwnProperty("constructor") && astNode.constructor) {
             this.declarationType = DeclarationType.CONSTRUCTOR;
         }
@@ -85,9 +96,11 @@ class Declaration {
                 }
             }
         }
-        this.nameType = null;
+        // type for inferring what kind of naming convention the name should follow
+        this.nameType = 'none';
     }
 }
+
 
 /**
  * Represents a single scope (stack) in the code.
