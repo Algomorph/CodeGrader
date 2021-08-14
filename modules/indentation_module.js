@@ -54,21 +54,23 @@ let indentation_module = {};
         // find first indent used and use that as standard
         let singleIndentWidth = 0;
         for (let i = 0; i < trCodeLines.length;) {
-                while (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))).search(/\S/) === -1 ||
-                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0) { // Makes sure next isn't an empty line
-                    i++;
-                }
-                //assumes first line with indentation will have exactly one indent
-                singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
-                break;
+            while (i < trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
+                (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i]))).search(/\S/) === -1 ||
+                getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0)) { // Makes sure next isn't an empty line
+                i++;
+            }
+            //assumes first line with indentation will have exactly one indent
+            singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
+            break;
         }
-
 
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
         let currentIndentationWidth = 0; // in white spaces
         $.each(trCodeLines, function (tri, trCodeLine) {	// iterates each line of code below
 
             let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
+            //__DEBUG
+
 
             // Tabs are 4 characters until this causes issues.
             codeText = codeText.replaceAll(/\t/g, "    ");
