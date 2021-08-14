@@ -101,11 +101,9 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "spring",
     "submitServerAssignmentName": "Proj 5",
     "usageStatisticsOptions": {
         "anonymizeUser": true,
         "enabled": true
-    },
-    "year": "2021"
+    }
 }

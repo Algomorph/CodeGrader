@@ -102,11 +102,9 @@
       "markAllUsages": false
     }
   },
-  "semesterSeason": "spring",
   "submitServerAssignmentName": "Quiz 5",
   "usageStatisticsOptions": {
     "anonymizeUser": true,
     "enabled": true
-  },
-  "year": "2021"
+  }
 }

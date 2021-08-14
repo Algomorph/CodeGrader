@@ -91,7 +91,5 @@
         }
     },
     "course": "CMSC132",
-    "semesterSeason": "spring",
-    "submitServerAssignmentName": "Final Exam",
-    "year": "2021"
+    "submitServerAssignmentName": "Final Exam"
 }

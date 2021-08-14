@@ -90,7 +90,5 @@
         }
     },
     "course": "CMSC132",
-    "semesterSeason": "spring",
-    "submitServerAssignmentName": "Proj 2",
-    "year": "2021"
+    "submitServerAssignmentName": "Proj 2"
 }

@@ -70,7 +70,5 @@
         }
     },
     "course": "CMSC132",
-    "semesterSeason": "spring",
-    "submitServerAssignmentName": "Quiz 3",
-    "year": "2021"
+    "submitServerAssignmentName": "Quiz 3"
 }

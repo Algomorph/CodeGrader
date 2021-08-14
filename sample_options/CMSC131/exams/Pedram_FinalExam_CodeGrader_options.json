@@ -113,11 +113,9 @@
             "markAllUsages": false
         }
     },
-    "semesterSeason": "spring",
     "submitServerAssignmentName": "Final Exam",
     "usageStatisticsOptions": {
         "anonymizeUser": true,
         "enabled": true
-    },
-    "year": "2021"
+    }
 }
