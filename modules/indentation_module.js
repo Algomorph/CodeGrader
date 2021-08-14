@@ -59,9 +59,15 @@ let indentation_module = {};
                 getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(trCodeLines[i])))) === 0)) { // Makes sure next isn't an empty line
                 i++;
             }
-            //assumes first line with indentation will have exactly one indent
-            singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
-            break;
+            if (i === trCodeLines.length){
+                const defaultMessage = "The whole file is lacking indentation.";
+                $(uiPanel).append(makeLabelWithClickToScroll("No indentation", trCodeLines[0], "", defaultMessage));
+                addCodeTagWithComment(trCodeLines[0], "No indentation", defaultMessage, "#92b9d1");
+            } else {
+                //assumes first line with indentation will have exactly one indent
+                singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(trCodeLines[i]));
+                break;
+            }
         }
 
         let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
