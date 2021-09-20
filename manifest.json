@@ -78,6 +78,6 @@
    },
    "permissions": [ "tabs", "storage", "activeTab", "idle", "alarms", "http://*/*", "https://*/*", "http://*/", "https://*/", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0",
-   "version_name": "1.0 beta"
+   "version": "1.0.1",
+   "version_name": "1.0.1 (beta)"
 }
