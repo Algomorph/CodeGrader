@@ -29,7 +29,7 @@
         },
         line_length_module: {
             enabled: true,
-            lineLengthLimit: 80,
+            lineLengthLimit: 100,
             tabCharacterWidth: 4,
         },
         loop_module: {
