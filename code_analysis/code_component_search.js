@@ -95,13 +95,20 @@
                         }
                     }
                 }
-                branchScopes.push(
-                    new Scope(
-                        astNode, branchScopeDeclarations,
-                        astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body]),
-                        scope.scopeStack.concat([scope])
-                    )
-                );
+                {
+                    let children;
+                    if (astNode.expression === null){
+                        children = astNode.updaters.concat(astNode.initializers, [astNode.body])
+                    }else{
+                        children = astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body])
+                    }
+                    branchScopes.push(
+                        new Scope(
+                            astNode, branchScopeDeclarations, children,
+                            scope.scopeStack.concat([scope])
+                        )
+                    );
+                }
                 break;
             case "EnhancedForStatement": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
