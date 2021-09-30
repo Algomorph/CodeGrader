@@ -40,7 +40,7 @@ function main(options) {
 
     // condition: URL contains 'codeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
-        const assignmentName = options.submitServerAssignmentName;
+        const assignmentName = options.submitServerAssignmentName.replace("(", "\\(").replace(")", "\\)");
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
         const headerText = document.querySelector("h1").textContent;
