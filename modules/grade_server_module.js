@@ -101,7 +101,7 @@ let grade_server_module = {};
             if (options.graderName.length < 4) {
                 alert("Please enter the grader's name (graderName) longer than three characters in CodeGrader options (Note: initials may be ambiguous.)");
             } else if (fieldValidationSuccessful) {
-                const directoryId = $("h1").text().split("(")[1].split(")")[0]
+                const directoryId = $("h1").text().split(",")[1].split("(")[1].split(")")[0]
                 let finalComment = ""
                 // add graders name
                 const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
