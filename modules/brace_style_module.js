@@ -1,3 +1,6 @@
+/*
+* Copyright 2020-2021 Gregory Kramida
+* */
 let brace_style_module = {};
 
 (function () {

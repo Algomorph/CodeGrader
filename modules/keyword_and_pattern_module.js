@@ -1,5 +1,5 @@
 /*
-* Copyright 2020 Gregory Kramida
+* Copyright 2020-2021 Gregory Kramida
 * */
 let keyword_and_pattern_module = {};
 
@@ -19,47 +19,94 @@ let keyword_and_pattern_module = {};
         }
     }
 
+    const moduleColor = "#92b9d1";
+
+    class KeywordOccurrence extends CodeEntity {
+
+        /** @type {string} */
+        #keyword;
+
+        /**
+         * @param {string} keyword
+         * @param {HTMLTableRowElement} trCodeLine
+         * */
+        constructor(keyword, trCodeLine) {
+            super(trCodeLine);
+            this.#keyword = keyword;
+        }
+
+        get _labelName() {
+            return this.#keyword;
+        }
+
+        get _tagName() {
+            return "Keyword: " + this.#keyword;
+        }
+
+        get _tagColor() {
+            return moduleColor;
+        }
+    }
+
+
+    class PatternOccurrence extends CodeEntity {
+
+        /** @type {RegExp} */
+        #pattern;
+
+        /**
+         * @param {RegExp} pattern
+         * @param {HTMLTableRowElement} trCodeLine
+         * */
+        constructor(pattern, trCodeLine) {
+            super(trCodeLine);
+            this.#pattern = pattern;
+        }
+
+        get _labelName() {
+            return this.#pattern.source;
+        }
+
+        get _tagName() {
+            return "Keyword: " + this.#pattern.source;
+        }
+
+        get _tagColor() {
+            return moduleColor;
+        }
+    }
+
     this.getDefaultOptions = function () {
         return new Options();
     }
 
-    class KeywordOccurrence {
-        /**
-         * @param {string} keyword
-         * @param {HTMLTableRowElement} trCodeLine
-         */
-        constructor(keyword, trCodeLine) {
-            this.keyword = keyword;
-            this.trCodeLine = trCodeLine;
-        }
-    }
-
-    class PatternOccurrence {
-        /**
-         * @param {RegExp} pattern
-         * @param {HTMLTableRowElement} trCodeLine
-         */
-        constructor(pattern, trCodeLine) {
-            this.pattern = pattern;
-            this.trCodeLine = trCodeLine;
-        }
-    }
+    let initialized = false;
 
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
-     * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Map.<string, CodeFile>} fileDictionary
-     * @param {Options} options
+     * Initialize the module
+     * @param {{moduleOptions : {keyword_and_pattern_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, fileDictionary, options) {
-        if (!options.enabled) {
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.keyword_and_pattern_module;
+
+        if (!this.options.enabled) {
             return;
         }
 
-        const keywordsToFind = options.keywords;
-        /** @type {Array.<RegExp>}*/
-        const patternsToFind = options.patterns.map(stringPattern => new RegExp(stringPattern, 'g') );
+        this.keywordOccurencesFound = [];
+        this.patternOccurencesFound = [];
 
+        initialized = true;
+    }
+
+    /**
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
+     */
+    this.processCode = function (fileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
         /** @type {Array.<KeywordOccurrence>}*/
         const keywordOccurrencesFound = [];
         /** @type {Array.<PatternOccurrence>}*/
@@ -82,21 +129,45 @@ let keyword_and_pattern_module = {};
 
             });
         }
-        $(uiPanel).append("<h3 style='color:#92b9d1'>Keywords</h3>");
-        for (const keywordOccurrence of keywordOccurrencesFound) {
-            //TODO: highlight keyword in line's text (store the start & end first)
-            $(uiPanel).append(makeLabelWithClickToScroll(keywordOccurrence.keyword, keywordOccurrence.trCodeLine));
-            addCodeTagWithComment(keywordOccurrence.trCodeLine, "Keyword: " + keywordOccurrence.keyword, "",
-                "#92b9d1");
-        }
-        $(uiPanel).append("<h3 style='color:#92b9d1'>Patterns</h3>");
-        for (const patternOccurrence of patternOccurrencesFound) {
-            //TODO: highlight pattern in line's text (store the start & end first)
-            $(uiPanel).append(makeLabelWithClickToScroll(patternOccurrence.pattern.source, patternOccurrence.trCodeLine));
-            addCodeTagWithComment(patternOccurrence.trCodeLine, "Pattern: " + patternOccurrence.pattern.source, "",
-                "#92b9d1");
-        }
-
+        /** @type {Array.<KeywordOccurrence>}*/
+        this.keywordOccurencesFound = keywordOccurrencesFound;
+        /** @type {Array.<PatternOccurrence>}*/
+        this.patternOccurencesFound = patternOccurrencesFound;
     }
+
+    /**
+     * Add each section of naming information to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Keywords</h3>");
+        for (const keywordOccurrence of this.keywordOccurencesFound) {
+            keywordOccurrence.addAsLabelToPanel(uiPanel);
+            keywordOccurrence.addAsCodeTagWithDefaultComment();
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Patterns</h3>");
+        for (const patternOccurrence of this.patternOccurencesFound) {
+            patternOccurrence.addAsLabelToPanel(uiPanel);
+            patternOccurrence.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Return all CodeEntities thus fur processed from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return this.keywordOccurencesFound.concat(this.patternOccurencesFound)
+    }
+
 
 }).apply(keyword_and_pattern_module);

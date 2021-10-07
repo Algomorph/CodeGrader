@@ -120,10 +120,13 @@ function constructUiPanel(options, filePaths) {
                 console.log(codeFile.parseError);
             }
         }
-        keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
 
         // TODO: every module should contain these three methods, as well as the getCodeEntities() method to test them.
         //  This way, we can just stick them into an array and call these three functions while traversing it.
+        keyword_and_pattern_module.initialize(options);
+        keyword_and_pattern_module.processCode(codeFileDictionary);
+        keyword_and_pattern_module.addInfoToUiPanel(uiPanel);
+
         naming_module.initialize(options);
         naming_module.processCode(codeFileDictionary);
         naming_module.addInfoToUiPanel(uiPanel);
