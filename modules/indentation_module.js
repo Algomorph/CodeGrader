@@ -11,14 +11,47 @@ let indentation_module = {};
         }
     }
 
-    this.getDefaultOptions = function () {
-        return new Options();
-    }
-
     const LastLineIndentationStatus = {
         PROPERLY_INDENTED: 0,
         OVERINDENTED: 1,
         UNDERINDENTED: 2
+    }
+
+    let moduleColor = "#92b9d1";
+
+    class IndentationIssue extends CodeEntity {
+
+        /**
+         * @param {string} keyword
+         * @param {HTMLTableRowElement} trCodeLine
+         * */
+        constructor(trCodeLine) {
+            super(trCodeLine);
+        }
+
+        get points() {
+            return -1;
+        }
+
+        get isIssue() {
+            return true;
+        }
+
+        get _toolTip() {
+            return this._defaultMessageText;
+        }
+
+        get _tagColor() {
+            return moduleColor;
+        }
+    }
+
+    class NoIndentationInFileIssue extends IndentationIssue{
+
+    }
+
+    this.getDefaultOptions = function () {
+        return new Options();
     }
 
     let initialized = false;
