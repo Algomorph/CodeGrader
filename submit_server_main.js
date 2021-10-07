@@ -136,7 +136,12 @@ function constructUiPanel(options, filePaths) {
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
-        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
+
+        indentation_module.initialize(options);
+        indentation_module.processCode(codeFileDictionary);
+        indentation_module.addInfoToUiPanel(uiPanel);
+
+
         line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
