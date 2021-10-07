@@ -53,22 +53,26 @@ let keyword_and_pattern_module = {};
 
         /** @type {RegExp} */
         #pattern;
+        /** @type {string} */
+        #match;
 
         /**
          * @param {RegExp} pattern
          * @param {HTMLTableRowElement} trCodeLine
+         * @param {string} match
          * */
-        constructor(pattern, trCodeLine) {
+        constructor(pattern, trCodeLine, match) {
             super(trCodeLine);
             this.#pattern = pattern;
+            this.#match = match;
         }
 
         get _labelName() {
-            return this.#pattern.source;
+            return this.#match;
         }
 
         get _tagName() {
-            return "Keyword: " + this.#pattern.source;
+            return "Pattern match: " + this.#match;
         }
 
         get _tagColor() {
@@ -124,11 +128,13 @@ let keyword_and_pattern_module = {};
                 //TODO: get start & end column of each occurrence, store these in KeywordOccurrence & PatternOccurrence class for any discovered occurrence
                 const keywordsFound = _.filter(keywordsToFind, keyword => codeLine.includes(keyword));
                 _.each(keywordsFound, function (keyword) {
-                    keywordOccurrencesFound.push(new KeywordOccurrence(keyword, trCodeLine))
+                    keywordOccurrencesFound.push(new KeywordOccurrence(keyword, trCodeLine));
                 });
                 const patternsFound = _.filter(patternsToFind, pattern => pattern.exec(codeLine) !== null)
                 _.each(patternsFound, function (pattern) {
-                    patternOccurrencesFound.push(new PatternOccurrence(pattern, trCodeLine))
+                    // reset regex state, otherwise will get null out of 'exec'
+                    pattern.lastIndex = 0;
+                    patternOccurrencesFound.push(new PatternOccurrence(pattern, trCodeLine, pattern.exec(codeLine)[0]));
                 });
 
             });
@@ -152,7 +158,7 @@ let keyword_and_pattern_module = {};
             keywordOccurrence.addAsLabelToPanel(uiPanel);
             keywordOccurrence.addAsCodeTagWithDefaultComment();
         }
-        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Patterns</h3>");
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Pattern Matches</h3>");
         for (const patternOccurrence of this.patternOccurencesFound) {
             patternOccurrence.addAsLabelToPanel(uiPanel);
             patternOccurrence.addAsCodeTagWithDefaultComment();
