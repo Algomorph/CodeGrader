@@ -107,6 +107,10 @@ let keyword_and_pattern_module = {};
         if (!this.options.enabled) {
             return;
         }
+        const keywordsToFind = this.options.keywords;
+        /** @type {Array.<RegExp>}*/
+        const patternsToFind = this.options.patterns.map(stringPattern => new RegExp(stringPattern, 'g') );
+
         /** @type {Array.<KeywordOccurrence>}*/
         const keywordOccurrencesFound = [];
         /** @type {Array.<PatternOccurrence>}*/
