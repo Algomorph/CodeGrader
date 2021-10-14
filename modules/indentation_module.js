@@ -152,6 +152,8 @@ let indentation_module = {};
             // find first indent used and use that as standard
             let singleIndentWidth = -1;
             for (let i = 0; i < codeFile.trCodeLines.length;) {
+                //TODO: need to stack unterminated multi-line comments when determining first indent
+                // & tab width (== singleIndentWidth)
                 while (i < codeFile.trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
                 (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
                     getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i])))) === 0)) { // Makes sure next isn't an empty line
@@ -166,6 +168,7 @@ let indentation_module = {};
                     break;
                 }
             }
+
             if(singleIndentWidth === -1){
                 continue;
             }
@@ -176,6 +179,7 @@ let indentation_module = {};
             let lastIssue = null;
             const issuesForFile = [];
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {
+                //TODO: need to stack unterminated multi-line comments and dismiss their indentation
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
                 // Tabs are 4 characters until this causes issues.
@@ -258,12 +262,14 @@ let indentation_module = {};
                         if (lastLineStatus !== LastLineIndentationStatus.OVERINDENTED) {
                             lastIssue = new IndentationIssue(trCodeLine, "Over-indent", defaultMessage, true);
                             issuesForFile.push(lastIssue);
+                            lastLineStatus = LastLineIndentationStatus.OVERINDENTED;
                         }
                         lastIssue.addHighlight(trCodeLine, currentIndentationWidth);
                     } else {
                         if (lastLineStatus !== LastLineIndentationStatus.UNDERINDENTED) {
                             lastIssue = new IndentationIssue(trCodeLine, "Under-indent", defaultMessage, true);
                             issuesForFile.push(lastIssue);
+                            lastLineStatus = LastLineIndentationStatus.UNDERINDENTED;
                         }
                         lastIssue.addHighlight(trCodeLine, 0);
                     }
