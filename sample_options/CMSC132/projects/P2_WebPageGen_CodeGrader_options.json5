@@ -32,8 +32,8 @@
             enabled: true,
         },
         keyword_and_pattern_module: {
-            enabled: false,
-            keywords: [],
+            enabled: true,
+            keywords: ["instanceof"],
             patterns: [],
         },
         line_length_module: {

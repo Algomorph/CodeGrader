@@ -561,7 +561,7 @@ let naming_module = {};
     }
 
     /**
-     * Get all CodeEntity instances processed from the code so far.
+     * Get all CodeEntity instances processed from the code so far by this module.
      * @returns {[CodeEntity]}
      */
     this.getCodeEntities = function (){

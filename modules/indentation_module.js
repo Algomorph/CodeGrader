@@ -19,14 +19,65 @@ let indentation_module = {};
 
     let moduleColor = "#92b9d1";
 
-    class IndentationIssue extends CodeEntity {
+    class WhitespaceHighlight {
+        #trCodeLine
+        #startFromChar
 
         /**
-         * @param {string} keyword
          * @param {HTMLTableRowElement} trCodeLine
+         * @param {int} startFromChar
+         */
+        constructor(trCodeLine, startFromChar) {
+            this.#trCodeLine = trCodeLine;
+            this.#startFromChar = startFromChar;
+        }
+
+        draw() {
+            highlightWhitespaceUntilText(this.#trCodeLine, this.#startFromChar, moduleColor);
+        }
+    }
+
+    class IndentationIssue extends CodeEntity {
+        #defaultMessageText
+        #shortDescription
+        #hasWhitespaceHighlights
+        #highlightStack
+
+        /**
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {string} shortDescription
+         * @param {string} defaultMessageText
+         * @param {boolean} hasWhitespaceHighlights
          * */
-        constructor(trCodeLine) {
+        constructor(trCodeLine, shortDescription, defaultMessageText, hasWhitespaceHighlights = true) {
+            //TODO: add arguments for: "no indentation in file (bool)", highlight width, etc.
             super(trCodeLine);
+            this.#shortDescription = shortDescription;
+            this.#defaultMessageText = defaultMessageText;
+            this.#hasWhitespaceHighlights = hasWhitespaceHighlights;
+            if (hasWhitespaceHighlights) {
+                this.#highlightStack = [];
+            } else {
+                this.#highlightStack = null;
+            }
+        }
+
+        /**
+         * Add highlight information associated with this indentation issue. Note that this doesn't actually draw the
+         * highlight. Use the drawHighlights() function to do so.
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {int} startFromChar
+         */
+        addHighlight(trCodeLine, startFromChar) {
+            this.#highlightStack.push(new WhitespaceHighlight(trCodeLine, startFromChar));
+        }
+
+        drawHighlights() {
+            if (this.#hasWhitespaceHighlights) {
+                for (const highlight of this.#highlightStack) {
+                    highlight.draw();
+                }
+            }
         }
 
         get points() {
@@ -35,6 +86,18 @@ let indentation_module = {};
 
         get isIssue() {
             return true;
+        }
+
+        get _tagName() {
+            return this.#shortDescription;
+        }
+
+        get _labelName() {
+            return this.#shortDescription;
+        }
+
+        get _defaultMessageText() {
+            return this.#defaultMessageText;
         }
 
         get _toolTip() {
@@ -46,15 +109,14 @@ let indentation_module = {};
         }
     }
 
-    class NoIndentationInFileIssue extends IndentationIssue{
-
-    }
 
     this.getDefaultOptions = function () {
         return new Options();
     }
 
     let initialized = false;
+    /** @type Array.<IndentationIssue> **/
+    this.issues = [];
 
     /**
      * Initialize the module
@@ -76,8 +138,8 @@ let indentation_module = {};
         if (!this.options.enabled) {
             return;
         }
-        for (const codeFile of fileDictionary.values()) {
 
+        for (const codeFile of fileDictionary.values()) {
             let stack = [0];
 
             let isPrev = false;
@@ -88,7 +150,7 @@ let indentation_module = {};
             let switchIndent = 0;
 
             // find first indent used and use that as standard
-            let singleIndentWidth = 0;
+            let singleIndentWidth = -1;
             for (let i = 0; i < codeFile.trCodeLines.length;) {
                 while (i < codeFile.trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
                 (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
@@ -96,22 +158,23 @@ let indentation_module = {};
                     i++;
                 }
                 if (i === codeFile.trCodeLines.length) {
-                    const defaultMessage = "The whole file is lacking indentation.";
-
-                    // TODO -- move to ui
-                    $(uiPanel).append(makeLabelWithClickToScroll("No indentation", codeFile.trCodeLines[0], "", defaultMessage));
-                    addCodeTagWithComment(codeFile.trCodeLines[0], "No indentation", defaultMessage, "#92b9d1");
-
+                    this.issues.push(new IndentationIssue(codeFile.trCodeLines[0], "No indentation",
+                        "The whole file is lacking indentation.", false));
                 } else {
                     //assumes first line with indentation will have exactly one indent
                     singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(codeFile.trCodeLines[i]));
                     break;
                 }
             }
+            if(singleIndentWidth === -1){
+                continue;
+            }
 
             let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             let currentIndentationWidth = 0; // in white spaces
-
+            /** @type {IndentationIssue | null} */
+            let lastIssue = null;
+            const issuesForFile = [];
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
@@ -132,6 +195,7 @@ let indentation_module = {};
                     // accurately change the indent lengths, we must go one-by-one.
 
                     //TODO: Speak to Greg if we replace with space or empty string. Arguments can be made for both.
+                    //TODO: Greg read the above and is wondering what those arguments might be. Could you answer him?
                     codeText = codeText.replace(/^\s*\/\*(?:(?!\/\*).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
                 }
 
@@ -190,36 +254,18 @@ let indentation_module = {};
                     || (isSwitch && codeText.search(/(case\s|default\s|default:)/) === -1 && ![0, singleIndentWidth].includes(currentIndentationWidth - getIndentationWidth(codeText)))
                     || (!isPrev && !isSwitch && getIndentationWidth(codeText) !== currentIndentationWidth) || (isPrev && getIndentationWidth(codeText) < expectedIndent)) {
                     let defaultMessage = "Detected indent: " + getIndentationWidth(codeText) + ", Expected indent: " + currentIndentationWidth;
-                    let newProblem = false;
-                    let shortProblemDescription = "";
                     if (currentIndentationWidth < getIndentationWidth(codeText)) {
-                        //TODO: move to UI
-                        highlightSection(trCodeLine, currentIndentationWidth, "#92b9d1");
                         if (lastLineStatus !== LastLineIndentationStatus.OVERINDENTED) {
-                            newProblem = true;
-                            shortProblemDescription = "Over-indent";
-
-                            //TODO: move to UI
-                            $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
-
-                            lastLineStatus = LastLineIndentationStatus.OVERINDENTED;
+                            lastIssue = new IndentationIssue(trCodeLine, "Over-indent", defaultMessage, true);
+                            issuesForFile.push(lastIssue);
                         }
+                        lastIssue.addHighlight(trCodeLine, currentIndentationWidth);
                     } else {
-                        //TODO: move to UI
-                        highlightSection(trCodeLine, 0, "#92b9d1");
                         if (lastLineStatus !== LastLineIndentationStatus.UNDERINDENTED) {
-                            newProblem = true;
-                            shortProblemDescription = "Under-indent";
-
-                            //TODO: move to UI
-                            $(uiPanel).append(makeLabelWithClickToScroll(shortProblemDescription, trCodeLine, "", defaultMessage));
-
-                            lastLineStatus = LastLineIndentationStatus.UNDERINDENTED;
+                            lastIssue = new IndentationIssue(trCodeLine, "Under-indent", defaultMessage, true);
+                            issuesForFile.push(lastIssue);
                         }
-                    }
-                    if (newProblem) {
-                        //TODO: move to UI
-                        addCodeTagWithComment(trCodeLine, shortProblemDescription, defaultMessage, "#92b9d1");
+                        lastIssue.addHighlight(trCodeLine, 0);
                     }
                 } else {
                     lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
@@ -296,7 +342,37 @@ let indentation_module = {};
                     isNotAllman = 0;
                 }
             });
+            this.issues.push(...issuesForFile);
         }
+    }
+
+    /**
+     * Add all relevant information detected by this module to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel){
+        if (!this.options.enabled) {
+            return;
+        }
+        for(const issue of this.issues){
+            issue.drawHighlights();
+            issue.addAsLabelToPanel(uiPanel);
+            issue.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Get all CodeEntity instances processed from the code so far by this module.
+     * @returns {[CodeEntity]}
+     */
+    this.getCodeEntities = function (){
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized){
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return this.issues;
     }
 
 }).apply(indentation_module);
