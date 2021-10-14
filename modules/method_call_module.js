@@ -33,13 +33,82 @@ let method_call_module = {};
         return new Options();
     }
 
+    const moduleColor = "#b3769f";
+
+    let initialized = false;
+
+    /**
+     * Initialize the module
+     * @param {{moduleOptions : {method_call_module: Options}}} global_options
+     */
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.method_call_module;
+
+        if (!this.options.enabled) {
+            return;
+        }
+        initialized = true;
+    }
+
+    /**
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
+     */
+    this.processCode = function (fileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
+    }
+
+    class MarkedMethodCall extends CodeEntity {
+        /** @type {MethodCall} */
+        #methodCall = null
+        #defaultMessageText
+        #toolTip
+
+        /** @param {MethodCall} methodCall
+         * @param {string} defaultMessageText
+         * @param {string} toolTip
+         */
+        constructor(methodCall) {
+            super(methodCall.trCodeLine);
+            this.#methodCall = methodCall;
+            //TODO: generate these dynamically based on the methodCall, like it's done in initialize2
+            this.#defaultMessageText = defaultMessageText;
+            this.#toolTip = toolTip;
+        }
+
+        get isIssue(){
+            return true; //Note: assumes only clicked-on tags will be counted as issues.
+        }
+
+        get _labelName() {
+            return this.#methodCall.name;
+        }
+
+        get _tagName() {
+            return capitalize(this.#methodCall.callType) + " call: " + this.#methodCall.name;
+        }
+
+        get _defaultMessageText(){
+            return this.#defaultMessageText;
+        }
+
+        get _tagColor() {
+            return TagAndSectionColorByNameType[this.#declaration.nameType];
+        }
+
+
+    }
+
+
     /**
      * Initialize the module: analyze the parsed code as necessary, add relevant controls to the UI panel.
      * @param {HTMLDivElement} uiPanel the UI panel where to add the controls.
      * @param {Map.<string,CodeFile>} fileDictionary dictionary of CodeFile objects to analyze for calls.
      * @param {Options} options options for the module.
      */
-    this.initialize = function (uiPanel, fileDictionary, options) {
+    this.initialize2 = function (uiPanel, fileDictionary, options) {
         if (!options.enabled) {
             return;
         }
@@ -111,8 +180,8 @@ let method_call_module = {};
 
 
             if (methodCall.possiblyIgnored) {
-                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "possibly-ignored-method-call",
-                    "No problems were automatically detected."));
+                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine,
+                    "possibly-ignored-method-call", "No problems were automatically detected."));
             } else {
                 $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "",
                     potentialProblemMessage));

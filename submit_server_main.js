@@ -131,7 +131,10 @@ function constructUiPanel(options, filePaths) {
         naming_module.processCode(codeFileDictionary);
         naming_module.addInfoToUiPanel(uiPanel);
 
-        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
+        method_call_module.initialize(options);
+        method_call_module.processCode(codeFileDictionary);
+        method_call_module.addInfoToUiPanel(uiPanel);
+
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
