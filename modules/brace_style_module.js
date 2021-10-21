@@ -90,7 +90,7 @@ let brace_style_module = {};
         WRONG_BRACE_INDENTATION: 2,
         WRONG_BRACE_LINE: 3,
         WRONG_CLAUSE_INDENTATION: 4,
-        WRONG_CLAUSE_LINE: 5,
+        WRONG_CLAUSE_LINE: 5
     }
 
     const BraceStyleErrorTypeShortDescription = new Map([
@@ -561,7 +561,7 @@ let brace_style_module = {};
 
     const moduleColor = "#0e616f";
 
-    class MarkedBrace extends CodeEntity{
+    class MarkedBrace extends CodeEntity {
         #tagName
 
         /**
@@ -569,9 +569,9 @@ let brace_style_module = {};
          * @param {HTMLTableRowElement} trCodeLine
          * @param {BraceType} braceType
          */
-        constructor(trCodeLine, braceType){
+        constructor(trCodeLine, braceType) {
             super(trCodeLine);
-            switch (braceType){
+            switch (braceType) {
                 case BraceType.OPENING:
                     this.#tagName = "{";
                     break;
@@ -584,7 +584,7 @@ let brace_style_module = {};
             }
         }
 
-        get _tagColor(){
+        get _tagColor() {
             return moduleColor;
         }
 
@@ -593,23 +593,121 @@ let brace_style_module = {};
         }
     }
 
-
-    class MarkedBraceStyleError extends CodeEntity {
-        /** @type {BraceStyleErrorType} */
-        #error;
+    class BraceStyleIssue extends CodeEntity {
+        #labelName
 
         /**
-         * @param {BraceStyleErrorType} error
          * @param {HTMLTableRowElement} trCodeLine
-         * */
-        constructor(error, trCodeLine) {
+         * @param {string} bracePairLocation
+         */
+        constructor(trCodeLine, bracePairLocation) {
             super(trCodeLine);
-            this.#error = error;
+            this.#labelName = bracePairLocation;
         }
 
-        /** @return {boolean} */
-        get isIssue(){
+        get isIssue() {
             return true;
+        }
+
+        get points() {
+            return -1;
+        }
+
+        get _tagColor() {
+            return moduleColor;
+        }
+
+        get _labelName() {
+            return this.#labelName;
+        }
+    }
+
+    class MarkedBraceStyleError extends BraceStyleIssue {
+        /** @type {BraceStyleError} */
+        #error;
+        #labelStyleClass = "";
+        #defaultMessageText;
+        #tagName;
+
+        /**
+         * @param {BraceStyleError} error
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {string} bracePairLocation
+         * */
+        constructor(error, trCodeLine, bracePairLocation) {
+            super(trCodeLine, bracePairLocation);
+            this.#error = error;
+            let adjective = "";
+
+            if (error.clause == null) {
+                adjective = capitalize(error.braceType);
+                this.#defaultMessageText = adjective + " " + error.description + "(" + bracePairLocation + ").";
+            } else {
+                adjective = capitalize(error.clause.keyword);
+                this.#defaultMessageText = adjective + " " + error.description + ".";
+            }
+            this.#tagName = adjective + " " + error.shortDescription;
+            this.#labelStyleClass = BraceButtonClassByErrorType.get(error.errorType);
+
+        }
+
+        get _labelStyleClass() {
+            return this.#labelStyleClass;
+        }
+
+        get _defaultMessageText() {
+            return this.#defaultMessageText;
+        }
+
+        get _tagName() {
+            return this.#tagName;
+        }
+
+        get _toolTip() {
+            return this.#defaultMessageText;
+        }
+    }
+
+    class BraceStyleInconsistency extends BraceStyleIssue {
+        #defaultMessageText;
+        #toolTip;
+        #bracePair;
+
+        /**
+         * @param {BracePair} bracePair
+         * @param {BraceStyle} dominantBraceStyle
+         * @param {HTMLTableRowElement} trCodeLine
+         **/
+        constructor(bracePair, dominantBraceStyle, trCodeLine) {
+            super(trCodeLine, bracePair.braceLocationType);
+            if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
+                this.#toolTip = "Brace pair seems to use the " + bracePair.braceStyles[0] +
+                    " brace style, while the dominant brace style is " + dominantBraceStyle;
+                this.#defaultMessageText = "Inconsistent brace style. " + this.#toolTip;
+            } else {
+                this.#toolTip = "Brace pair doesn't follow any of the allowed styles.";
+                this.#defaultMessageText = this.#toolTip;
+            }
+        }
+
+        get _defaultMessageText() {
+            return this.#defaultMessageText;
+        }
+
+        get _tagName() {
+            return "Inconsistent brace style";
+        }
+
+        get _labelName() {
+            return this.#bracePair.braceLocationType;
+        }
+
+        get _labelStyleClass() {
+            return "inconsistent-brace-style-problem";
+        }
+
+        get _toolTip() {
+            return this.#toolTip;
         }
     }
 
@@ -627,7 +725,7 @@ let brace_style_module = {};
         initialized = true;
         /** @type {Array.<MarkedBrace>}>}*/
         this.markedBraces = [];
-        /** @type {Array.<MarkedBraceStyleError>}>}*/
+        /** @type {Array.<BraceStyleIssue>}>}*/
         this.markedBraceErrors = [];
     }
 
@@ -681,54 +779,27 @@ let brace_style_module = {};
         }
         // process imperfections in individual brace pairs
         for (const codeFile of fileDictionary.values()) {
+            /**@type {Array.<BracePair>}*/
             const bracePairs = fileBracePairs[codeFile.filename];
             for (const bracePair of bracePairs) {
                 let bracesMissing = bracePair.braceStyleErrors.filter(error => error.errorType === BraceStyleErrorType.BRACES_MISSING).length > 0;
                 if (!bracesMissing && dominantBraceStyle !== BraceStyle.UNKNOWN) {
                     if (!bracePair.braceStyles.includes(dominantBraceStyle)) {
-                        let defaultMessageText = null;
-                        if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
-                            defaultMessageText = "Brace pair seems to use the " + bracePair.braceStyles[0] +
-                                " brace style, while the dominant brace style is " + dominantBraceStyle;
-                        } else {
-                            defaultMessageText = "Brace pair doesn't follow any of the allowed styles.";
-                        }
                         let trCodeLine = codeFile.trCodeLines[bracePair.braceAstNode.location.start.line - 1];
-                        $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, "inconsistent-brace-style-problem", defaultMessageText));
-                        addCodeTagWithComment(
-                            trCodeLine,
-                            "Inconsistent brace style",
-                            defaultMessageText, moduleColor
-                        );
+                        this.markedBraceErrors.push(new BraceStyleInconsistency(bracePair, dominantBraceStyle, trCodeLine));
                     }
                 }
 
                 for (const braceStyleError of bracePair.braceStyleErrors) {
-                    let defaultMessageText = null;
-                    let adjective = "";
-                    if (braceStyleError.clause == null) {
-                        adjective = capitalize(braceStyleError.braceType);
-                        defaultMessageText = adjective + " " + braceStyleError.description + "(" + bracePair.braceLocationType + ").";
-                    } else {
-                        adjective = capitalize(braceStyleError.clause.keyword);
-                        defaultMessageText = adjective + " " + braceStyleError.description + ".";
-                    }
-
-                    let buttonClass = BraceButtonClassByErrorType.get(braceStyleError.errorType);
                     let trCodeLine = codeFile.trCodeLines[braceStyleError.line - 1];
-                    $(uiPanel).append(makeLabelWithClickToScroll(bracePair.braceLocationType, trCodeLine, buttonClass, defaultMessageText));
-                    addCodeTagWithComment(
-                        trCodeLine,
-                        adjective + " " + braceStyleError.shortDescription,
-                        defaultMessageText, moduleColor
-                    );
+                    this.markedBraceErrors.push(new MarkedBraceStyleError(braceStyleError, trCodeLine, bracePair.braceLocationType))
 
                 }
                 if (this.options.markAllBraces) {
-                    addCodeTagWithComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], "{", "",
-                        moduleColor);
-                    addCodeTagWithComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], "}", "",
-                        moduleColor);
+                    this.markedBraces.push(new MarkedBrace(
+                        codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], BraceType.OPENING));
+                    this.markedBraces.push(new MarkedBrace(
+                        codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], BraceType.OPENING));
                 }
             }
         }
@@ -744,8 +815,13 @@ let brace_style_module = {};
             return;
         }
         $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Brace Style</h3>");
+        for (const markedBraceError of this.markedBraceErrors) {
+            markedBraceError.addAsLabelToPanel(uiPanel);
+            markedBraceError.addAsCodeTagWithDefaultComment();
+        }
+
         for (const markedBrace of this.markedBraces) {
-            markedBrace.addAsLabelToPanel(uiPanel);
+            // don't add label for marked braces by default, that would cause lots of unneeded trash in the UI panel.
             markedBrace.addAsCodeTagWithDefaultComment();
         }
     }
