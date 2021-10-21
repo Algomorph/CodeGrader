@@ -140,9 +140,9 @@ let keyword_and_pattern_module = {};
             });
         }
         /** @type {Array.<KeywordOccurrence>}*/
-        this.keywordOccurencesFound = keywordOccurrencesFound;
+        this.keywordOccurencesFound.push(...keywordOccurrencesFound);
         /** @type {Array.<PatternOccurrence>}*/
-        this.patternOccurencesFound = patternOccurrencesFound;
+        this.patternOccurencesFound.push(...patternOccurrencesFound);
     }
 
     /**

@@ -137,8 +137,6 @@ let method_call_module = {};
         if (!this.options.enabled) {
             return;
         }
-        /** @type {Array.<MarkedMethodCall>}>}*/
-        this.markedMethodCalls = [];
 
         const globallyIgnoredMethods = this.options.ignoredMethods.global;
 

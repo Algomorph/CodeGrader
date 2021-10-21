@@ -141,6 +141,7 @@ let brace_style_module = {};
         }
     }
 
+
     class BracePair {
         /**
          * Make a brace pair
@@ -306,8 +307,8 @@ let brace_style_module = {};
     function getNonNodeBody(rootBraceNode, codeFile) {
         const nodeCode = getNodeCode(rootBraceNode, codeFile, false);
         const openingMatches = nodeCode.match(/(^[^{]*)([a-z)>^{])(\s*)({)/m);
-        const x = /[^bcd]art\s*\W.*a{3,7} /
-        const y = "Hello"
+        const x = /[^bcd]art\s*\W.*a{3,7} /;
+        const y = "Hello";
         // codeBeforeBrace = <code before the last non-whitespace character before opening brace> +
         //                      <last non-whitespace character before opening brace> +
         //                      <any whitespace between last non-whitespace character and opening brace>
@@ -376,8 +377,8 @@ let brace_style_module = {};
         const bodyStartLine = codeFile.codeLines[bodyStartLineNumber - 1];
         if (codeFile.sourceCode.charAt(clauseOrBodyNode.location.start.offset) === '{') {
             // Here, we know that the clause/body code starts with an opening brace.
-            // However, the body "end" location often includes the whitespace on the next line or several lines, until next code.
-            // We want to get the line it ends on.
+            // However, the body "end" location often includes the whitespace on the next line or several lines,
+            // until next code. We want to get the line it ends on.
             const bodyCode = getNodeCode(clauseOrBodyNode, codeFile, false);
             const bodyCodeLines = bodyCode.split('\n');
             let [lastBodyLine, iFinalBodyCodeLine] = findLastLineWithClosingBrace(bodyCodeLines);
@@ -556,28 +557,95 @@ let brace_style_module = {};
             }
 
         }
+    }
 
+    const moduleColor = "#0e616f";
 
+    class MarkedBrace extends CodeEntity{
+        #tagName
+
+        /**
+         *
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {BraceType} braceType
+         */
+        constructor(trCodeLine, braceType){
+            super(trCodeLine);
+            switch (braceType){
+                case BraceType.OPENING:
+                    this.#tagName = "{";
+                    break;
+                case BraceType.CLOSING:
+                    this.#tagName = "}";
+                    break;
+                case BraceType.BOTH:
+                    this.#tagName = "{}";
+                    break;
+            }
+        }
+
+        get _tagColor(){
+            return moduleColor;
+        }
+
+        get _tagName() {
+            return this.#tagName;
+        }
     }
 
 
+    class MarkedBraceStyleError extends CodeEntity {
+        /** @type {BraceStyleErrorType} */
+        #error;
+
+        /**
+         * @param {BraceStyleErrorType} error
+         * @param {HTMLTableRowElement} trCodeLine
+         * */
+        constructor(error, trCodeLine) {
+            super(trCodeLine);
+            this.#error = error;
+        }
+
+        /** @return {boolean} */
+        get isIssue(){
+            return true;
+        }
+    }
+
+    let initialized = false;
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
-     * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Map.<string,CodeFile>} codeFileDictionary
-     * @param {Options} options
+     * Initialize the module
+     * @param {{moduleOptions : {brace_style_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, codeFileDictionary, options) {
-        if (!options.enabled) {
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.brace_style_module;
+
+        if (!this.options.enabled) {
             return;
         }
-        const inconsistentBraceStyleColor = "#0e616f";
+        initialized = true;
+        /** @type {Array.<MarkedBrace>}>}*/
+        this.markedBraces = [];
+        /** @type {Array.<MarkedBraceStyleError>}>}*/
+        this.markedBraceErrors = [];
+    }
 
-        $(uiPanel).append("<h3 style='color:"+inconsistentBraceStyleColor+"'>Brace Style</h3>");
+    /**
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
+     */
+    this.processCode = function (fileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
 
-        for (const codeFile of codeFileDictionary.values()) {
+        /** @type {Map.<string,Array<BracePair>>}*/
+        const fileBracePairs = new Map();
+
+        for (const codeFile of fileDictionary.values()) {
             /** @type {Array.<BracePair>} */
-            let bracePairs = [];
+            const bracePairs = [];
 
             for (const typeInformation of codeFile.types.values()) {
                 for (const scope of typeInformation.scopes) {
@@ -586,32 +654,42 @@ let brace_style_module = {};
                 }
             }
 
-            // try to obtain dominating brace style
+            fileBracePairs[codeFile.filename] = bracePairs;
+        }
 
-            let braceStyleCounts = new Map();
-            braceStyleCounts.set(BraceStyle.ALLMAN, 0);
-            braceStyleCounts.set(BraceStyle.ONE_TBS, 0);
-            braceStyleCounts.set(BraceStyle.UNKNOWN, 0);
+
+        // tally styles used for each brace pair
+        let braceStyleCounts = new Map();
+        braceStyleCounts.set(BraceStyle.ALLMAN, 0);
+        braceStyleCounts.set(BraceStyle.ONE_TBS, 0);
+        braceStyleCounts.set(BraceStyle.UNKNOWN, 0);
+        for (const codeFile of fileDictionary.values()) {
+            const bracePairs = fileBracePairs[codeFile.filename];
             for (const bracePair of bracePairs) {
                 let braceStyle = bracePair.braceStyles[0];
                 braceStyleCounts.set(braceStyle, braceStyleCounts.get(braceStyle) + 1);
             }
-            let dominantBraceStyle = BraceStyle.UNKNOWN;
-            let dominantBraceStyleCount = 0;
-            for (const [braceStyle, count] of braceStyleCounts.entries()) {
-                if (dominantBraceStyleCount < count) {
-                    dominantBraceStyle = braceStyle;
-                    dominantBraceStyleCount = count;
-                }
+        }
+        // obtain dominating brace style from tally counts
+        let dominantBraceStyle = BraceStyle.UNKNOWN;
+        let dominantBraceStyleCount = 0;
+        for (const [braceStyle, count] of braceStyleCounts.entries()) {
+            if (dominantBraceStyleCount < count) {
+                dominantBraceStyle = braceStyle;
+                dominantBraceStyleCount = count;
             }
-
+        }
+        // process imperfections in individual brace pairs
+        for (const codeFile of fileDictionary.values()) {
+            const bracePairs = fileBracePairs[codeFile.filename];
             for (const bracePair of bracePairs) {
                 let bracesMissing = bracePair.braceStyleErrors.filter(error => error.errorType === BraceStyleErrorType.BRACES_MISSING).length > 0;
                 if (!bracesMissing && dominantBraceStyle !== BraceStyle.UNKNOWN) {
                     if (!bracePair.braceStyles.includes(dominantBraceStyle)) {
                         let defaultMessageText = null;
                         if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
-                            defaultMessageText = "Brace pair seems to use the " + bracePair.braceStyles[0] + " brace style, while the dominant brace style is " + dominantBraceStyle;
+                            defaultMessageText = "Brace pair seems to use the " + bracePair.braceStyles[0] +
+                                " brace style, while the dominant brace style is " + dominantBraceStyle;
                         } else {
                             defaultMessageText = "Brace pair doesn't follow any of the allowed styles.";
                         }
@@ -620,7 +698,7 @@ let brace_style_module = {};
                         addCodeTagWithComment(
                             trCodeLine,
                             "Inconsistent brace style",
-                            defaultMessageText, inconsistentBraceStyleColor
+                            defaultMessageText, moduleColor
                         );
                     }
                 }
@@ -642,20 +720,48 @@ let brace_style_module = {};
                     addCodeTagWithComment(
                         trCodeLine,
                         adjective + " " + braceStyleError.shortDescription,
-                        defaultMessageText, inconsistentBraceStyleColor
+                        defaultMessageText, moduleColor
                     );
 
                 }
-                if (options.markAllBraces) {
+                if (this.options.markAllBraces) {
                     addCodeTagWithComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.start.line - 1], "{", "",
-                        inconsistentBraceStyleColor);
+                        moduleColor);
                     addCodeTagWithComment(codeFile.trCodeLines[bracePair.bracedCodeLocation.end.line - 1], "}", "",
-                        inconsistentBraceStyleColor);
+                        moduleColor);
                 }
             }
-
         }
 
+    }
+
+    /**
+     * Add each section of naming information to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Brace Style</h3>");
+        for (const markedBrace of this.markedBraces) {
+            markedBrace.addAsLabelToPanel(uiPanel);
+            markedBrace.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Return all CodeEntities thus far extracted from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the `initialize` function first.");
+        }
+        return this.markedBraces;
     }
 
 }).apply(brace_style_module);

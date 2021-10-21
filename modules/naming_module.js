@@ -400,6 +400,7 @@ let naming_module = {};
             this.#options = options;
             this.declarations = []
             this.#uiEnabled = uiEnabled;
+            this.#markedDeclarations = [];
         }
 
         /**
@@ -408,8 +409,8 @@ let naming_module = {};
          * */
         processDeclarations() {
             const allowedSpecialWordsSet = new Set(this.#options.allowedSpecialWords);
-            this.#markedDeclarations = Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
-                this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically);
+            this.#markedDeclarations.push(...Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
+                this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically));
         }
 
         /**
