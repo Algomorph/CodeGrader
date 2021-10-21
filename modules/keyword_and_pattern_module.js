@@ -166,7 +166,7 @@ let keyword_and_pattern_module = {};
     }
 
     /**
-     * Return all CodeEntities thus fur processed from the code.
+     * Return all CodeEntities thus far extracted from the code.
      * @returns {Array.<CodeEntity>}
      */
     this.getCodeEntities = function () {
