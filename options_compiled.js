@@ -3532,11 +3532,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     resulting_string = this.__patterns.handlebars_raw_close.read();
   } else if (previous_token.type === TOKEN.TAG_CLOSE &&
     previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
-<<<<<<< HEAD
     // ^^ empty tag has no content 
-=======
-    // ^^ empty tag has no content
->>>>>>> 97c44703e3aa435b126bf060cb96c52b2c2ec8d5
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (tag_name === 'script' || tag_name === 'style') {
       // Script and style tags are allowed to have comments wrapping their content
@@ -5374,11 +5370,7 @@ var punct =
   "= ! ? > < : / ^ - + * & % ~ |";
 
 punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
-<<<<<<< HEAD
 // ?. but not if followed by a number 
-=======
-// ?. but not if followed by a number
->>>>>>> 97c44703e3aa435b126bf060cb96c52b2c2ec8d5
 punct = '\\?\\.(?!\\d) ' + punct;
 punct = punct.replace(/ /g, '|');
 
@@ -5965,11 +5957,8 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-<<<<<<< HEAD
-
-=======
-        document.getElementById('optionsTextArea').value = beautify(optionsStr, { indent_size: 4, space_in_empty_paren: true });
->>>>>>> 97c44703e3aa435b126bf060cb96c52b2c2ec8d5
+        console.log(beautify(options.text(), { indent_size: 2, space_in_empty_paren: true }));
+        
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');

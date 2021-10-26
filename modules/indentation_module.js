@@ -155,7 +155,7 @@ let indentation_module = {};
                 //TODO: need to stack unterminated multi-line comments when determining first indent
                 // & tab width (== singleIndentWidth)
                 while (i < codeFile.trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
-                (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
+                (codeFile.trCodeLines[i].trim().substr(0,1)=="*" || stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
                     getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i])))) === 0)) { // Makes sure next isn't an empty line
                     i++;
                 }
