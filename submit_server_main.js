@@ -38,9 +38,9 @@ function main(options) {
 
     const semesterString = options.semesterSeason + options.year.toString();
 
-    // condition: URL contains 'condeReview' and the semester matches the semester selected in options.
+    // condition: URL contains 'codeReview' and the semester matches the semester selected in options.
     if (location.href.indexOf('codeReview') > -1 && location.href.indexOf(semesterString) > -1) {
-        const assignmentName = options.submitServerAssignmentName;
+        const assignmentName = options.submitServerAssignmentName.replace("(", "\\(").replace(")", "\\)");
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
         const headerText = document.querySelector("h1").textContent;
@@ -109,10 +109,9 @@ function constructUiPanel(options, filePaths) {
         $(uiPanel).append(makeWarning("Note: no files found matching to the entries provided in \"filesToCheck\" in " +
             "plugin options, continuing with review modules disabled."));
     } else {
-
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filePaths);
         for (const codeFile of codeFileDictionary.values()) {
-            code_analysis.findEntitiesInCodeFileAst(codeFile);
+            code_analysis.findComponentsInCodeFileAst(codeFile);
         }
         for (const [fileName, codeFile] of codeFileDictionary.entries()) {
             if (codeFile.parseError !== null) {
@@ -121,14 +120,31 @@ function constructUiPanel(options, filePaths) {
                 console.log(codeFile.parseError);
             }
         }
-        keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
-        naming_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.naming_module);
-        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
+
+        // TODO: every module should contain these three methods, as well as the getCodeEntities() method to test them.
+        //  This way, we can just stick them into an array and call these three functions while traversing it.
+        keyword_and_pattern_module.initialize(options);
+        keyword_and_pattern_module.processCode(codeFileDictionary);
+        keyword_and_pattern_module.addInfoToUiPanel(uiPanel);
+
+        naming_module.initialize(options);
+        naming_module.processCode(codeFileDictionary);
+        naming_module.addInfoToUiPanel(uiPanel);
+
+        method_call_module.initialize(options);
+        method_call_module.processCode(codeFileDictionary);
+        method_call_module.addInfoToUiPanel(uiPanel);
+
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
-        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
+
+        indentation_module.initialize(options);
+        indentation_module.processCode(codeFileDictionary);
+        indentation_module.addInfoToUiPanel(uiPanel);
+
+
         line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }

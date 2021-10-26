@@ -115,7 +115,7 @@ let unused_code_module = {};
                             let usageMarkerText =
                                 capitalize(UsageTypeByDeclarationType.get(usage.declaration.declarationType))
                                 + " \"" + usage.declaration.name + "\" used.";
-                            addButtonComment(codeFile.trCodeLines[usage.astNode.location.start.line - 1], usageMarkerText, "",
+                            addCodeTagWithComment(codeFile.trCodeLines[usage.astNode.location.start.line - 1], usageMarkerText, "",
                                 unusedCodeOccurrenceColor);
                         }
                     }
@@ -129,7 +129,7 @@ let unused_code_module = {};
                         const trCodeLine = codeFile.trCodeLines[declaration.astNode.location.start.line - 1];
                         const buttonClass = ButtonClassByDeclarationType.get(declaration.declarationType);
                         $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, trCodeLine, buttonClass, unusedDeclarationMessage));
-                        addButtonComment(trCodeLine, "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
+                        addCodeTagWithComment(trCodeLine, "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
                             unusedCodeOccurrenceColor);
                     }
                 }

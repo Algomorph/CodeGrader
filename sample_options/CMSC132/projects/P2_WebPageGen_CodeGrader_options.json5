@@ -1,59 +1,56 @@
 {
-    course: 'CMSC131',
+    course: 'CMSC132',
     filesToCheck: [
-        'Quiz5/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java'
+        'WebPageGen/src/main/java/model/WebPage.java|src/model/WebPage.java',
+        'WebPageGen/src/main/java/model/AnchorElement.java|src/model/AnchorElement.java',
+        'WebPageGen/src/main/java/model/Element.java|src/model/Element.java',
+        'WebPageGen/src/main/java/model/HeadingElement.java|src/model/HeadingElement.java',
+        'WebPageGen/src/main/java/model/ImageElement.java|src/model/ImageElement.java',
+        'WebPageGen/src/main/java/model/ListElement.java|src/model/ListElement.java',
+        'WebPageGen/src/main/java/model/ParagraphElement.java|src/model/ParagraphElement.java',
+        'WebPageGen/src/main/java/model/TableElement.java|src/model/TableElement.java',
+        'WebPageGen/src/main/java/model/TagElement.java|src/model/TagElement.java',
+        'WebPageGen/src/main/java/model/TextElement.java|src/model/TextElement.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
-    lateScoreAdjustment: -5,
+    lateScoreAdjustment: -12,
     moduleOptions: {
         brace_style_module: {
-            enabled: false,
+            enabled: true,
             markAllBraces: false,
         },
         grade_server_module: {
             enabled: true,
-            gradeServerAssignmentName: 'Q5',
+            gradeServerAssignmentName: 'P2',
             graderName: '',
-            maximumCodeStyleScore: 0,
+            maximumCodeStyleScore: 10,
             maximumStudentTestsScore: 0,
-            minimumScoreAdjustment: -30,
+            minimumScoreAdjustment: 0,
         },
         indentation_module: {
-            enabled: false,
+            enabled: true,
         },
         keyword_and_pattern_module: {
-            enabled: false,
-            keywords: [],
+            enabled: true,
+            keywords: ["instanceof"],
             patterns: [],
         },
         line_length_module: {
             enabled: false,
-            lineLengthLimit: 100,
+            lineLengthLimit: 80,
             tabCharacterWidth: 4,
         },
         loop_module: {
-            enabled: true,
-            methodList: [
-              "Utilities.findOddMin", 
-              "Utilities.getRowSums"
-             ],
+            enabled: false,
+            methodList: [],
             methodListUsage: 'disallowed',
             showAll: true,
         },
         method_call_module: {
-            enabled: true,
+            enabled: false,
             ignoredMethods: {
-                global: [
-                   "this.findOddMin", 
-                   "type.findOddMin",
-                   "this.getRowSums",
-                   "type.getRowSums",
-                   "$ArrayList$.add",
-                   "ArrayList<>()",
-                   "this.sum",
-                   "type.sum"
-                ]
+                global: [],
             },
             ignoredTypes: [],
             showUniqueOnly: false,
@@ -62,18 +59,19 @@
             allowedSpecialWords: [
                 'min',
                 'max',
-                'args',
+                'i'
             ],
             checkConstants: true,
             checkMethods: true,
             checkTypes: true,
             checkVariablesAndFields: true,
-            enabled: false,
+            enabled: true,
             ignoredNames: {
-                global: [
-                    'args',
-                    'main',
+                WebPage: [
+                    'findElem',
+                    'stats',
                 ],
+                global: [],
             },
             numbersAllowedInNames: true,
             showUniqueOnly: true,
@@ -83,7 +81,7 @@
         spacing_module: {
             checkSpacingAroundAssignmentOperators: true,
             checkSpacingAroundBinaryOperators: true,
-            enabled: false,
+            enabled: true,
         },
         test_module: {
             enabled: false,
@@ -93,16 +91,14 @@
             checkMethods: false,
             checkTypes: false,
             checkVariables: true,
-            enabled: false,
+            enabled: true,
             ignoredNames: {
-                global: [
-                    'args',
-                ],
+                global: [],
             },
             markAllUsages: false,
         },
     },
-    submitServerAssignmentName: 'Quiz 5',
+    submitServerAssignmentName: 'Proj 2',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,

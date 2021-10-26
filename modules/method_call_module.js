@@ -33,22 +33,118 @@ let method_call_module = {};
         return new Options();
     }
 
+    const moduleColor = "#b3769f";
+
+    class MarkedMethodCall extends CodeEntity {
+        /** @type {MethodCall} */
+        #methodCall = null
+        #defaultMessageText
+        #toolTip
+        #isIssue = false
+        #labelStyleClass = ""
+
+        /**
+         * @param {MethodCall} methodCall
+         */
+        constructor(methodCall) {
+            super(methodCall.trCodeLine);
+            this.#methodCall = methodCall;
+            let problemMessageBase = "This call ";
+
+            switch (methodCall.callType) {
+                case MethodCallType.METHOD:
+                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
+                        + (methodCall.nameOfCalledType != null ? " of class \"" + methodCall.nameOfCalledType + "\"" : "")
+                    break;
+                case MethodCallType.SUPER_METHOD:
+                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
+                    break;
+                case MethodCallType.SUPER_CONSTRUCTOR:
+                    problemMessageBase = "Call to this " + methodCall.callType;
+                    break;
+                case MethodCallType.CONSTRUCTOR:
+                    problemMessageBase = "Call to this " + methodCall.callType + " of class \"" +
+                        methodCall.nameOfCalledType + "\"";
+                    break;
+            }
+            const potentialProblemMessage = problemMessageBase + " was potentially not allowed here.";
+            const problemMessage = problemMessageBase + " was not allowed here.";
+
+            if (methodCall.possiblyIgnored) {
+                this.#toolTip = "No problems were automatically detected.";
+                this.#labelStyleClass = "possibly-ignored-method-call";
+                this.#isIssue = false;
+            } else {
+                this.#toolTip = potentialProblemMessage;
+                this.#isIssue = true;
+            }
+            this.#defaultMessageText = problemMessage;
+        }
+
+
+        get _labelStyleClass() {
+            return "";
+        }
+
+        get _labelName() {
+            return this.#methodCall.name;
+        }
+
+        get _tagName() {
+            return capitalize(this.#methodCall.callType) + " call: " + this.#methodCall.name;
+        }
+
+        get _defaultMessageText() {
+            return this.#defaultMessageText;
+        }
+
+        get _tagColor() {
+            return moduleColor;
+        }
+
+        get isIssue() {
+            return this.#isIssue;
+        }
+
+        /** @return {number} */
+        get points() {
+            return -3;
+        }
+    }
+
+    let initialized = false;
+
     /**
-     * Initialize the module: analyze the parsed code as necessary, add relevant controls to the UI panel.
-     * @param {HTMLDivElement} uiPanel the UI panel where to add the controls.
-     * @param {Map.<string,CodeFile>} fileDictionary dictionary of CodeFile objects to analyze for calls.
-     * @param {Options} options options for the module.
+     * Initialize the module
+     * @param {{moduleOptions : {method_call_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, fileDictionary, options) {
-        if (!options.enabled) {
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.method_call_module;
+
+        if (!this.options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#b3769f'>Method Calls</h3>");
-        const globallyIgnoredMethods = options.ignoredMethods.global;
+        initialized = true;
+        /** @type {Array.<MarkedMethodCall>}>}*/
+        this.markedMethodCalls = [];
+    }
+
+    /**
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
+     */
+    this.processCode = function (fileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
+        /** @type {Array.<MarkedMethodCall>}>}*/
+        this.markedMethodCalls = [];
+
+        const globallyIgnoredMethods = this.options.ignoredMethods.global;
 
         let methodCalls = [];
 
-        const ignoredTypes = new Set(options.ignoredTypes);
+        const ignoredTypes = new Set(this.options.ignoredTypes);
 
         for (const codeFile of fileDictionary.values()) {
             if (codeFile.abstractSyntaxTree !== null) {
@@ -59,8 +155,8 @@ let method_call_module = {};
                         continue;
                     }
                     let ignoredMethodsForType = [...globallyIgnoredMethods];
-                    if (options.ignoredMethods.hasOwnProperty(typeName)) {
-                        ignoredMethodsForType.push(...options.ignoredMethods[typeName]);
+                    if (this.options.ignoredMethods.hasOwnProperty(typeName)) {
+                        ignoredMethodsForType.push(...this.options.ignoredMethods[typeName]);
                     }
                     ignoredMethodsForType = new Set(ignoredMethodsForType);
                     let methodCallsForType = [...typeInformation.methodCalls].filter(methodCall =>
@@ -83,45 +179,43 @@ let method_call_module = {};
             }
         }
 
-        if (options.showUniqueOnly) {
+        if (this.options.showUniqueOnly) {
             methodCalls = uniqueNames(methodCalls);
         }
 
         for (const methodCall of methodCalls) {
-            let problemMessageBase = "This call ";
-
-            switch (methodCall.callType) {
-                case MethodCallType.METHOD:
-                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
-                        + (methodCall.nameOfCalledType != null ? " of class \"" + methodCall.nameOfCalledType + "\"" : "")
-                    break;
-                case MethodCallType.SUPER_METHOD:
-                    problemMessageBase = "Call to " + methodCall.callType + " \"" + methodCall.methodName + "\""
-                    break;
-                case MethodCallType.SUPER_CONSTRUCTOR:
-                    problemMessageBase = "Call to this " + methodCall.callType;
-                    break;
-                case MethodCallType.CONSTRUCTOR:
-                    problemMessageBase = "Call to this " + methodCall.callType + " of class \"" +
-                        methodCall.nameOfCalledType + "\"";
-                    break;
-            }
-            const potentialProblemMessage = problemMessageBase + " was potentially not allowed here.";
-            const problemMessage = problemMessageBase + " was not allowed here.";
-
-
-            if (methodCall.possiblyIgnored) {
-                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "possibly-ignored-method-call",
-                    "No problems were automatically detected."));
-            } else {
-                $(uiPanel).append(makeLabelWithClickToScroll(methodCall.name, methodCall.trCodeLine, "",
-                    potentialProblemMessage));
-            }
-
-            addButtonComment(
-                methodCall.trCodeLine, capitalize(methodCall.callType) + " call: " + methodCall.name, problemMessage, "#b3769f"
-            );
+            this.markedMethodCalls.push(new MarkedMethodCall(methodCall));
         }
     }
+
+    /**
+     * Add each section of naming information to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Method Calls</h3>");
+        for (const markedMethodCall of this.markedMethodCalls) {
+            markedMethodCall.addAsLabelToPanel(uiPanel);
+            markedMethodCall.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Return all CodeEntities thus far extracted from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return this.markedMethodCalls;
+    }
+
 
 }).apply(method_call_module);

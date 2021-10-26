@@ -162,7 +162,7 @@ let spacing_module = {};
                         }
                         message = codeTextToHtmlText(message);
                         $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
-                        addButtonComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
+                        addCodeTagWithComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
                     }
                 }
             }

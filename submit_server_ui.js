@@ -179,12 +179,6 @@ function makeCodeFeedArrow() {
         $("<span class='code-feed-arrow'>......&#8594;............................................................................................................................................................................................................................................................................................................................................................................................................................................................</span>"));
 }
 
-function makeLabels(strList) {
-    return _.map(strList, function (s) {
-        return "<span class='label'>" + s + "</span>";
-    });
-}
-
 /**
  * Make a label-button HTML element that, when clicked, scrolls to a specific line in the code section of the submit server review page.
  * @param {string} label text label to put on the label-button
@@ -210,6 +204,12 @@ function makeLabelWithClickToScroll(label, targetElement, styleClass = undefined
 
 }
 
+function makeLabels(strList) {
+    return _.map(strList, function (s) {
+        return "<span class='label'>" + s + "</span>";
+    });
+}
+
 function makeLabelsWithClick(list) {
     return _.map(list, function (d) {
         return $("<span class='label'>" + d.message + "</span>").click(function () {
@@ -219,7 +219,7 @@ function makeLabelsWithClick(list) {
 }
 
 
-function addButtonComment(trCodeLine, title, defaultMessage, color) {
+function addCodeTagWithComment(trCodeLine, title, defaultMessage, color) {
     let codeNumber = $(trCodeLine).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
     let contentDivTag = $(trCodeLine).find(".gwt-Label")[0];
@@ -232,7 +232,7 @@ function addButtonComment(trCodeLine, title, defaultMessage, color) {
 }
 
 
-function addCommentOnly(trCodeLine, title, color) {
+function addCodeComment(trCodeLine, title, color) {
     let code = $(trCodeLine).find(".gwt-Label");
     $(code).append($("<span class='comment' style='border:1px solid " + color + "; color:" + color + "'>&larr;" + title + "</span>"));
 }
@@ -280,7 +280,7 @@ function highlightLine(tr, msg, color) {
     $(codeLines).html($(codeLines).html().replace(/$/ig, "<span class='tip' style='background-color:" + color + "'>" + msg + "</span>"));
 }
 
-function highlightSection(tr, start, color) {
+function highlightWhitespaceUntilText(tr, start, color) {
     let codeNumber = $(tr).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
     let codeLine = $(tr).find(".gwt-Label")[0];
@@ -293,6 +293,8 @@ function highlightSection(tr, start, color) {
     let first = 0;
     for (; total < start; first++) { // Undoing tabs is hard... returns the first character of the highlighting area
         if ($(codeLine).text().charAt(first) === '\t') {
+            //TODO: magic number "4" needs to be either passed in as an argument (e.g. tab width) -- which can have
+            // a default value of four -- or defined as a globally-accessible constant somewhere
             total = (Math.abs(total / 4) + 1) * 4;
         } else {
             total++;
@@ -382,4 +384,5 @@ function drawVerticalLineInElement(leftOffset, height, styleClass, element) {
     lineDiv.style.left = leftOffset + "px";
     lineDiv.style.height = height + "px";
 }
+
 
