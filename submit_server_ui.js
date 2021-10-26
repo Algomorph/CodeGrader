@@ -280,7 +280,7 @@ function highlightLine(tr, msg, color) {
     $(codeLines).html($(codeLines).html().replace(/$/ig, "<span class='tip' style='background-color:" + color + "'>" + msg + "</span>"));
 }
 
-function highlightSection(tr, start, color) {
+function highlightWhitespaceUntilText(tr, start, color) {
     let codeNumber = $(tr).find("td.line-number");
     $(codeNumber).css("border-left", "3px solid " + color);
     let codeLine = $(tr).find(".gwt-Label")[0];

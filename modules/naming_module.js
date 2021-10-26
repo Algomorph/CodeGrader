@@ -249,10 +249,6 @@ let naming_module = {};
         }
     }
 
-    this.getDefaultOptions = function () {
-        return new Options();
-    }
-
     this.NameType = NameType
 
     const NameTypeByDeclarationType = new Map([
@@ -386,7 +382,7 @@ let naming_module = {};
         /** @type{string} **/
         #titleColor
         /** @type{Array.<MarkedDeclaration>} **/
-        #marked_declarations
+        #markedDeclarations
         /** @type{Options} **/
         #options
         /** @type{boolean} **/
@@ -412,7 +408,7 @@ let naming_module = {};
          * */
         processDeclarations() {
             const allowedSpecialWordsSet = new Set(this.#options.allowedSpecialWords);
-            this.#marked_declarations = Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
+            this.#markedDeclarations = Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
                 this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically);
         }
 
@@ -429,7 +425,7 @@ let naming_module = {};
         static #checkDeclarationArray(declarations, allowedSpecialWords,
                                       numbersAllowedInNames = true, uniqueOnly = false,
                                       sortAlphabetically = false) {
-            const marked_declarations = [];
+            const markedDeclarations = [];
             if (uniqueOnly) {
                 declarations = uniqueNames(declarations);
             }
@@ -439,9 +435,9 @@ let naming_module = {};
                 });
             }
             for (const declaration of declarations) {
-                marked_declarations.push(checkName(declaration, allowedSpecialWords, numbersAllowedInNames));
+                markedDeclarations.push(checkName(declaration, allowedSpecialWords, numbersAllowedInNames));
             }
-            return marked_declarations;
+            return markedDeclarations;
         }
 
         /**
@@ -453,16 +449,20 @@ let naming_module = {};
         addToUiPanel(uiPanel) {
             if (this.#uiEnabled) {
                 $(uiPanel).append("<h4 style='color:" + this.#titleColor + "'>" + this.#title + "</h4>");
-                for (const declarationHighlight of this.#marked_declarations) {
+                for (const declarationHighlight of this.#markedDeclarations) {
                     declarationHighlight.addAsLabelToPanel(uiPanel);
                     declarationHighlight.addAsCodeTagWithDefaultComment();
                 }
             }
         }
 
-        get marked_declarations(){
-            return this.#marked_declarations;
+        get markedDeclarations(){
+            return this.#markedDeclarations;
         }
+    }
+
+    this.getDefaultOptions = function () {
+        return new Options();
     }
 
     let initialized = false;
@@ -560,6 +560,10 @@ let naming_module = {};
         }
     }
 
+    /**
+     * Get all CodeEntity instances processed from the code so far by this module.
+     * @returns {[CodeEntity]}
+     */
     this.getCodeEntities = function (){
         if (!this.options.enabled) {
             return [];
@@ -567,7 +571,7 @@ let naming_module = {};
         if (!initialized){
             throw ("Module not initialized. Please call the initialize function first.");
         }
-        return this.sections.reduce((accumulator, section) => { accumulator.push(...section.marked_declarations)}, [])
+        return this.sections.reduce((accumulator, section) => { accumulator.push(...section.markedDeclarations)}, [])
     }
 
 }).apply(naming_module);

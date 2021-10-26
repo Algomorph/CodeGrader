@@ -120,20 +120,31 @@ function constructUiPanel(options, filePaths) {
                 console.log(codeFile.parseError);
             }
         }
-        keyword_and_pattern_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.keyword_and_pattern_module);
 
         // TODO: every module should contain these three methods, as well as the getCodeEntities() method to test them.
         //  This way, we can just stick them into an array and call these three functions while traversing it.
+        keyword_and_pattern_module.initialize(options);
+        keyword_and_pattern_module.processCode(codeFileDictionary);
+        keyword_and_pattern_module.addInfoToUiPanel(uiPanel);
+
         naming_module.initialize(options);
         naming_module.processCode(codeFileDictionary);
         naming_module.addInfoToUiPanel(uiPanel);
 
-        method_call_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.method_call_module);
+        method_call_module.initialize(options);
+        method_call_module.processCode(codeFileDictionary);
+        method_call_module.addInfoToUiPanel(uiPanel);
+
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
         brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
-        indentation_module.initialize(uiPanel, trCodeLines, options.moduleOptions.indentation_module);
+
+        indentation_module.initialize(options);
+        indentation_module.processCode(codeFileDictionary);
+        indentation_module.addInfoToUiPanel(uiPanel);
+
+
         line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
