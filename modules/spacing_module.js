@@ -24,13 +24,67 @@ let spacing_module = {};
         return new Options();
     }
 
+    const moduleColor = "#92b9d1";
+
+    class SpacingIssue extends CodeEntity {
+        get isIssue() {
+            return true;
+        }
+
+        get points() {
+            return -1;
+        }
+
+        get _labelStyleClass(){
+            return "";
+        }
+
+        get _labelName(){
+            throw ("labelName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+        }
+
+        get _tagName(){
+            throw ("tagName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+        }
+
+        get _defaultMessageText(){
+            return "";
+        }
+
+        get _toolTip(){
+            return "No problems were automatically detected."
+        }
+
+        get _tagColor(){
+            return "";
+        }
+    }
+
+    let initialized = false;
+
+    /**
+     * Initialize the module using global options
+     * @param {{moduleOptions : {spacing_module: Options}}} global_options
+     */
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.spacing_module;
+
+        if (!this.options.enabled) {
+            return;
+        }
+        /** @type {Array.<CodeEntity>} */
+        this.spacingIssue = [];
+
+        initialized = true;
+    }
+
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
      * @param {HTMLDivElement} uiPanel main panel where to add controls
      * @param {Map.<string, CodeFile>} codeFileDictionary
      * @param {Options} options
      */
-    this.initialize = function (uiPanel, codeFileDictionary, options) {
+    this.initialize2 = function (uiPanel, codeFileDictionary, options) {
         if (!options.enabled) {
             return;
         }
@@ -104,7 +158,7 @@ let spacing_module = {};
                         endCodeLineAfterOperator = endCodeLine.substring(textBetweenOperandsEnd.column - 1);
                     }
                     const keywordMatchStart = textBetweenOperands.match(/^(\s*(?:\[\])+).*/);
-                    if (keywordMatchStart){
+                    if (keywordMatchStart) {
                         textBetweenOperands = textBetweenOperands.replace(keywordMatchStart[1], "");
                         textBetweenOperandsStart.column += keywordMatchStart[1].length;
                         textBetweenOperandsStart.offset += keywordMatchStart[1].length;
@@ -122,7 +176,7 @@ let spacing_module = {};
                     }
 
                     // ]not guaranteed to work on broken lines w/ start of right expression on a line below the operator
-                    if(endCodeLineAfterOperator.match(/^\s*$/)){
+                    if (endCodeLineAfterOperator.match(/^\s*$/)) {
                         // line break in expression after operator => only blank space after the operator
                         checkSpacesAfter = false;
                     }
