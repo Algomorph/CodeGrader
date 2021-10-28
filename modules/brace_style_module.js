@@ -842,7 +842,8 @@ let brace_style_module = {};
         if (!initialized) {
             throw ("Module not initialized. Please call the `initialize` function first.");
         }
-        return this.markedBraces;
+
+        return this.markedBraces.concat(this.markedBraceErrors);
     }
 
 }).apply(brace_style_module);
