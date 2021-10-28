@@ -628,6 +628,7 @@ let brace_style_module = {};
         #labelStyleClass = "";
         #defaultMessageText;
         #tagName;
+        #toolTip;
 
         /**
          * @param {BraceStyleError} error
@@ -641,11 +642,14 @@ let brace_style_module = {};
 
             if (error.clause == null) {
                 adjective = capitalize(error.braceType);
-                this.#defaultMessageText = adjective + " " + error.description + "(" + bracePairLocation + ").";
+                this.#defaultMessageText = adjective + " " + error.description + " (" + bracePairLocation + ").";
+                this.#toolTip = adjective + " " + error.description + ".";
             } else {
                 adjective = capitalize(error.clause.keyword);
                 this.#defaultMessageText = adjective + " " + error.description + ".";
+                this.#toolTip = this.#defaultMessageText;
             }
+
             this.#tagName = adjective + " " + error.shortDescription;
             this.#labelStyleClass = BraceButtonClassByErrorType.get(error.errorType);
 
@@ -664,7 +668,7 @@ let brace_style_module = {};
         }
 
         get _toolTip() {
-            return this.#defaultMessageText;
+            return this.#toolTip;
         }
     }
 
@@ -680,6 +684,7 @@ let brace_style_module = {};
          **/
         constructor(bracePair, dominantBraceStyle, trCodeLine) {
             super(trCodeLine, bracePair.braceLocationType);
+            this.#bracePair = bracePair;
             if (bracePair.braceStyles[0] !== BraceStyle.UNKNOWN) {
                 this.#toolTip = "Brace pair seems to use the " + bracePair.braceStyles[0] +
                     " brace style, while the dominant brace style is " + dominantBraceStyle;
