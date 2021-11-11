@@ -360,6 +360,7 @@ let indentation_module = {};
         if (!this.options.enabled) {
             return;
         }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Indentation</h3>");
         for(const issue of this.issues){
             issue.drawHighlights();
             issue.addAsLabelToPanel(uiPanel);
