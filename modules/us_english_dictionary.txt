@@ -35839,6 +35839,7 @@ iteration
 iterations
 iterative
 iteratively
+iterator
 itinerant
 itinerants
 itineraries
