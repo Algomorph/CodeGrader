@@ -19,7 +19,7 @@
             graderName: '',
             maximumCodeStyleScore: 12,
             maximumStudentTestsScore: 15,
-            minimumScoreAdjustment: -35,
+            minimumScoreAdjustment: -73,
         },
         indentation_module: {
             enabled: true,
