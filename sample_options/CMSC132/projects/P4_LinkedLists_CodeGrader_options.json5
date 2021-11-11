@@ -32,8 +32,8 @@
             patterns: [],
         },
         line_length_module: {
-            enabled: false,
-            lineLengthLimit: 80,
+            enabled: true,
+            lineLengthLimit: 100,
             tabCharacterWidth: 4,
         },
         loop_module: {
