@@ -91,11 +91,11 @@ let test_module = {};
 
                     if (call.callType === MethodCallType.CONSTRUCTOR) {
                         $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in code without @Test (click to scroll)."));
-                        addButtonComment(trCodeLine, "Constructor call from method without annotation: " + call.name,
+                        addCodeTagWithComment(trCodeLine, "Constructor call from method without annotation: " + call.name,
                             "The constructor '" + call.name + "' is not tested correctly.", "#7c3518");
                     } else {
                         $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in code without @Test (click to scroll)."));
-                        addButtonComment(trCodeLine, "Method call from method without annotation: " + call.name,
+                        addCodeTagWithComment(trCodeLine, "Method call from method without annotation: " + call.name,
                             "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c3518");
                     }
                 }
@@ -117,7 +117,7 @@ let test_module = {};
             }
             $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem", "The method '" + shortName + "' has not been tested."));
             //TODO: not sure this needs to be done.
-            // addButtonComment(trCodeLine, "Method was not tested: " + call.name,
+            // addCodeTagWithComment(trCodeLine, "Method was not tested: " + call.name,
             //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");
         }
     }
