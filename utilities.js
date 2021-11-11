@@ -154,6 +154,15 @@ function capitalize(string) {
 }
 
 /**
+ * Return the same string with first letter in lowercase.
+ * @param {string} string
+ * @return {string}
+ */
+function uncapitalize(string) {
+    return string[0].toLowerCase() + string.slice(1);
+}
+
+/**
  * Compiles an array containing only the Declaration / MethodCall objects with unique "name" field from the input array
  * @param {Array.<Declaration>|Array.<MethodCall>} namesOrCallsArray
  * @return {Array.<Declaration>|Array.<MethodCall>}

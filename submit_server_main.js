@@ -135,8 +135,14 @@ function constructUiPanel(options, filePaths) {
         method_call_module.processCode(codeFileDictionary);
         method_call_module.addInfoToUiPanel(uiPanel);
 
+        //TODO: CodeEntity overhaul
         spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
-        brace_style_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.brace_style_module);
+
+        brace_style_module.initialize(options);
+        brace_style_module.processCode(codeFileDictionary);
+        brace_style_module.addInfoToUiPanel(uiPanel);
+
+        //TODO: CodeEntity overhaul
         unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
 
@@ -144,7 +150,7 @@ function constructUiPanel(options, filePaths) {
         indentation_module.processCode(codeFileDictionary);
         indentation_module.addInfoToUiPanel(uiPanel);
 
-
+        //TODO: CodeEntity overhaul
         line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }

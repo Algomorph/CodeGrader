@@ -90,6 +90,11 @@ let method_call_module = {};
             return this.#methodCall.name;
         }
 
+
+        get _toolTip(){
+            return this.#toolTip;
+        }
+
         get _tagName() {
             return capitalize(this.#methodCall.callType) + " call: " + this.#methodCall.name;
         }
@@ -110,6 +115,7 @@ let method_call_module = {};
         get points() {
             return -3;
         }
+
     }
 
     let initialized = false;
@@ -137,8 +143,6 @@ let method_call_module = {};
         if (!this.options.enabled) {
             return;
         }
-        /** @type {Array.<MarkedMethodCall>}>}*/
-        this.markedMethodCalls = [];
 
         const globallyIgnoredMethods = this.options.ignoredMethods.global;
 
