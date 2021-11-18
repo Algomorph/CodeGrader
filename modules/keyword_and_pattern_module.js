@@ -146,7 +146,7 @@ let keyword_and_pattern_module = {};
     }
 
     /**
-     * Add each section of naming information to the UI panel.
+     * Add all information collected so far by the module to the UI panel.
      * @param {HTMLDivElement} uiPanel
      */
     this.addInfoToUiPanel = function (uiPanel) {

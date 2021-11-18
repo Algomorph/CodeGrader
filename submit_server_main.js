@@ -136,7 +136,9 @@ function constructUiPanel(options, filePaths) {
         method_call_module.addInfoToUiPanel(uiPanel);
 
         //TODO: CodeEntity overhaul
-        spacing_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.spacing_module);
+        spacing_module.initialize(options)
+        spacing_module.processCode(codeFileDictionary)
+        spacing_module.addInfoToUiPanel(uiPanel)
 
         brace_style_module.initialize(options);
         brace_style_module.processCode(codeFileDictionary);
