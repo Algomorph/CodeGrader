@@ -24,9 +24,39 @@ let spacing_module = {};
         return new Options();
     }
 
-    const moduleColor = "#92b9d1";
+    const moduleColor = "#41a854";
+
+    const SpacingIssueLocality = {
+        BEFORE_OPERATOR: 0b01,
+        AFTER_OPERATOR: 0b10,
+        BEFORE_AND_AFTER_OPERATOR: 0b11
+    }
+
+    const MessageEndBySpacingIssueLocality = new Map([
+        [SpacingIssueLocality.BEFORE_OPERATOR, "' needs a single space before it."],
+        [SpacingIssueLocality.AFTER_OPERATOR, "' needs a single space after it."],
+        [SpacingIssueLocality.BEFORE_AND_AFTER_OPERATOR, "' needs a single space before and after it."]
+    ])
+
 
     class SpacingIssue extends CodeEntity {
+        #defaultMessageAndTooltip
+        #tagName
+        #operator
+
+        /**
+         *
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {number} locality
+         * @param {string} operator
+         */
+        constructor(trCodeLine, locality, operator) {
+            super(trCodeLine);
+            this.#defaultMessageAndTooltip = "Operator '" + operator + MessageEndBySpacingIssueLocality.get(locality);
+            this.#tagName = "Spacing around '" + operator + "'";
+            this.#operator = operator;
+        }
+
         get isIssue() {
             return true;
         }
@@ -35,28 +65,28 @@ let spacing_module = {};
             return -1;
         }
 
-        get _labelStyleClass(){
+        get _labelStyleClass() {
+            return "";
+        }
+
+        get _tagColor() {
             return "";
         }
 
         get _labelName(){
-            throw ("labelName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+            return this.#operator;
         }
 
         get _tagName(){
-            throw ("tagName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+            return this.#tagName;
         }
 
         get _defaultMessageText(){
-            return "";
+            return this.#defaultMessageAndTooltip;
         }
 
         get _toolTip(){
-            return "No problems were automatically detected."
-        }
-
-        get _tagColor(){
-            return "";
+            return this.#defaultMessageAndTooltip;
         }
     }
 
@@ -73,31 +103,26 @@ let spacing_module = {};
             return;
         }
         /** @type {Array.<CodeEntity>} */
-        this.spacingIssue = [];
+        this.spacingIssues = [];
 
         initialized = true;
     }
 
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel.
-     * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Map.<string, CodeFile>} codeFileDictionary
-     * @param {Options} options
+     * Perform code analysis
+     * @param {Map.<string, CodeFile>} fileDictionary
      */
-    this.initialize2 = function (uiPanel, codeFileDictionary, options) {
-        if (!options.enabled) {
+    this.processCode = function (fileDictionary) {
+        if (!this.options.enabled) {
             return;
         }
-
-        $(uiPanel).append("<h3 style='color:#41a854'>Spacing</h3>");
-        for (const codeFile of codeFileDictionary.values()) {
-
+        for (const codeFile of fileDictionary.values()) {
             for (const typeInformation of codeFile.types.values()) {
                 let expressionsToIterateOver = [];
-                if (options.checkSpacingAroundBinaryOperators) {
+                if (this.options.checkSpacingAroundBinaryOperators) {
                     expressionsToIterateOver.push(...typeInformation.binaryExpressions);
                 }
-                if (options.checkSpacingAroundAssignmentOperators) {
+                if (this.options.checkSpacingAroundAssignmentOperators) {
                     expressionsToIterateOver.push(...typeInformation.assignments);
                 }
                 for (const expression of expressionsToIterateOver) {
@@ -198,29 +223,52 @@ let spacing_module = {};
                     const whitespace = textBetweenOperands.split(operator);
                     const whitespaceBefore = whitespace[0];
                     const whitespaceAfter = whitespace[1];
-                    let badSpaceBefore = checkSpacesBefore && whitespaceBefore !== " ";
-                    let badSpaceAfter = checkSpacesAfter && whitespaceAfter !== " ";
-                    if (badSpaceBefore || badSpaceAfter) {
-                        let message = null;
-                        let trCodeLine = null;
-                        if (badSpaceBefore && badSpaceAfter) {
-                            message = "Operator '" + operator + "' needs a single space before and after it.";
-                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
-                        } else if (badSpaceBefore) {
-                            message = "Operator '" + operator + "' needs a single space before it.";
-                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
-                        } else {
-                            message = "Operator '" + operator + "' needs a single space after it.";
-                            trCodeLine = codeFile.trCodeLines[textBetweenOperandsEnd.line - 1];
-
-                        }
-                        message = codeTextToHtmlText(message);
-                        $(uiPanel).append(makeLabelWithClickToScroll(operator, trCodeLine, "", message));
-                        addCodeTagWithComment(trCodeLine, "Spacing around '" + operator + "'", message, "#92b9d1");
+                    let localityBitMask = 0b00;
+                    let trCodeLine;
+                    if(checkSpacesBefore && whitespaceBefore !== " "){
+                        localityBitMask |= SpacingIssueLocality.BEFORE_OPERATOR;
+                        trCodeLine = codeFile.trCodeLines[textBetweenOperandsStart.line - 1];
+                    }
+                    if(checkSpacesAfter && whitespaceAfter !== " "){
+                        localityBitMask |= SpacingIssueLocality.AFTER_OPERATOR;
+                        trCodeLine = codeFile.trCodeLines[textBetweenOperandsEnd.line - 1];
+                    }
+                    if(localityBitMask > 0){
+                        this.spacingIssues.push(new SpacingIssue(trCodeLine, localityBitMask, operator));
                     }
                 }
             }
         }
     }
+
+    /**
+     * Add all information collected so far by the module to the provided UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Spacing</h3>");
+        for (const spacingIssue of this.spacingIssues) {
+            spacingIssue.addAsLabelToPanel(uiPanel);
+            spacingIssue.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Return all CodeEntities thus far extracted from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return [...this.spacingIssues];
+    }
+
 
 }).apply(spacing_module);
