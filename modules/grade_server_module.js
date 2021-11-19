@@ -20,24 +20,53 @@ let grade_server_module = {};
          * Maximum points on code style for the assignment. A value of zero means the control won't get added to the panel.
          * @param maximumStudentTestsScore
          * Maximum points for student tests. A value of zero means the control won't get added to the panel.
+         * @param {Array.<Object>} customRubricCategories
          */
         constructor(enabled = true,
                     gradeServerAssignmentName = "",
                     graderName = "",
                     minimumScoreAdjustment = 0,
                     maximumCodeStyleScore = 10,
-                    maximumStudentTestsScore = 0) {
+                    maximumStudentTestsScore = 0,
+                    customRubricCategories = []) {
             this.enabled = enabled;
             this.gradeServerAssignmentName = gradeServerAssignmentName;
             this.graderName = graderName;
             this.minimumScoreAdjustment = minimumScoreAdjustment;
             this.maximumCodeStyleScore = maximumCodeStyleScore;
             this.maximumStudentTestsScore = maximumStudentTestsScore;
+            this.customRubricCategories = customRubricCategories;
         }
     }
 
     this.getDefaultOptions = function () {
         return new Options();
+    }
+
+    class RubricCategory{
+        /**
+         *
+         * @param {string} name
+         * @param {number} maximumScore
+         * @param {number} currentScore
+         */
+        constructor(name, maximumScore, currentScore) {
+            this.name = name;
+            this.maximumScore = maximumScore;
+            this.currentScore = currentScore;
+        }
+
+        get inputId(){
+            return this.name.toLowerCase().replaceAll(" ","-") + "-score";
+        }
+
+        /**
+         * @param {HTMLDivElement} uiPanel
+         */
+        addToUiPanel(uiPanel){
+            $("<p>" + this.name + ": <input id=\"" + this.inputId + "\" type=\"text\" name=\"user\"></p>").appendTo(uiPanel)
+            $("input#"+this.inputId).val(this.currentScore.toString());
+        }
     }
 
 
@@ -54,7 +83,7 @@ let grade_server_module = {};
      * @param {number} year the current semester year
      * @param {number} assignmentLateScoreAdjustment adjustment to the student score if they submit the project late (has to be negative)
      */
-    this.initialize = function (uiPanel, options, semesterSeason, year, assignmentLateScoreAdjustment) {
+    this.initializeAndAddToUI = function (uiPanel, options, semesterSeason, year, assignmentLateScoreAdjustment) {
         if (!options.enabled) {
             return;
         }
@@ -77,6 +106,21 @@ let grade_server_module = {};
             $("input#grading-plugin-score-adjustment-score").val("0");
         }
 
+        this.customRubricCategories = []
+        if(options.customRubricCategories !== null){
+            for (const categoryOptionsDefinition of options.customRubricCategories){
+                const category = new RubricCategory(
+                    categoryOptionsDefinition.name,
+                    categoryOptionsDefinition.maximumScore,
+                    categoryOptionsDefinition.defaultScore
+                );
+                this.customRubricCategories.push(category);
+                category.addToUiPanel(uiPanel);
+            }
+        }
+        /** @type{Array.<RubricCategory>}*/
+        const customRubricCategories = this.customRubricCategories;
+
         // report total score to grade server tab
         $("<button>REPORT TO GRADE SERVER</button>").click(function () {
             let fieldValidationSuccessful = true;
@@ -97,6 +141,14 @@ let grade_server_module = {};
                 [scoreAdjustmentValid, scoreAdjustment] =
                     validateNumericInput($("input#grading-plugin-score-adjustment-score").val(), options.minimumScoreAdjustment, 0);
                 fieldValidationSuccessful &= scoreAdjustmentValid;
+            }
+            const categoryScoreReports = []
+            for (const category of customRubricCategories){
+                let scoreValid = false; let validatedScore = 0;
+                [scoreValid, validatedScore] =
+                    validateNumericInput($("input#"+category.inputId).val())
+                fieldValidationSuccessful &= scoreValid;
+                categoryScoreReports.push({"name": category.name, "score": validatedScore})
             }
             if (options.graderName.length < 4) {
                 alert("Please enter the grader's name (graderName) longer than three characters in CodeGrader options (Note: initials may be ambiguous.)");
@@ -135,6 +187,7 @@ let grade_server_module = {};
                     scoreAdjustmentEnabled : scoreAdjustmentEnabled,
                     scoreAdjustment: scoreAdjustment,
                     assignmentLateScoreAdjustment: assignmentLateScoreAdjustment,
+                    categoryScoreReports: categoryScoreReports,
                     comments: finalComment,
                     semesterSeason: semesterSeason,
                     year: year,

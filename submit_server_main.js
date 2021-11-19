@@ -157,7 +157,7 @@ function constructUiPanel(options, filePaths) {
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
 
-    grade_server_module.initialize(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);
+    grade_server_module.initializeAndAddToUI(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);
 }
 
 $(document).ready(function () {

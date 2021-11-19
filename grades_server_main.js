@@ -48,6 +48,12 @@ function addListenerForGradingResult() {
 
                     $(scoreAdjustmentInput).val(adjustmentValue.toString());
                 }
+
+                for (const categoryScoreReport of report.categoryScoreReports){
+                    const scoreInput = $("form table tr:has(td:contains(" + categoryScoreReport.name + ")) td>input")[0];
+                    $(scoreInput).val(categoryScoreReport.score.toString());
+                }
+
                 const saveChangesButton = "form input[value=\"Save Changes\"]";
 
                 // closes current tab
