@@ -49,7 +49,7 @@ let unused_code_module = {};
         [DeclarationType.CONSTRUCTOR, "constructor"],
     ]);
 
-    let ButtonClassByDeclarationType = new Map([
+    let LabelClassByDeclarationType = new Map([
         [DeclarationType.METHOD, "unused-method-problem"],
         [DeclarationType.TYPE, "unused-type-problem"],
         [DeclarationType.VARIABLE, "unused-variable-problem"],
@@ -89,11 +89,11 @@ let unused_code_module = {};
         get _tagColor() {
             return moduleColor;
         }
-
     }
 
     class UnusedCode extends CodeEntity {
         #declaration
+        #message
 
         /**
          *
@@ -102,9 +102,41 @@ let unused_code_module = {};
          */
         constructor(trCodeLine, declaration) {
             super(trCodeLine);
-            this.#declaration = declaration
+            this.#declaration = declaration;
+            this.#message = "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
+                + ": \"" + declaration.name + "\".";
+        }
 
-            throw("NOT IMPLEMENTED");
+        get points(){
+            return -1;
+        }
+
+        get isIssue(){
+            return true;
+        }
+
+        get _labelStyleClass(){
+            return LabelClassByDeclarationType.get(this.#declaration.declarationType);
+        }
+
+        get _labelName(){
+            return this.#declaration.name;
+        }
+
+        get _tagName(){
+            return "\"" + this.#declaration.name + "\" unused."
+        }
+
+        get _defaultMessageText(){
+            return this.#message;
+        }
+
+        get _toolTip(){
+            return this.#message;
+        }
+
+        get _tagColor(){
+            return moduleColor;
         }
 
     }
@@ -175,17 +207,8 @@ let unused_code_module = {};
                 }
                 for (const declaration of typeInformation.declarations) {
                     if (!declarationTypesToIgnore.has(declaration.declarationType) && !usageSet.has(declaration.name) && !ignoredNamesForType.has(declaration.name)) {
-
-                        const unusedDeclarationMessage =
-                            "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
-                            + ": \"" + declaration.name + "\".";
                         const trCodeLine = codeFile.trCodeLines[declaration.astNode.location.start.line - 1];
-                        const buttonClass = ButtonClassByDeclarationType.get(declaration.declarationType);
-
-                        throw("Not implemented");
-                        $(uiPanel).append(makeLabelWithClickToScroll(declaration.name, trCodeLine, buttonClass, unusedDeclarationMessage));
-                        addCodeTagWithComment(trCodeLine, "\"" + declaration.name + "\" unused.", unusedDeclarationMessage,
-                            moduleColor);
+                        this.unusedCodeEntities.push(new UnusedCode(trCodeLine, declaration));
                     }
                 }
             }
