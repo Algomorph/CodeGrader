@@ -43,10 +43,11 @@ let unused_code_module = {};
         [DeclarationType.VARIABLE, "variable"],
         [DeclarationType.CONSTANT, "constant"],
         [DeclarationType.FIELD, "field"],
-        [DeclarationType.FINAL_INSTANCE_FIELD, "constant field"],
+        [DeclarationType.FINAL_INSTANCE_FIELD, "final instance field"],
         [DeclarationType.THIS, "this class/enum"],
         [DeclarationType.CAST, "cast"],
         [DeclarationType.CONSTRUCTOR, "constructor"],
+        [DeclarationType.FINAL_STATIC_FIELD, "constant (final static) field"],
     ]);
 
     let LabelClassByDeclarationType = new Map([
@@ -59,6 +60,7 @@ let unused_code_module = {};
         [DeclarationType.THIS, ""],
         [DeclarationType.CAST, ""],
         [DeclarationType.CONSTRUCTOR, "unused-method-problem"],
+        [DeclarationType.FINAL_STATIC_FIELD, "unused-variable-problem"],
     ]);
 
     const moduleColor = "#802400";
@@ -103,6 +105,8 @@ let unused_code_module = {};
         constructor(trCodeLine, declaration) {
             super(trCodeLine);
             this.#declaration = declaration;
+            //__DEBUG
+            console.log(declaration.declarationType, UsageTypeByDeclarationType.get(declaration.declarationType))
             this.#message = "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
                 + ": \"" + declaration.name + "\".";
         }
