@@ -135,7 +135,6 @@ function constructUiPanel(options, filePaths) {
         method_call_module.processCode(codeFileDictionary);
         method_call_module.addInfoToUiPanel(uiPanel);
 
-        //TODO: CodeEntity overhaul
         spacing_module.initialize(options)
         spacing_module.processCode(codeFileDictionary)
         spacing_module.addInfoToUiPanel(uiPanel)
@@ -144,8 +143,11 @@ function constructUiPanel(options, filePaths) {
         brace_style_module.processCode(codeFileDictionary);
         brace_style_module.addInfoToUiPanel(uiPanel);
 
+        unused_code_module.initialize(options)
+        unused_code_module.processCode(codeFileDictionary)
+        unused_code_module.addInfoToUiPanel(uiPanel);
+
         //TODO: CodeEntity overhaul
-        unused_code_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.unused_code_module);
         test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
 
         indentation_module.initialize(options);
