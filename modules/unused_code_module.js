@@ -105,8 +105,6 @@ let unused_code_module = {};
         constructor(trCodeLine, declaration) {
             super(trCodeLine);
             this.#declaration = declaration;
-            //__DEBUG
-            console.log(declaration.declarationType, UsageTypeByDeclarationType.get(declaration.declarationType))
             this.#message = "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
                 + ": \"" + declaration.name + "\".";
         }
