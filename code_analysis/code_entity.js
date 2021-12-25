@@ -40,6 +40,14 @@ class CodeEntity {
      * @return {string}
      * @protected
      */
+    get _toolTip(){
+        return "No problems were automatically detected."
+    }
+
+    /**
+     * @return {string}
+     * @protected
+     */
     get _tagName(){
         throw ("tagName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
     }
@@ -50,14 +58,6 @@ class CodeEntity {
      */
     get _defaultMessageText(){
         return "";
-    }
-
-    /**
-     * @return {string}
-     * @protected
-     */
-    get _toolTip(){
-        return "No problems were automatically detected."
     }
 
     /** @return {string} hex color for the tag

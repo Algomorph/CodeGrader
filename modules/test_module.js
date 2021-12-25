@@ -99,7 +99,64 @@ let test_module = {};
     }
 
     class UntestedMethod extends CodeEntity{
+        #shortMethodName;
+        static #testScopeStartTrCodeLine;
+        static #methodNames = [];
+        /**
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {string} methodName
+         */
+        constructor( trCodeLine, methodName) {
+            super(trCodeLine);
 
+            UntestedMethod.#testScopeStartTrCodeLine = trCodeLine;
+            let shortName = methodName;
+            const parts = methodName.split('.')
+            if (parts.length > 1) {
+                shortName = parts[1];
+            }
+            UntestedMethod.#methodNames.push(shortName);
+            this.#shortMethodName = shortName;
+        }
+
+        get points(){
+            return -1;
+        }
+
+        /** @return {boolean} */
+        get isIssue(){
+            return true;
+        }
+
+        get _labelName(){
+            throw ("labelName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+        }
+
+        get _labelStyleClass(){
+            return "untested-method-problem";
+        }
+
+        get _toolTip(){
+            return "The method/constructor '" + this.#shortMethodName + "' has not been tested.";
+        }
+
+        /**
+         * @override
+         */
+        addAsCodeTagWithDefaultComment(){
+            throw ("Untested methods can't have individual tags. Use the `addTagForAllUnusedTests` static method instead.");
+        }
+
+        static addTagForAllUnusedTests(){
+            let message = "Constructors/methods " + UntestedMethod.#methodNames.join(", ") + " do not appear to be tested.";
+
+            addCodeTagWithComment(
+                UntestedMethod.#testScopeStartTrCodeLine,
+                "Generate untested code summary",
+                message,
+                badTestColor
+            );
+        }
     }
 
     /**
@@ -185,11 +242,7 @@ let test_module = {};
                 codeFileToPlaceLackOfTestLabels = parsedCodeFiles[0];
             }
             const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[0];
-            let shortName = untestedMethod;
-            const parts = untestedMethod.split('.')
-            if (parts.length > 1) {
-                shortName = parts[1];
-            }
+
             $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem", "The method/constructor '" + shortName + "' has not been tested."));
             //TODO: not sure this needs to be done.
             // addCodeTagWithComment(trCodeLine, "Method was not tested: " + call.name,
