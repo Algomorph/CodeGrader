@@ -28,6 +28,59 @@ let test_module = {};
         return new Options();
     }
 
+    const moduleColor = "#92b9d1";
+
+    class TestMethodUsage extends CodeEntity {
+        #declaration
+        #message
+
+        /**
+         *
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {Declaration} declaration
+         */
+        constructor(trCodeLine, declaration) {
+            super(trCodeLine);
+            this.#declaration = declaration;
+            //__DEBUG
+            console.log(declaration.declarationType, UsageTypeByDeclarationType.get(declaration.declarationType))
+            this.#message = "Unused " + UsageTypeByDeclarationType.get(declaration.declarationType)
+                + ": \"" + declaration.name + "\".";
+        }
+
+        get points(){
+            return -1;
+        }
+
+        get isIssue(){
+            return true;
+        }
+
+        get _labelStyleClass(){
+            return LabelClassByDeclarationType.get(this.#declaration.declarationType);
+        }
+
+        get _labelName(){
+            return this.#declaration.name;
+        }
+
+        get _tagName(){
+            return "\"" + this.#declaration.name + "\" unused."
+        }
+
+        get _defaultMessageText(){
+            return this.#message;
+        }
+
+        get _toolTip(){
+            return this.#message;
+        }
+
+        get _tagColor(){
+            return moduleColor;
+        }
+    }
+
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel, add highlights and
      * buttons in the code.
@@ -36,7 +89,7 @@ let test_module = {};
      * @param {Map.<string,CodeFile>} codeFileDictionary
      * @param {Options} options
      */
-    this.initialize = function (uiPanel, codeFileDictionary, options) {
+    this.initialize2 = function (uiPanel, codeFileDictionary, options) {
         if (!options.enabled || codeFileDictionary.size === 0) {
             return;
         }

@@ -147,8 +147,9 @@ function constructUiPanel(options, filePaths) {
         unused_code_module.processCode(codeFileDictionary)
         unused_code_module.addInfoToUiPanel(uiPanel);
 
-        //TODO: CodeEntity overhaul
-        test_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.test_module);
+        test_module.initialize(options);
+        test_module.processCode(codeFileDictionary);
+        test_module.addInfoToUiPanel(uiPanel);
 
         indentation_module.initialize(options);
         indentation_module.processCode(codeFileDictionary);
