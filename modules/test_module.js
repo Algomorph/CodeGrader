@@ -37,6 +37,7 @@ let test_module = {};
         #toolTip;
         #tagName;
         #color;
+        #methodReference;
 
         /**
          *
@@ -47,8 +48,8 @@ let test_module = {};
         constructor(trCodeLine, call, inAnnotatedTest) {
             super(trCodeLine);
             this.#call = call;
-
-            this.#message = "The " + call.callType + " '" + call.name + "' is not tested correctly.";
+            const methodReference = legacyNotationToMethodReference(call.name);
+            this.#message = "The " + call.callType + " `" + methodReference + "` is not tested correctly.";
             let locationDescription;
             let testAdjective;
             if (inAnnotatedTest) {
@@ -60,9 +61,9 @@ let test_module = {};
                 testAdjective = " unannotated";
                 this.#color = badTestColor;
             }
-            this.#toolTip = "The " + call.callType + " '" + call.name + "' appears in " + locationDescription;
-            this.#tagName = capitalize(call.callType) + " call from" + testAdjective + " test: " + call.name;
-
+            this.#toolTip = "The " + call.callType + " `" + methodReference + "` appears in " + locationDescription;
+            this.#tagName = capitalize(call.callType) + " call from" + testAdjective + " test: " + methodReference;
+            this.#methodReference = methodReference;
         }
 
         get points() {
@@ -78,7 +79,7 @@ let test_module = {};
         }
 
         get _labelName() {
-            return this.#call.name;
+            return this.#methodReference;
         }
 
         get _tagName() {
@@ -100,6 +101,7 @@ let test_module = {};
 
     class UntestedMethod extends CodeEntity {
         #shortMethodName;
+        #methodReference;
         static #testScopeStartTrCodeLine;
         static #methodNames = [];
 
@@ -111,13 +113,15 @@ let test_module = {};
             super(trCodeLine);
 
             UntestedMethod.#testScopeStartTrCodeLine = trCodeLine;
+            const methodReference = legacyNotationToMethodReference(methodName);
             let shortName = methodName;
             const parts = methodName.split('.')
             if (parts.length > 1) {
                 shortName = parts[1];
             }
-            UntestedMethod.#methodNames.push(shortName);
+            UntestedMethod.#methodNames.push(methodReference);
             this.#shortMethodName = shortName;
+            this.#methodReference = methodReference;
         }
 
         get points() {
@@ -130,7 +134,7 @@ let test_module = {};
         }
 
         get _labelName() {
-            throw ("labelName property getter for any subclass of " + CodeEntity.constructor.name + " should be overridden.");
+            return this.#methodReference;
         }
 
         get _labelStyleClass() {
@@ -149,7 +153,7 @@ let test_module = {};
         }
 
         static addTagForAllUnusedTests() {
-            let message = "Constructors/methods " + UntestedMethod.#methodNames.join(", ") + " do not appear to be tested.";
+            let message = "Constructors/methods `" + UntestedMethod.#methodNames.join("`, `") + "` do not appear to be tested.";
 
             addCodeTagWithComment(
                 UntestedMethod.#testScopeStartTrCodeLine,

@@ -113,6 +113,6 @@
     submitServerAssignmentName: 'Proj 4',
     usageStatisticsOptions: {
         anonymizeUser: true,
-        enabled: false,
+        enabled: true,
     }
 }
