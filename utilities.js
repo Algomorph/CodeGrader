@@ -191,6 +191,18 @@ function getHelperMethodsUsedInCodeBlock(trCodeLines, helperMethods) {
 }
 
 /**
+ * Convert the legacy notation, e.g. SomeClass.staticMethod or $SomeClass$.instanceMethod to a method reference,
+ * e.g. SomeClass::someMethod
+ * @param {string} legacyNotationMethodName
+ * @return {string} resulting method reference (as a string).
+ */
+function legacyNotationToMethodReference(legacyNotationMethodName) {
+    const legacyPattern = /\$?(\w+)\$?[.](\w+)/;
+    const match = legacyNotationMethodName.match(legacyPattern);
+    return match[1] + "::" + match[2];
+}
+
+/**
  * Return a range of trCodeLines starting from line matching start regex (inclusive) and before
  * matching end regex (exclusive).
  * @param {Array.<HTMLTableRowElement>} trCodeLines

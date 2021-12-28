@@ -28,20 +28,172 @@ let test_module = {};
         return new Options();
     }
 
+    const moduleColor = "#7c9318";
+    const badTestColor = "#7c3518";
+
+    class TestMethodUsage extends CodeEntity {
+        #call;
+        #message;
+        #toolTip;
+        #tagName;
+        #color;
+        #methodReference;
+
+        /**
+         *
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {MethodCall} call
+         * @param {boolean} inAnnotatedTest
+         */
+        constructor(trCodeLine, call, inAnnotatedTest) {
+            super(trCodeLine);
+            this.#call = call;
+            const methodReference = legacyNotationToMethodReference(call.name);
+            this.#message = "The " + call.callType + " `" + methodReference + "` is not tested correctly.";
+            let locationDescription;
+            let testAdjective;
+            if (inAnnotatedTest) {
+                locationDescription = "test code (click to scroll).";
+                testAdjective = "";
+                this.#color = moduleColor;
+            } else {
+                locationDescription = "code without @Test annotation (click to scroll)";
+                testAdjective = " unannotated";
+                this.#color = badTestColor;
+            }
+            this.#toolTip = "The " + call.callType + " `" + methodReference + "` appears in " + locationDescription;
+            this.#tagName = capitalize(call.callType) + " call from" + testAdjective + " test: " + methodReference;
+            this.#methodReference = methodReference;
+        }
+
+        get points() {
+            return -1;
+        }
+
+        get isIssue() {
+            return true;
+        }
+
+        get _labelStyleClass() {
+            return "";
+        }
+
+        get _labelName() {
+            return this.#methodReference;
+        }
+
+        get _tagName() {
+            return this.#tagName;
+        }
+
+        get _defaultMessageText() {
+            return this.#message;
+        }
+
+        get _toolTip() {
+            return this.#toolTip
+        }
+
+        get _tagColor() {
+            return this.#color;
+        }
+    }
+
+    class UntestedMethod extends CodeEntity {
+        #shortMethodName;
+        #methodReference;
+        static #testScopeStartTrCodeLine;
+        static #methodNames = [];
+
+        /**
+         * @param {HTMLTableRowElement} trCodeLine
+         * @param {string} methodName
+         */
+        constructor(trCodeLine, methodName) {
+            super(trCodeLine);
+
+            UntestedMethod.#testScopeStartTrCodeLine = trCodeLine;
+            const methodReference = legacyNotationToMethodReference(methodName);
+            let shortName = methodName;
+            const parts = methodName.split('.')
+            if (parts.length > 1) {
+                shortName = parts[1];
+            }
+            UntestedMethod.#methodNames.push(methodReference);
+            this.#shortMethodName = shortName;
+            this.#methodReference = methodReference;
+        }
+
+        get points() {
+            return -1;
+        }
+
+        /** @return {boolean} */
+        get isIssue() {
+            return true;
+        }
+
+        get _labelName() {
+            return this.#methodReference;
+        }
+
+        get _labelStyleClass() {
+            return "untested-method-problem";
+        }
+
+        get _toolTip() {
+            return "The method/constructor '" + this.#shortMethodName + "' has not been tested.";
+        }
+
+        /**
+         * @override
+         */
+        addAsCodeTagWithDefaultComment() {
+            throw ("Untested methods can't have individual tags. Use the `addTagForAllUnusedTests` static method instead.");
+        }
+
+        static addTagForAllUnusedTests() {
+            let message = "Constructors/methods `" + UntestedMethod.#methodNames.join("`, `") + "` do not appear to be tested.";
+
+            addCodeTagWithComment(
+                UntestedMethod.#testScopeStartTrCodeLine,
+                "Generate untested code summary",
+                message,
+                badTestColor
+            );
+        }
+    }
+
+    let initialized = false;
+
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel, add highlights and
-     * buttons in the code.
-     *
-     * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Map.<string,CodeFile>} codeFileDictionary
-     * @param {Options} options
+     * Initialize the module
+     * @param {{moduleOptions : {test_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, codeFileDictionary, options) {
-        if (!options.enabled || codeFileDictionary.size === 0) {
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.test_module;
+
+        if (!this.options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:#7c9318'>Method Tests</h3>");
-        let methodsExpectedToBeTestedSet = new Set(options.methodsExpectedToBeTested);
+        /** @type {Array.<TestMethodUsage>} */
+        this.testCodeOccurences = [];
+        /** @type {Array.<TestMethodUsage>} */
+        this.unannotatedTestCodeOccurences = [];
+        /** @type {Array.<UntestedMethod>} */
+        this.untestedMethods = [];
+        initialized = true;
+    }
+
+    /**
+     * Perform code analysis & discover code entities of interest
+     * @param {Map.<string, CodeFile>} codeFileDictionary
+     */
+    this.processCode = function (codeFileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
+        let methodsExpectedToBeTestedSet = new Set(this.options.methodsExpectedToBeTested);
         let codeFileToPlaceLackOfTestLabels = null;
         let parsedCodeFiles = [];
 
@@ -50,7 +202,7 @@ let test_module = {};
                 continue;
             }
             parsedCodeFiles.push(codeFile);
-            if(codeFile.filename.includes('StudentTests.java')) {
+            if (codeFile.filename.includes('StudentTests.java')) {
                 codeFileToPlaceLackOfTestLabels = codeFile;
             }
             for (const typeInformation of codeFile.types.values()) {
@@ -61,43 +213,25 @@ let test_module = {};
                 }
                 const testedMethods = searchScopes(methodsExpectedToBeTestedSet, testScopes, typeInformation);
 
-                for(const call of testedMethods) {
+                for (const call of testedMethods) {
                     const trCodeLine = codeFile.trCodeLines[call.astNode.location.start.line - 1];
-
-                    if (call.callType === MethodCallType.CONSTRUCTOR) {
-                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in test code (click to scroll)."));
-                        addCodeTagWithComment(trCodeLine, "Constructor call from test: " + call.name,
-                            "The constructor '" + call.name + "' is not tested correctly.", "#7c9318");
-                    } else {
-                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in test code (click to scroll)."));
-                        addCodeTagWithComment(trCodeLine, "Method call from test: " + call.name,
-                            "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c9318");
-                    }
+                    this.testCodeOccurences.push(new TestMethodUsage(trCodeLine, call, true));
                 }
             }
         }
 
-        if(codeFileToPlaceLackOfTestLabels != null) {
+        if (codeFileToPlaceLackOfTestLabels != null) {
             // Check all other methods in the test file. If the other methods test something not yet tested, it is most
             // likely an issue of missing "@Test". Note helper methods won't be hit by this, as they are tested already.
             for (const typeInformation of codeFileToPlaceLackOfTestLabels.types.values()) {
                 /** @type {Array.<Scope>} */
-                const semiTestScopes = typeInformation.scopes.filter(scope => !scope.isTest);
+                const unannotatedTestScopes = typeInformation.scopes.filter(scope => !scope.isTest);
 
-                const semiTestedMethods = searchScopes(methodsExpectedToBeTestedSet, semiTestScopes, typeInformation);
+                const unannotatedTestedMethods = searchScopes(methodsExpectedToBeTestedSet, unannotatedTestScopes, typeInformation);
 
-                for (const call of semiTestedMethods) {
+                for (const call of unannotatedTestedMethods) {
                     const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[call.astNode.location.start.line - 1];
-
-                    if (call.callType === MethodCallType.CONSTRUCTOR) {
-                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The constructor '" + call.name + "' appears in code without @Test (click to scroll)."));
-                        addCodeTagWithComment(trCodeLine, "Constructor call from method without annotation: " + call.name,
-                            "The constructor '" + call.name + "' is not tested correctly.", "#7c3518");
-                    } else {
-                        $(uiPanel).append(makeLabelWithClickToScroll(call.name, trCodeLine, "", "The method '" + call.astNode.name.identifier + "' appears in code without @Test (click to scroll)."));
-                        addCodeTagWithComment(trCodeLine, "Method call from method without annotation: " + call.name,
-                            "The method '" + call.astNode.name.identifier + "' is not tested correctly.", "#7c3518");
-                    }
+                    this.testCodeOccurences.push(new TestMethodUsage(trCodeLine, call, false));
                 }
             }
         }
@@ -105,21 +239,51 @@ let test_module = {};
         if (parsedCodeFiles.length === 0) {
             return;
         }
-        for (const untestedMethod of methodsExpectedToBeTestedSet) {
+
+        for (const untestedMethodQualifiedName of methodsExpectedToBeTestedSet) {
             if (codeFileToPlaceLackOfTestLabels === null) {
                 codeFileToPlaceLackOfTestLabels = parsedCodeFiles[0];
             }
             const trCodeLine = codeFileToPlaceLackOfTestLabels.trCodeLines[0];
-            let shortName = untestedMethod;
-            const parts = untestedMethod.split('.')
-            if (parts.length > 1) {
-                shortName = parts[1];
-            }
-            $(uiPanel).append(makeLabelWithClickToScroll(untestedMethod, trCodeLine, "untested-method-problem", "The method '" + shortName + "' has not been tested."));
-            //TODO: not sure this needs to be done.
-            // addCodeTagWithComment(trCodeLine, "Method was not tested: " + call.name,
-            //     "The method '" + shortName + "' does not appear in tests.", "#7c9318");
+            this.untestedMethods.push(new UntestedMethod(trCodeLine, untestedMethodQualifiedName));
         }
+    }
+
+    /**
+     * Add all information collected so far by the module to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Student Tests</h3>");
+        for (const testedMethodCall of this.testCodeOccurences) {
+            testedMethodCall.addAsLabelToPanel(uiPanel);
+            testedMethodCall.addAsCodeTagWithDefaultComment();
+        }
+        for (const testedMethodCall of this.unannotatedTestCodeOccurences) {
+            testedMethodCall.addAsLabelToPanel(uiPanel);
+            testedMethodCall.addAsCodeTagWithDefaultComment();
+        }
+        for (const untestedMethod of this.untestedMethods) {
+            untestedMethod.addAsLabelToPanel(uiPanel);
+        }
+        UntestedMethod.addTagForAllUnusedTests();
+    }
+
+    /**
+     * Return all CodeEntities thus far extracted from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        return this.testCodeOccurences.concat(this.unannotatedTestCodeOccurences).concat(this.untestedMethods);
     }
 
     /**
@@ -136,17 +300,17 @@ let test_module = {};
         for (const scope of testScopes) {
             for (const call of scope.methodCalls) {
                 // If the method is from the tests class, check its calls
-                if(call.name.substring(0, 5) === "this.") {
+                if (call.name.substring(0, 5) === "this.") {
                     let testedMethodValues = searchScopes(untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation);
                     testedMethodValues.forEach(call => testedMethods.add(call));
                 }
 
-                if(untestedMethods.has(call.name)) {
+                if (untestedMethods.has(call.name)) {
                     testedMethods.add(call);
                     untestedMethods.delete(call.name);
                 }
-                // If a static method is called from a non-static reference, it appears as
-                // $ClassName$.methodName when we look for ClassName.methodName.
+                    // If a static method is called from a non-static reference, it appears as
+                    // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
                 else if (untestedMethods.has(call.name.replaceAll("$", ""))) {
                     testedMethods.add(call);
