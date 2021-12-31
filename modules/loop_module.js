@@ -34,6 +34,14 @@ let loop_module = {};
         return new Options();
     }
 
+    class DisallowedLoop extends CodeEntity{
+        //TODO
+    }
+
+    class AllowedLoop extends CodeEntity{
+
+    }
+
 
     /**
      * Initialize the module: perform code analysis, add relevant controls to the uiPanel, add highlights and

@@ -121,46 +121,16 @@ function constructUiPanel(options, filePaths) {
             }
         }
 
-        // TODO: every module should contain these three methods, as well as the getCodeEntities() method to test them.
-        //  This way, we can just stick them into an array and call these three functions while traversing it.
-        keyword_and_pattern_module.initialize(options);
-        keyword_and_pattern_module.processCode(codeFileDictionary);
-        keyword_and_pattern_module.addInfoToUiPanel(uiPanel);
+        const inspectionModules = [
+            keyword_and_pattern_module, naming_module, method_call_module, spacing_module, brace_style_module,
+            unused_code_module, test_module, indentation_module, line_length_module, loop_module
+        ]
 
-        naming_module.initialize(options);
-        naming_module.processCode(codeFileDictionary);
-        naming_module.addInfoToUiPanel(uiPanel);
-
-        method_call_module.initialize(options);
-        method_call_module.processCode(codeFileDictionary);
-        method_call_module.addInfoToUiPanel(uiPanel);
-
-        spacing_module.initialize(options)
-        spacing_module.processCode(codeFileDictionary)
-        spacing_module.addInfoToUiPanel(uiPanel)
-
-        brace_style_module.initialize(options);
-        brace_style_module.processCode(codeFileDictionary);
-        brace_style_module.addInfoToUiPanel(uiPanel);
-
-        unused_code_module.initialize(options)
-        unused_code_module.processCode(codeFileDictionary)
-        unused_code_module.addInfoToUiPanel(uiPanel);
-
-        test_module.initialize(options);
-        test_module.processCode(codeFileDictionary);
-        test_module.addInfoToUiPanel(uiPanel);
-
-        indentation_module.initialize(options);
-        indentation_module.processCode(codeFileDictionary);
-        indentation_module.addInfoToUiPanel(uiPanel);
-
-        line_length_module.initialize(options);
-        line_length_module.processCode(codeFileDictionary);
-        line_length_module.addInfoToUiPanel(uiPanel);
-
-        //TODO: CodeEntity overhaul
-        loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
+        for(const module of inspectionModules){
+            module.initialize(options);
+            module.processCode(codeFileDictionary);
+            module.addInfoToUiPanel(uiPanel);
+        }
     }
 
     grade_server_module.initializeAndAddToUI(uiPanel, options.moduleOptions.grade_server_module, options.semesterSeason, options.year, options.lateScoreAdjustment);
