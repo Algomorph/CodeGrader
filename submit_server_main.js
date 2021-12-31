@@ -155,8 +155,11 @@ function constructUiPanel(options, filePaths) {
         indentation_module.processCode(codeFileDictionary);
         indentation_module.addInfoToUiPanel(uiPanel);
 
+        line_length_module.initialize(options);
+        line_length_module.processCode(codeFileDictionary);
+        line_length_module.addInfoToUiPanel(uiPanel);
+
         //TODO: CodeEntity overhaul
-        line_length_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.line_length_module);
         loop_module.initialize(uiPanel, codeFileDictionary, options.moduleOptions.loop_module);
     }
 
