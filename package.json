@@ -40,11 +40,12 @@
   },
   "dependencies": {
     "browserify": "^17.0.0",
+    "include": "^1.1.0",
     "jest": "^27.0.6",
     "js-beautify": "^1.14.0"
   },
   "devDependencies": {},
   "scripts": {
-    "build": "browserify options.js -o options_compiled.js"
+    "build": "browserify options.js options_controller.js -o options_compiled.js"
   }
 }

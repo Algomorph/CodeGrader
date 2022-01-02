@@ -44,6 +44,7 @@ function main(options) {
         let filePaths = expandFilePathEntryList(options.filesToCheck);
 
         const headerText = document.querySelector("h1").textContent;
+
         // check if it's the right course & project
         if (headerText.match(assignmentName)) {
             //FIXME

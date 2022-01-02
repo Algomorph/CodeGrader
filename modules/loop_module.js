@@ -34,34 +34,95 @@ let loop_module = {};
         return new Options();
     }
 
-    class DisallowedLoop extends CodeEntity{
-        //TODO
+    const moduleColor = "#7cc208";
+
+
+    class LoopEntity extends CodeEntity{
+        #loop;
+        /**
+         * @param {Loop} loop
+         */
+        constructor( loop) {
+            super(loop.trCodeLine);
+            this.#loop = loop;
+        }
+
+        get _labelName(){
+            return this.#loop.methodIdentifier.length > 0 ? legacyNotationToMethodReference(this.#loop.methodIdentifier) : "{loop}";
+        }
+
+        get _tagName(){
+            return capitalize(LoopDescriptionByType.get(this.#loop.type));
+        }
+
+        get _defaultMessageText(){
+            return this._toolTip;
+        }
     }
 
-    class AllowedLoop extends CodeEntity{
+    class DisallowedLoop extends LoopEntity{
+        get points(){
+            return -5;
+        }
 
+        get isIssue(){
+            return true;
+        }
+
+        get _labelStyleClass(){
+            return "disallowed-loop-problem";
+        }
+
+        get _toolTip(){
+            return "Loops were not allowed here.";
+        }
+
+        get _tagColor(){
+            return moduleColor;
+        }
     }
 
+    const noteColor = "#999999";
+
+
+    class AllowedLoop extends LoopEntity{
+        get _tagColor(){
+            return "#999999";
+        }
+    }
+
+    let initialized = false;
 
     /**
-     * Initialize the module: perform code analysis, add relevant controls to the uiPanel, add highlights and
-     * buttons in the code.
-     *
-     * @param {HTMLDivElement} uiPanel main panel where to add controls
-     * @param {Map.<string,CodeFile>} codeFileDictionary
-     * @param {Options} options
+     * Initialize the module
+     * @param {{moduleOptions : {loop_module: Options}}} global_options
      */
-    this.initialize = function (uiPanel, codeFileDictionary, options) {
-        if (!options.enabled) {
+    this.initialize = function (global_options) {
+        this.options = global_options.moduleOptions.loop_module;
+
+        if (!this.options.enabled) {
             return;
         }
-        const problemColor = "#7cc208";
-        const noteColor = "#999999";
-        $(uiPanel).append("<h3 style='color:" + problemColor + "'>Loops</h3>");
 
-        const methodSet = new Set(options.methodList);
+        /** @type {Array.<DisallowedLoop>} */
+        this.disallowedLoops = [];
+        /** @type {Array.<AllowedLoop>} */
+        this.allowedLoops = [];
 
-        options.methodListUsage = validateStringListOption(options.methodListUsage,
+        initialized = true;
+    }
+
+    /**
+     * Perform code analysis & discover code entities of interest
+     * @param {Map.<string, CodeFile>} codeFileDictionary
+     */
+    this.processCode = function (codeFileDictionary) {
+        if (!this.options.enabled) {
+            return;
+        }
+        const methodSet = new Set(this.options.methodList);
+
+        this.options.methodListUsage = validateStringListOption(this.options.methodListUsage,
             "moduleOptions.loop_module.methodListUsage", ["allowed", "disallowed"],
             "disallowed");
 
@@ -75,7 +136,7 @@ let loop_module = {};
                 const otherLoops = typeInformation.loops.filter(loop => !methodSet.has(loop.methodIdentifier));
                 let disallowedLoops = [];
                 let allowedLoops = [];
-                switch (options.methodListUsage) {
+                switch (this.options.methodListUsage) {
                     case "allowed":
                         disallowedLoops = otherLoops;
                         allowedLoops = loopsInListedMethods;
@@ -88,31 +149,49 @@ let loop_module = {};
                         break;
                 }
                 for (const loop of disallowedLoops) {
-                    const problemDescription = "Loops were not allowed here."
-                    $(uiPanel).append(makeLabelWithClickToScroll(
-                        loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
-                        loop.trCodeLine, "disallowed-loop-problem", problemDescription)
-                    );
-                    addCodeTagWithComment(
-                        loop.trCodeLine,
-                        capitalize(LoopDescriptionByType.get(loop.type)),
-                        problemDescription, problemColor
-                    );
+                    this.disallowedLoops.push(new DisallowedLoop(loop));
                 }
-                if (options.showAll) {
+                if (this.options.showAll) {
                     for (const loop of allowedLoops) {
-                        $(uiPanel).append(makeLabelWithClickToScroll(
-                            loop.methodIdentifier.length > 0 ? loop.methodIdentifier : "{loop}",
-                            loop.trCodeLine, "", "No problems were automatically detected.")
-                        );
-                        addCodeTagWithComment(
-                            loop.trCodeLine,
-                            capitalize(LoopDescriptionByType.get(loop.type)),
-                            "", noteColor
-                        );
+                        this.allowedLoops.push(new AllowedLoop(loop));
                     }
                 }
             }
         }
     }
+
+    /**
+     * Add all information collected so far by the module to the UI panel.
+     * @param {HTMLDivElement} uiPanel
+     */
+    this.addInfoToUiPanel = function (uiPanel) {
+        if (!this.options.enabled) {
+            return;
+        }
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Loops</h3>");
+        for (const disallowedLoop of this.disallowedLoops) {
+            disallowedLoop.addAsLabelToPanel(uiPanel);
+            disallowedLoop.addAsCodeTagWithDefaultComment();
+        }
+        for (const allowedLoop of this.allowedLoops) {
+            allowedLoop.addAsLabelToPanel(uiPanel);
+            allowedLoop.addAsCodeTagWithDefaultComment();
+        }
+    }
+
+    /**
+     * Return all CodeEntities thus far extracted from the code.
+     * @returns {Array.<CodeEntity>}
+     */
+    this.getCodeEntities = function () {
+        if (!this.options.enabled) {
+            return [];
+        }
+        if (!initialized) {
+            throw ("Module not initialized. Please call the initialize function first.");
+        }
+        // noinspection JSCheckFunctionSignatures
+        return this.allowedLoops.concat(this.disallowedLoops);
+    }
+
 }).apply(loop_module);
