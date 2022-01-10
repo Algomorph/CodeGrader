@@ -41,7 +41,7 @@ class CodeEntity {
      * @protected
      */
     get _toolTip(){
-        return "No problems were automatically detected."
+        return "No problems were automatically detected.";
     }
 
     /**

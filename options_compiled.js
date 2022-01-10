@@ -3532,7 +3532,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     resulting_string = this.__patterns.handlebars_raw_close.read();
   } else if (previous_token.type === TOKEN.TAG_CLOSE &&
     previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
-
+    // ^^ empty tag has no content 
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (tag_name === 'script' || tag_name === 'style') {
       // Script and style tags are allowed to have comments wrapping their content
@@ -5370,7 +5370,7 @@ var punct =
   "= ! ? > < : / ^ - + * & % ~ |";
 
 punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
-
+// ?. but not if followed by a number 
 punct = '\\?\\.(?!\\d) ' + punct;
 punct = punct.replace(/ /g, '|');
 
@@ -5850,10 +5850,10 @@ module.exports.line_starters = line_starters.slice();
 
 },{"../core/directives":2,"../core/inputscanner":3,"../core/pattern":6,"../core/templatablepattern":7,"../core/tokenizer":9,"./acorn":20}],25:[function(require,module,exports){
 /*
-* Copyright 2020 Gregory Kramida
+* Copyright 2020-2021 Gregory Kramida
+* Vanilla Javascript that defines the global options for the entire plugin.
+* Note: don't put Node stuff, e.g. "require" here.
 * */
-const beautify = require('js-beautify').js;
-
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
@@ -5923,8 +5923,26 @@ function restoreOptions(callback) {
         callback(options);
     });
 }
+try{
+    if(module !== undefined){
+        module.exports = {
+            restoreOptions: restoreOptions
+        }
+    }
+}catch (error){
+    // keep silent
+}
+},{}],26:[function(require,module,exports){
+/*
+* Copyright 2020-2021 Gregory Kramida
+* */
+const beautify = require("js-beautify").js;
+const options = require("./options.js");
 
-// Saves options to chrome.storage
+
+
+
+// Save options to chrome.storage
 function saveOptions() {
     try {
         const optionsStr = document.getElementById("optionsTextArea").value;
@@ -5957,7 +5975,10 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-
+        document.getElementById('optionsTextArea').value = beautify(optionsStr, {
+            indent_size: 4,
+            space_in_empty_paren: true
+        });
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
@@ -5981,7 +6002,7 @@ function saveOptions() {
 
 // Restores options based on values stored in chrome.storage.
 function restoreOptionsLocal() {
-    restoreOptions(
+    options.restoreOptions(
         function (options) {
             document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
         }
@@ -5998,7 +6019,7 @@ function saveToDisk() {
     let dataString = "data:text/json;charset=utf-8," + encodeURIComponent(document.getElementById("optionsTextArea").value);
     let downloadAnchorElement = document.getElementById("downloadAnchorElement");
     downloadAnchorElement.setAttribute("href", dataString);
-    downloadAnchorElement.setAttribute("download", "umd_code_style_grading_aid_options.json");
+    downloadAnchorElement.setAttribute("download", "code_grader_options.json5");
     downloadAnchorElement.click();
 }
 
@@ -6012,9 +6033,10 @@ function handleOptionUpload() {
     reader.onerror = error => reject(error);
     reader.readAsText(optionsFile);
 }
-    document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
-    document.getElementById('save').addEventListener('click', saveOptions);
-    document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
-    document.getElementById('saveToDisk').addEventListener('click', saveToDisk);
-    document.getElementById('loadFromDisk').addEventListener("change", handleOptionUpload, false);
-},{"js-beautify":1}]},{},[25]);
+
+document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
+document.getElementById('save').addEventListener('click', saveOptions);
+document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
+document.getElementById('saveToDisk').addEventListener('click', saveToDisk);
+document.getElementById('loadFromDisk').addEventListener("change", handleOptionUpload, false);
+},{"./options.js":25,"js-beautify":1}]},{},[25,26]);
