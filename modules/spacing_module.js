@@ -24,7 +24,7 @@ let spacing_module = {};
         return new Options();
     }
 
-    const moduleColor = "#41a854";
+    const moduleColor = "#3888ea";
 
     const SpacingIssueLocality = {
         BEFORE_OPERATOR: 0b01,
@@ -70,7 +70,7 @@ let spacing_module = {};
         }
 
         get _tagColor() {
-            return "";
+            return moduleColor;
         }
 
         get _labelName(){

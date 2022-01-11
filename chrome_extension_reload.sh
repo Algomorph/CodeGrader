@@ -25,4 +25,10 @@ Cygwin)
 Linux)
  google-chrome --new-window http://reload.extensions
  ;;
+Mac)
+ open -a "Google Chrome" http://reload.extensions
+ ;;
+*)
+  echo $machine
+ ;;
 esac
