@@ -5,8 +5,6 @@ const beautify = require("js-beautify").js;
 const options = require("./options.js");
 
 
-
-
 // Save options to chrome.storage
 function saveOptions() {
     try {
@@ -75,8 +73,8 @@ function restoreOptionsLocal() {
 }
 
 function restoreDefaults() {
-    let options = new Options();
-    document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+    const optionsInstance = new options.Options();
+    document.getElementById('optionsTextArea').value = JSON5.stringify(optionsInstance, null, 4);
     saveOptions();
 }
 

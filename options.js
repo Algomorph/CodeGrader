@@ -6,8 +6,11 @@
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
-    let currentSeason = "winter";
-    if (currentMonth > 0 && currentMonth < 4) {
+    const currentDayOfMonth = currentDate.getDay();
+    let currentSeason;
+    if (currentMonth === 0 && currentDayOfMonth < 22) {
+        currentSeason = "winter";
+    } else if (currentMonth < 4) {
         currentSeason = "spring";
     } else if (currentMonth < 8) {
         currentSeason = "summer";
@@ -72,12 +75,14 @@ function restoreOptions(callback) {
         callback(options);
     });
 }
-try{
-    if(module !== undefined){
+
+try {
+    if (module !== undefined) {
         module.exports = {
-            restoreOptions: restoreOptions
+            restoreOptions: restoreOptions,
+            Options: Options
         }
     }
-}catch (error){
+} catch (error) {
     // keep silent
 }

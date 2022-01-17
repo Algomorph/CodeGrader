@@ -5857,8 +5857,11 @@ module.exports.line_starters = line_starters.slice();
 function getCurrentSemesterSeasonString() {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
-    let currentSeason = "winter";
-    if (currentMonth > 0 && currentMonth < 4) {
+    const currentDayOfMonth = currentDate.getDay();
+    let currentSeason;
+    if (currentMonth === 0 && currentDayOfMonth < 22) {
+        currentSeason = "winter";
+    } else if (currentMonth < 4) {
         currentSeason = "spring";
     } else if (currentMonth < 8) {
         currentSeason = "summer";
@@ -5923,13 +5926,15 @@ function restoreOptions(callback) {
         callback(options);
     });
 }
-try{
-    if(module !== undefined){
+
+try {
+    if (module !== undefined) {
         module.exports = {
-            restoreOptions: restoreOptions
+            restoreOptions: restoreOptions,
+            Options: Options
         }
     }
-}catch (error){
+} catch (error) {
     // keep silent
 }
 },{}],26:[function(require,module,exports){
@@ -5938,8 +5943,6 @@ try{
 * */
 const beautify = require("js-beautify").js;
 const options = require("./options.js");
-
-
 
 
 // Save options to chrome.storage
@@ -5975,11 +5978,10 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-      document.getElementById('optionsTextArea').value = beautify(optionsStr, {
-        indent_size: 4,
-        space_in_empty_paren: true
-      });
-
+        document.getElementById('optionsTextArea').value = beautify(optionsStr, {
+            indent_size: 4,
+            space_in_empty_paren: true
+        });
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
@@ -6001,7 +6003,7 @@ function saveOptions() {
 
 }
 
-// Restores options based on values stored in chrome.storage.
+// Restore options based on values stored in chrome.storage and show them in local text panel.
 function restoreOptionsLocal() {
     options.restoreOptions(
         function (options) {
@@ -6011,8 +6013,8 @@ function restoreOptionsLocal() {
 }
 
 function restoreDefaults() {
-    let options = new Options();
-    document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+    const optionsInstance = new options.Options();
+    document.getElementById('optionsTextArea').value = JSON5.stringify(optionsInstance, null, 4);
     saveOptions();
 }
 
@@ -6024,7 +6026,7 @@ function saveToDisk() {
     downloadAnchorElement.click();
 }
 
-function handleOptionUpload() {
+function loadFromDisk() {
     let optionsFile = this.files[0];
     const reader = new FileReader();
     reader.onload = event => {
@@ -6039,5 +6041,5 @@ document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
 document.getElementById('save').addEventListener('click', saveOptions);
 document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
 document.getElementById('saveToDisk').addEventListener('click', saveToDisk);
-document.getElementById('loadFromDisk').addEventListener("change", handleOptionUpload, false);
+document.getElementById('loadFromDisk').addEventListener("change", loadFromDisk, false);
 },{"./options.js":25,"js-beautify":1}]},{},[25,26]);
