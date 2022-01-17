@@ -1,5 +1,5 @@
 ﻿/*
-* Copyright 2020 Matthew Simmons
+* Copyright 2021 Matthew Simmons
 * */
 let indentation_module = {};
 
@@ -151,12 +151,12 @@ let indentation_module = {};
 
             // find first indent used and use that as standard
             let singleIndentWidth = -1;
-            for (let i = 0; i < codeFile.trCodeLines.length;) {
+            /*for (let i = 0; i < codeFile.trCodeLines.length;) {
                 //TODO: need to stack unterminated multi-line comments when determining first indent
                 // & tab width (== singleIndentWidth)
                 while (i < codeFile.trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
-                (codeFile.trCodeLines[i].trim().substr(0,1)==="*" || stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
-                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i])))) === 0)) { // Makes sure next isn't an empty line
+                (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
+                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i])))) < 2)) { // Makes sure next isn't an empty line
                     i++;
                 }
                 if (i === codeFile.trCodeLines.length) {
@@ -171,8 +171,8 @@ let indentation_module = {};
 
             if(singleIndentWidth === -1){
                 continue;
-            }
-
+            }*/
+            let isFirstIndent = false;
             let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             let currentIndentationWidth = 0; // in white spaces
             /** @type {IndentationIssue | null} */
@@ -198,8 +198,6 @@ let indentation_module = {};
                     // Purpose: .indexOf() returns FIRST occurrence of characters, so in order to
                     // accurately change the indent lengths, we must go one-by-one.
 
-                    //TODO: Speak to Greg if we replace with space or empty string. Arguments can be made for both.
-                    //TODO: Greg read the above and is wondering what those arguments might be. Could you answer him?
                     codeText = codeText.replace(/^\s*\/\*(?:(?!\/\*).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
                 }
 
@@ -226,6 +224,16 @@ let indentation_module = {};
 
 
                 if (codeText.trim().charAt(0) === "@") return;
+
+                if(isFirstIndent) {
+                    if(getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(codeText))) > 0) {
+                        singleIndentWidth = getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(codeText)));
+                        currentIndentationWidth += singleIndentWidth;
+                        isFirstIndent = false;
+                    } else {
+                        return;
+                    }
+                }
 
                 // Handle opening and closing braces updating indent size
                 if (codeText.trim().indexOf("}") === 0) {
@@ -283,7 +291,10 @@ let indentation_module = {};
 
                 // if opening brace exists, increase indent
                 if (codeText.indexOf("{") !== -1) {
-                    if (codeText.trim().indexOf("}") === 0) {
+                    if(singleIndentWidth === -1) {
+                        isFirstIndent = true;
+                        return;
+                    } else if (codeText.trim().indexOf("}") === 0) {
                         currentIndentationWidth += (codeText.match(/{/g).length - codeText.match(/}/g).length + 1) * singleIndentWidth;
                     } else if (codeText.indexOf("}") === -1) {
                         currentIndentationWidth += codeText.match(/{/g).length * singleIndentWidth;
@@ -348,6 +359,10 @@ let indentation_module = {};
                     isNotAllman = 0;
                 }
             });
+            if(singleIndentWidth === -1) {
+                this.issues.push(new IndentationIssue(codeFile.trCodeLines[0], "No indentation",
+                    "The whole file is lacking indentation.", false));
+            }
             this.issues.push(...issuesForFile);
         }
     }

@@ -105,20 +105,25 @@ let line_length_module = {};
         for (const codeFile of codeFileDictionary.values()) {
             const startTrCodeLine = codeFile.trCodeLines[0];
             const characterWidth = getMonospaceCharacterWidth(startTrCodeLine);
-            const allowedPixelWidthOfCode = (options.lineLengthLimit + 1) * characterWidth;
+            const allowedPixelWidthOfCode = (this.options.lineLengthLimit + 1) * characterWidth;
             const codeCellLeftOffset = getCodeCellLeftOffsetPixels(startTrCodeLine);
             const cutoffLineLeftOffset = allowedPixelWidthOfCode + codeCellLeftOffset;
             const cutoffLineHeight = getCodeAreaHeightFromTrCodeLine(startTrCodeLine);
+            const lineLengthLimit = this.options.lineLengthLimit;
+            const lineLengthViolations = [];
 
             drawVerticalLineInElement(cutoffLineLeftOffset, cutoffLineHeight, "line-length-margin", startTrCodeLine);
 
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {	// iterates each line of code below
                 const codeLine = codeFile.codeLines[codeLineIndex];
                 const lineLength = getLineCharacterWidth(codeLine);
-                if (lineLength > this.options.lineLengthLimit) {
-                    this.lineLengthViolations.push(new LineLengthViolation(trCodeLine, lineLength))
+
+                if (lineLength > lineLengthLimit) {
+                    lineLengthViolations.push(new LineLengthViolation(trCodeLine, lineLength));
                 }
             });
+
+            this.lineLengthViolations.push(...lineLengthViolations);
         }
     }
     /**
@@ -129,7 +134,7 @@ let line_length_module = {};
         if (!this.options.enabled) {
             return;
         }
-        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Student Tests</h3>");
+        $(uiPanel).append("<h3 style='color:" + moduleColor + "'>Line Length</h3>");
         for (const lineLengthViolation of this.lineLengthViolations) {
             lineLengthViolation.addAsLabelToPanel(uiPanel);
             lineLengthViolation.addAsCodeTagWithDefaultComment();
