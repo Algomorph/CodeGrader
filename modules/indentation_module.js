@@ -151,27 +151,6 @@ let indentation_module = {};
 
             // find first indent used and use that as standard
             let singleIndentWidth = -1;
-            /*for (let i = 0; i < codeFile.trCodeLines.length;) {
-                //TODO: need to stack unterminated multi-line comments when determining first indent
-                // & tab width (== singleIndentWidth)
-                while (i < codeFile.trCodeLines.length && // yes, an infinite loop is possible here, e.g. CMSC131 SP2021 P5 sjarentz
-                (stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i]))).search(/\S/) === -1 ||
-                    getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(getCodeFromTrCodeLine(codeFile.trCodeLines[i])))) < 2)) { // Makes sure next isn't an empty line
-                    i++;
-                }
-                if (i === codeFile.trCodeLines.length) {
-                    this.issues.push(new IndentationIssue(codeFile.trCodeLines[0], "No indentation",
-                        "The whole file is lacking indentation.", false));
-                } else {
-                    //assumes first line with indentation will have exactly one indent
-                    singleIndentWidth = getIndentationWidth(getCodeFromTrCodeLine(codeFile.trCodeLines[i]));
-                    break;
-                }
-            }
-
-            if(singleIndentWidth === -1){
-                continue;
-            }*/
             let isFirstIndent = false;
             let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             let currentIndentationWidth = 0; // in white spaces
