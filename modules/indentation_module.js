@@ -158,7 +158,7 @@ let indentation_module = {};
             let lastIssue = null;
             const issuesForFile = [];
             $.each(codeFile.trCodeLines, function (codeLineIndex, trCodeLine) {
-                //TODO: need to stack unterminated multi-line comments and dismiss their indentation
+
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
                 // Tabs are 4 characters until this causes issues.
@@ -207,7 +207,7 @@ let indentation_module = {};
                 if(isFirstIndent) {
                     if(getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(codeText))) > 0) {
                         singleIndentWidth = getIndentationWidth(stripCommentsFromCode(stripStringsFromCode(codeText)));
-                        currentIndentationWidth += singleIndentWidth;
+                        currentIndentationWidth = singleIndentWidth;
                         isFirstIndent = false;
                     } else {
                         return;
@@ -231,7 +231,7 @@ let indentation_module = {};
                     }
                 }
 
-                if (!isFirstSwitch && codeText.search(/(case\s|default\s|default:)/) !== -1) {
+                if (!isFirstSwitch && (codeText.search(/(case\s|default:)/) !== -1)) {
                     currentIndentationWidth -= singleIndentWidth;
                 }
 
@@ -291,7 +291,7 @@ let indentation_module = {};
                     isNotAllman = stack.pop(); // Somehow, this fixes nested if's with AND without braces
                 }
 
-                if (codeText.search(/(case\s|default\s|default:)/) !== -1) {
+                if (codeText.search(/(case\s|default:)/) !== -1) {
                     isFirstSwitch = false;
                     currentIndentationWidth += singleIndentWidth;
                 }
