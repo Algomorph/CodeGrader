@@ -299,22 +299,23 @@ let test_module = {};
         let testedMethods = new Set();
         for (const scope of testScopes) {
             for (const call of scope.methodCalls) {
+                let name = call.name.replace(/[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g, '');
                 // If the method is from the tests class, check its calls
-                if (call.name.substring(0, 5) === "this.") {
+                if (name.substring(0, 5) === "this.") {
                     let testedMethodValues = searchScopes(untestedMethods, typeInformation.scopes.filter(scope1 => scope1.astNode.hasOwnProperty("name") && scope1.astNode.name.identifier === call.methodName), typeInformation);
                     testedMethodValues.forEach(call => testedMethods.add(call));
                 }
 
-                if (untestedMethods.has(call.name)) {
+                if (untestedMethods.has(name)) {
                     testedMethods.add(call);
-                    untestedMethods.delete(call.name);
+                    untestedMethods.delete(name);
                 }
                     // If a static method is called from a non-static reference, it appears as
                     // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
-                else if (untestedMethods.has(call.name.replaceAll("$", ""))) {
+                else if (untestedMethods.has(name.replaceAll("$", ""))) {
                     testedMethods.add(call);
-                    untestedMethods.delete(call.name.replaceAll("$", ""));
+                    untestedMethods.delete(name.replaceAll("$", ""));
                 }
             }
         }
