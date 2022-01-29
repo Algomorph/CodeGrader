@@ -324,7 +324,7 @@ let indentation_module = {};
                         expectedIndent = currentIndentationWidth;
 
                     }
-                } else if (!isPrev && ([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1 && (isSwitch && codeText.trim().indexOf(":") !== -1))) {
+                } else if (isPrev && ([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1 && (isSwitch && codeText.trim().indexOf(":") !== -1))) {
                     if (isNotAllman === 0) {
                         isPrev = false;
                     }
