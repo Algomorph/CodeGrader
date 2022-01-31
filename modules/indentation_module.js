@@ -8,6 +8,7 @@ let indentation_module = {};
     class Options {
         constructor(enabled = false) {
             this.enabled = enabled;
+            this.ignoreMixedTabsAndSpaces = false;
         }
     }
 
