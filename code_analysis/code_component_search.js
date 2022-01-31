@@ -192,7 +192,7 @@
                 continueProcessingCurrentScope();
                 break;
             case "ConditionalExpression":
-                scope.setNextBatchOfChildAstNodes([astNode.expression, astNode.thenExpression]);
+                scope.setNextBatchOfChildAstNodes([astNode.expression, astNode.thenExpression, astNode.elseExpression]);
                 continueProcessingCurrentScope();
                 break;
             case "LabeledStatement":
@@ -296,6 +296,12 @@
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
+            case "SimpleName":
+            case "ThisExpression":
+            case "SimpleType":
+            case "NumberLiteral":
+            case "StringLiteral":
+            case "NullLiteral":
             default:
                 break;
         }
