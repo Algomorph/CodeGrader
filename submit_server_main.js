@@ -36,6 +36,7 @@ function main(options) {
 
     }
 
+    document.head.insertAdjacentHTML("beforeend", '<style>pre{tab-size: 4}</style>');
     const semesterString = options.semesterSeason + options.year.toString();
 
     // condition: URL contains 'codeReview' and the semester matches the semester selected in options.

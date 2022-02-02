@@ -8,6 +8,7 @@ let indentation_module = {};
     class Options {
         constructor(enabled = false) {
             this.enabled = enabled;
+            this.ignoreMixedTabsAndSpaces = false;
         }
     }
 
@@ -154,6 +155,7 @@ let indentation_module = {};
             let isFirstIndent = false;
             let lastLineStatus = LastLineIndentationStatus.PROPERLY_INDENTED;
             let currentIndentationWidth = 0; // in white spaces
+            let mixTabsAndSpaces = this.options.ignoreMixedTabsAndSpaces;
             /** @type {IndentationIssue | null} */
             let lastIssue = null;
             const issuesForFile = [];
@@ -161,8 +163,12 @@ let indentation_module = {};
 
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
-                // Tabs are 4 characters until this causes issues.
-                codeText = codeText.replaceAll(/\t/g, "    ");
+                let leadingSpace = codeText.substr(0, codeText.indexOf(codeText.trim()));
+                if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
+                    lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
+                    issuesForFile.push(lastIssue);
+
+                }
 
                 if (codeText.trim().substr(0, 2) === "//") return;
 
@@ -314,7 +320,7 @@ let indentation_module = {};
                         isPrev = true;
                         expectedIndent = currentIndentationWidth;
                     }
-                } else if (!isPrev && [";", "{", "}", ":"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) {
+                } else if (!isPrev && ([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
                     if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
                         codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
 
@@ -324,7 +330,7 @@ let indentation_module = {};
                         expectedIndent = currentIndentationWidth;
 
                     }
-                } else if (isPrev && [";", "{", "}", ":"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) !== -1) {
+                } else if (isPrev && !([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
                     if (isNotAllman === 0) {
                         isPrev = false;
                     }
