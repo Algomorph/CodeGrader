@@ -4,7 +4,7 @@
         'src/tubeVideosManager/TubeVideosManager.java|TubeVideosManager/src/main/java/tubeVideosManager/TubeVideosManager.java|tubeVideosManager/TubeVideosManager.java',
         'src/tubeVideosManager/Video.java|TubeVideosManager/src/main/java/tubeVideosManager/Video.java|tubeVideosManager/Video.java',
         'src/tubeVideosManager/Playlist.java|TubeVideosManager/src/main/java/tubeVideosManager/Playlist.java|tubeVideosManager/Playlist.java',
-        'src/tests/StudentTests.java|TubeVideosManager/src/main/java/tests/StudentTests.java|tests/StudentTests.java',
+        'src/tests/StudentTests.java|TubeVideosManager/src/main/java/tests/StudentTests.java|tests/StudentTests.java|src/StudentTests.java'
     ],
     firstStudent: 'a',
     lastStudent: '{',
