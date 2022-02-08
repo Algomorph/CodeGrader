@@ -57,6 +57,8 @@
             allowedSpecialWords: [
                 'min',
                 'max',
+                'playlist',
+                'playlists'
             ],
             checkConstants: true,
             checkMethods: true,
@@ -64,8 +66,12 @@
             checkVariablesAndFields: true,
             enabled: true,
             ignoredNames: {
-                BasicLinkedList: [],
-                SortedLinkedList: [],
+                TubeVideosManager: [
+                    "addVideoToDB", "getAllVideosInDB", "genHTMLForPlaylist",
+                    "loadVideosToDBFromFile", "getStats", "generateHTMLPageWithBody",
+                ],
+                Video: ["getUrl"],
+                Playlist: [],
                 global: [],
             },
             numbersAllowedInNames: false,
