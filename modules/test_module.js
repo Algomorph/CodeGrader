@@ -113,9 +113,15 @@ let test_module = {};
             super(trCodeLine);
 
             UntestedMethod.#testScopeStartTrCodeLine = trCodeLine;
-            const methodReference = legacyNotationToMethodReference(methodName);
+            let methodReference;
+            if(false /*TODO: check whether methodName is actually a constructor signature*/){
+                methodName = ""; //TODO: convert to constructor reference w/ arg types
+            }else{
+                methodName = legacyNotationToMethodReference(methodName);
+            }
+
             let shortName = methodName;
-            const parts = methodName.split('.')
+            const parts = methodName.split('.');
             if (parts.length > 1) {
                 shortName = parts[1];
             }
