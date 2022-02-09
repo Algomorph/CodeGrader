@@ -79,6 +79,6 @@
    "permissions": [ "tabs", "storage", "activeTab", "idle", "alarms", "https://submit.cs.umd.edu/*",
       "https://submit.cs.umd.edu/*/*", "https://grades.cs.umd.edu/*", "https://grades.cs.umd.edu/*/*", "file:///*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.2",
-   "version_name": "1.0.2 Release"
+   "version": "1.0.3",
+   "version_name": "1.0.3 Dev"
 }
