@@ -14601,11 +14601,11 @@
       }
 
       function nestParenthesizedExpressions(depth, expr, options){
-        let stack = { node: 'ParenthesizedExpression', expression: expr };
+        let stack = addLocation({ node: 'ParenthesizedExpression', expression: expr }, options);
         for(let level = 1; level < depth; level++){
-          stack = { node: 'ParenthesizedExpression', expression: stack };
+          stack = addLocation({ node: 'ParenthesizedExpression', expression: stack }, options);
         }
-        return addLocation(stack, options);
+        return stack;
       }
 
       function buildInfixExpr(first, rest, options) {
