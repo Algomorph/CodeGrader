@@ -1,90 +1,104 @@
 {
-    "course": "CMSC131",
-    "filesToCheck": [
-        "JavaLoops/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java",
-        "JavaLoops/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java",
-        "JavaLoops/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java"
+    course: 'CMSC131',
+    filesToCheck: [
+        'JavaLoops/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java',
+        'JavaLoops/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java',
+        'JavaLoops/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java',
     ],
-    "lateScoreAdjustment": -12,
-    "moduleOptions": {
-        "brace_style_module": {
-            "enabled": true,
-            "markAllBraces": false
+    firstStudent: 'a',
+    lastStudent: '{',
+    lateScoreAdjustment: -12,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: true,
+            markAllBraces: false,
         },
-        "grade_server_module": {
-            "enabled": true,
-            "gradeServerAssignmentName": "P2",
-            "graderName": "",
-            "maximumCodeStyleScore": 8,
-            "maximumStudentTestsScore": 0,
-            "minimumScoreAdjustment": 0
+        grade_server_module: {
+            customRubricCategories: [],
+            enabled: true,
+            gradeServerAssignmentName: 'P2',
+            graderName: '',
+            maximumCodeStyleScore: 8,
+            maximumStudentTestsScore: 0,
+            minimumScoreAdjustment: 0,
         },
-        "indentation_module": {
-            "enabled": true
+        indentation_module: {
+            enabled: true,
+            ignoreMixedTabsAndSpaces: false,
         },
-        "keyword_and_pattern_module": {
-            "enabled": false,
-            "keywords": [],
-            "patterns": []
+        keyword_and_pattern_module: {
+            enabled: false,
+            keywords: [],
+            patterns: [],
         },
-        "loop_module": {
-            "enabled": false,
-            "methodList": [],
-            "methodListUsage": "disallowed",
-            "showAll": true
+        line_length_module: {
+            enabled: false,
+            lineLengthLimit: 80,
+            tabCharacterWidth: 4,
         },
-        "method_call_module": {
-            "enabled": false,
-            "ignoredMethods": {
-                "global": []
+        loop_module: {
+            enabled: false,
+            methodList: [],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: false,
+            ignoredMethods: {
+                global: [],
             },
-            "ignoredTypes": [],
-            "showUniqueOnly": false
+            ignoredTypes: [],
+            showUniqueOnly: false,
         },
-        "naming_module": {
-            "allowedSpecialWords": [
-                "min",
-                "max",
-                "args"
+        naming_module: {
+            allowedSpecialWords: [
+                'min',
+                'max',
+                'args',
             ],
-            "checkConstants": true,
-            "checkMethods": true,
-            "checkTypes": true,
-            "checkVariablesAndFields": true,
-            "enabled": true,
-            "ignoredNames": {
-                "global": [
-                    "args",
-                    "main"
-                ]
+            checkConstants: true,
+            checkMethods: true,
+            checkTypes: true,
+            checkVariablesAndFields: true,
+            enabled: true,
+            ignoredNames: {
+                global: [
+                    'args',
+                    'main',
+                ],
             },
-            "numbersAllowedInNames": true,
-            "showUniqueOnly": true,
-            "sortAlphabetically": false
+            numbersAllowedInNames: true,
+            showUniqueOnly: true,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
         },
-        "spacing_module": {
-            "checkSpacingAroundAssignmentOperators": true,
-            "checkSpacingAroundBinaryOperators": true,
-            "enabled": true
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: true,
         },
-        "test_module": {
-            "enabled": false,
-            "methodsExpectedToBeTested": []
+        test_module: {
+            enabled: false,
+            methodsExpectedToBeTested: [],
         },
-        "unused_code_module": {
-            "checkMethods": false,
-            "checkTypes": false,
-            "checkVariables": true,
-            "enabled": true,
-            "ignoredNames": {
-                "global": ["args"]
+        unused_code_module: {
+            checkMethods: false,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: true,
+            ignoredNames: {
+                global: [
+                    'args',
+                ],
             },
-            "markAllUsages": false
-        }
+            markAllUsages: false,
+        },
     },
-    "submitServerAssignmentName": "Proj 2",
-    "usageStatisticsOptions": {
-        "anonymizeUser": true,
-        "enabled": true
-    }
+    semesterSeason: 'spring',
+    submitServerAssignmentName: 'Proj 2',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    },
+    year: '2022',
 }
