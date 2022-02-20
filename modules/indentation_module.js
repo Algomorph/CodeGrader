@@ -15,7 +15,8 @@ let indentation_module = {};
     const LastLineIndentationStatus = {
         PROPERLY_INDENTED: 0,
         OVERINDENTED: 1,
-        UNDERINDENTED: 2
+        UNDERINDENTED: 2,
+        MIXED_TABS_AND_SPACES: 3
     }
 
     let moduleColor = "#92b9d1";
@@ -165,7 +166,10 @@ let indentation_module = {};
 
                 let leadingSpace = codeText.substr(0, codeText.indexOf(codeText.trim()));
                 if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
-                    lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
+                    if(lastLineStatus !== LastLineIndentationStatus.MIXED_TABS_AND_SPACES) {
+                        lastLineStatus = LastLineIndentationStatus.MIXED_TABS_AND_SPACES;
+                        lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
+                    }
                     issuesForFile.push(lastIssue);
 
                 }
