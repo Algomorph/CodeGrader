@@ -165,14 +165,6 @@ let indentation_module = {};
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
                 let leadingSpace = codeText.substr(0, codeText.indexOf(codeText.trim()));
-                if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
-                    if(lastLineStatus !== LastLineIndentationStatus.MIXED_TABS_AND_SPACES) {
-                        lastLineStatus = LastLineIndentationStatus.MIXED_TABS_AND_SPACES;
-                        lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
-                    }
-                    issuesForFile.push(lastIssue);
-
-                }
 
                 if (codeText.trim().substr(0, 2) === "//") return;
 
@@ -180,6 +172,9 @@ let indentation_module = {};
                 if (isComment && codeText.indexOf("*/") !== -1) {
                     isComment = false;
                     codeText = codeText.replace(/^((?!\*\/).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                    if(codeText.trim() === "") {
+                        return;
+                    }
                 }
 
                 // Remove all complete (/* stuff */) multiline comments BEFORE valid code.
@@ -196,6 +191,15 @@ let indentation_module = {};
                 }
 
                 if (isComment) return;
+
+                if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
+                    if(lastLineStatus !== LastLineIndentationStatus.MIXED_TABS_AND_SPACES) {
+                        lastLineStatus = LastLineIndentationStatus.MIXED_TABS_AND_SPACES;
+                        lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
+                    }
+                    issuesForFile.push(lastIssue);
+                }
+
 
                 if (codeText.indexOf("//") !== -1) {
                     codeText = codeText.substr(0, codeText.indexOf("//"));
