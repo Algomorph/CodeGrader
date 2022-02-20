@@ -328,7 +328,7 @@ let indentation_module = {};
                         isPrev = true;
                         expectedIndent = currentIndentationWidth;
                     }
-                } else if (!isPrev && ([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
+                } else if (!isPrev && (([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) && (!isSwitch || codeText.trim().indexOf(":") === -1))) {
                     if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
                         codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
 
@@ -338,7 +338,7 @@ let indentation_module = {};
                         expectedIndent = currentIndentationWidth;
 
                     }
-                } else if (isPrev && !([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
+                } else if (isPrev && !((!isSwitch && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) && (!isSwitch || codeText.trim().indexOf(":") === -1))) {
                     if (isNotAllman === 0) {
                         isPrev = false;
                     }
