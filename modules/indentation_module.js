@@ -15,7 +15,8 @@ let indentation_module = {};
     const LastLineIndentationStatus = {
         PROPERLY_INDENTED: 0,
         OVERINDENTED: 1,
-        UNDERINDENTED: 2
+        UNDERINDENTED: 2,
+        MIXED_TABS_AND_SPACES: 3
     }
 
     let moduleColor = "#92b9d1";
@@ -164,11 +165,6 @@ let indentation_module = {};
                 let codeText = stripStringsFromCode(getCodeFromTrCodeLine(trCodeLine));
 
                 let leadingSpace = codeText.substr(0, codeText.indexOf(codeText.trim()));
-                if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
-                    lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
-                    issuesForFile.push(lastIssue);
-
-                }
 
                 if (codeText.trim().substr(0, 2) === "//") return;
 
@@ -176,6 +172,9 @@ let indentation_module = {};
                 if (isComment && codeText.indexOf("*/") !== -1) {
                     isComment = false;
                     codeText = codeText.replace(/^((?!\*\/).)*\*\//, " ".repeat(codeText.indexOf("*/") + 2));
+                    if(codeText.trim() === "") {
+                        return;
+                    }
                 }
 
                 // Remove all complete (/* stuff */) multiline comments BEFORE valid code.
@@ -192,6 +191,15 @@ let indentation_module = {};
                 }
 
                 if (isComment) return;
+
+                if(!mixTabsAndSpaces && leadingSpace.indexOf(" ") > -1 && leadingSpace.indexOf("\t") > -1) {
+                    if(lastLineStatus !== LastLineIndentationStatus.MIXED_TABS_AND_SPACES) {
+                        lastLineStatus = LastLineIndentationStatus.MIXED_TABS_AND_SPACES;
+                        lastIssue = new IndentationIssue(trCodeLine, "Mixed Tab and Spaces", "Indent should not mix regular spaces and tabs.", false);
+                    }
+                    issuesForFile.push(lastIssue);
+                }
+
 
                 if (codeText.indexOf("//") !== -1) {
                     codeText = codeText.substr(0, codeText.indexOf("//"));
@@ -320,7 +328,7 @@ let indentation_module = {};
                         isPrev = true;
                         expectedIndent = currentIndentationWidth;
                     }
-                } else if (!isPrev && ([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
+                } else if (!isPrev && (([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) && (!isSwitch || codeText.trim().indexOf(":") === -1))) {
                     if (codeText.trim().search(/^(private|public|protected)/) === -1 || // False negative - package private Allman
                         codeText.trim().charAt(codeText.trim().length - 1) !== ")") { // False positive - multiline fields ending in )
 
@@ -330,7 +338,7 @@ let indentation_module = {};
                         expectedIndent = currentIndentationWidth;
 
                     }
-                } else if (isPrev && !([";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1 || (isSwitch && codeText.trim().indexOf(":") === -1))) {
+                } else if (isPrev && !((!isSwitch && [";", "{", "}"].indexOf(codeText.trim().charAt(codeText.trim().length - 1)) === -1) && (!isSwitch || codeText.trim().indexOf(":") === -1))) {
                     if (isNotAllman === 0) {
                         isPrev = false;
                     }

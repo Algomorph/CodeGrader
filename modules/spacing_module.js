@@ -33,9 +33,9 @@ let spacing_module = {};
     }
 
     const MessageEndBySpacingIssueLocality = new Map([
-        [SpacingIssueLocality.BEFORE_OPERATOR, "' needs a single space before it."],
-        [SpacingIssueLocality.AFTER_OPERATOR, "' needs a single space after it."],
-        [SpacingIssueLocality.BEFORE_AND_AFTER_OPERATOR, "' needs a single space before and after it."]
+        [SpacingIssueLocality.BEFORE_OPERATOR, "&#39; needs a single space before it."],
+        [SpacingIssueLocality.AFTER_OPERATOR, "&#39; needs a single space after it."],
+        [SpacingIssueLocality.BEFORE_AND_AFTER_OPERATOR, "&#39; needs a single space before and after it."]
     ])
 
 
@@ -52,7 +52,7 @@ let spacing_module = {};
          */
         constructor(trCodeLine, locality, operator) {
             super(trCodeLine);
-            this.#defaultMessageAndTooltip = "Operator '" + operator + MessageEndBySpacingIssueLocality.get(locality);
+            this.#defaultMessageAndTooltip = "Operator &#39;" + operator + MessageEndBySpacingIssueLocality.get(locality);
             this.#tagName = "Spacing around '" + operator + "'";
             this.#operator = operator;
         }
