@@ -37,7 +37,7 @@ let test_module = {};
         #toolTip;
         #tagName;
         #color;
-        #methodReference;
+        #reference;
 
         /**
          *
@@ -48,8 +48,12 @@ let test_module = {};
         constructor(trCodeLine, call, inAnnotatedTest) {
             super(trCodeLine);
             this.#call = call;
-            const methodReference = legacyNotationToMethodReference(call.name);
-            this.#message = "The " + call.callType + " `" + methodReference + "` is not tested correctly.";
+            if (call.callType === MethodCallType.CONSTRUCTOR) {
+                this.#reference = call.name;
+            } else {
+                this.#reference = legacyNotationToMethodReference(call.name);
+            }
+            this.#message = "The " + call.callType + " `" + this.#reference + "` is not tested correctly.";
             let locationDescription;
             let testAdjective;
             if (inAnnotatedTest) {
@@ -61,9 +65,8 @@ let test_module = {};
                 testAdjective = " unannotated";
                 this.#color = badTestColor;
             }
-            this.#toolTip = "The " + call.callType + " `" + methodReference + "` appears in " + locationDescription;
-            this.#tagName = capitalize(call.callType) + " call from" + testAdjective + " test: " + methodReference;
-            this.#methodReference = methodReference;
+            this.#toolTip = "The " + call.callType + " `" + this.#reference + "` appears in " + locationDescription;
+            this.#tagName = capitalize(call.callType) + " call from" + testAdjective + " test: " + this.#reference;
         }
 
         get points() {
@@ -79,7 +82,7 @@ let test_module = {};
         }
 
         get _labelName() {
-            return this.#methodReference;
+            return this.#reference;
         }
 
         get _tagName() {
@@ -100,34 +103,40 @@ let test_module = {};
     }
 
     class UntestedMethod extends CodeEntity {
-        #shortMethodName;
-        #methodReference;
+        #shortName;
+        #reference;
+        #methodOrConstructor;
         static #testScopeStartTrCodeLine;
         static #methodNames = [];
+        static #constructorNames = [];
 
         /**
          * @param {HTMLTableRowElement} trCodeLine
-         * @param {string} methodName
+         * @param {string} methodOrConstructorIdentifier
          */
-        constructor(trCodeLine, methodName) {
+        constructor(trCodeLine, methodOrConstructorIdentifier) {
             super(trCodeLine);
 
             UntestedMethod.#testScopeStartTrCodeLine = trCodeLine;
-            let methodReference;
-            if(false /*TODO: check whether methodName is actually a constructor signature*/){
-                methodName = ""; //TODO: convert to constructor reference w/ arg types
-            }else{
-                methodName = legacyNotationToMethodReference(methodName);
+            let reference;
+            let shortName;
+            if (isConstructor(methodOrConstructorIdentifier)) {
+                reference = methodOrConstructorIdentifier;
+                this.#methodOrConstructor = "constructor";
+                UntestedMethod.#constructorNames.push(reference);
+            } else {
+                reference = legacyNotationToMethodReference(methodOrConstructorIdentifier);
+                this.#methodOrConstructor = "method";
+                UntestedMethod.#methodNames.push(reference);
             }
-
-            let shortName = methodName;
-            const parts = methodName.split('.');
+            shortName = methodOrConstructorIdentifier;
+            const parts = methodOrConstructorIdentifier.split('.');
             if (parts.length > 1) {
                 shortName = parts[1];
             }
-            UntestedMethod.#methodNames.push(methodReference);
-            this.#shortMethodName = shortName;
-            this.#methodReference = methodReference;
+
+            this.#shortName = shortName;
+            this.#reference = reference;
         }
 
         get points() {
@@ -140,7 +149,7 @@ let test_module = {};
         }
 
         get _labelName() {
-            return this.#methodReference;
+            return this.#reference;
         }
 
         get _labelStyleClass() {
@@ -148,7 +157,7 @@ let test_module = {};
         }
 
         get _toolTip() {
-            return "The method/constructor '" + this.#shortMethodName + "' has not been tested.";
+            return "The " + this.#methodOrConstructor + " '" + this.#shortName + "' has not been tested.";
         }
 
         /**
@@ -159,7 +168,40 @@ let test_module = {};
         }
 
         static addTagForAllUnusedTests() {
-            let message = "Constructors/methods `" + UntestedMethod.#methodNames.join("`, `") + "` do not appear to be tested.";
+            let message = "";
+            let capitalizeConstructors = true;
+            if (UntestedMethod.#methodNames.length > 0) {
+                if (UntestedMethod.#methodNames.length === 1) {
+                    message += "Method `" + UntestedMethod.#methodNames[0] + "` does not appear to be tested.";
+                } else if (UntestedMethod.#methodNames.length === 2) {
+                    message += "Methods `" + UntestedMethod.#methodNames.join("` and `") + "` do not appear to be tested.";
+                } else {
+                    message += "Methods `" + UntestedMethod.#methodNames.slice(0, UntestedMethod.#methodNames.length - 2).join("`, `")
+                        + "`, and " + UntestedMethod.#methodNames[UntestedMethod.#methodNames.length - 1]
+                        + "` do not appear to be tested.";
+                }
+                if (UntestedMethod.#constructorNames.length > 0) {
+                    message += " Also, ";
+                    capitalizeConstructors = true;
+                }
+            }
+            if (UntestedMethod.#constructorNames.length > 0) {
+                if (capitalizeConstructors) {
+                    message += "C";
+                } else {
+                    message += "c";
+                }
+                if (UntestedMethod.#constructorNames.length === 1) {
+                    message += "onstructor `" + UntestedMethod.#constructorNames[1] + "` does not appear to be tested.";
+                } else if (UntestedMethod.#constructorNames.length === 2) {
+                    message += "onstructors `" + UntestedMethod.#constructorNames.join("` and `") + "` do not appear to be tested.";
+                } else {
+                    message += "onstructors `" +
+                        UntestedMethod.#constructorNames.slice(0, UntestedMethod.#constructorNames.length - 2).join("`, `")
+                        + "`, and " + UntestedMethod.#constructorNames[UntestedMethod.#constructorNames.length - 1]
+                        + "` do not appear to be tested.";
+                }
+            }
 
             addCodeTagWithComment(
                 UntestedMethod.#testScopeStartTrCodeLine,

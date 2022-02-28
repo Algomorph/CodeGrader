@@ -203,6 +203,17 @@ function legacyNotationToMethodReference(legacyNotationMethodName) {
 }
 
 /**
+ * Determine if the legacy identifier refers to a method or a constructor
+ * @param legacyNotationMethodOrConstructorName - identifier in legacy notation, i.e. $SomeClass$.someInstanceMethod or SomeClass(int, String, bool)
+ * @returns {boolean} true if the identifier refers to a constructor, false otherwise
+ */
+function isConstructor(legacyNotationMethodOrConstructorName){
+    const constructorPattern = /[A-Z]\w+(?:<>)?\s*\(\s*(?:\w+\s*,?\s*)*\)/;
+    const match = legacyNotationMethodOrConstructorName.match(constructorPattern)
+    return match !== null;
+}
+
+/**
  * Return a range of trCodeLines starting from line matching start regex (inclusive) and before
  * matching end regex (exclusive).
  * @param {Array.<HTMLTableRowElement>} trCodeLines

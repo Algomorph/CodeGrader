@@ -225,8 +225,13 @@
                 break;
             case "ClassInstanceCreation": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.type);
-                const argumentTypeListString = this.getArgumentTypeListString(astNode);
+                const argumentTypeListString = this.getArgumentTypeListString(astNode, fullScopeStack, codeFile);
                 const name = this.composeUnqualifiedTypeName(typeName, typeArguments) + "(" + argumentTypeListString + ")";
+                //__DEBUG
+                if (name.includes("Video")){
+                    console.log(name);
+                    logNodeCode(astNode, codeFile);
+                }
                 const methodCall = new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, typeName, typeName);
 
