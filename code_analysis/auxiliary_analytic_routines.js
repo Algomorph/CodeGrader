@@ -48,7 +48,7 @@
      * @param {Array.<[string,[]|Array.<string>]>} typeArguments
      * @return {string} fully-qualified type name.
      */
-    this.composeUnqualifiedTypeName = function(name, typeArguments) {
+    this.composeUnqualifiedTypeName = function (name, typeArguments) {
         if (typeArguments.length > 0) {
             return name + "<>";
         } else {
@@ -248,7 +248,7 @@
                     break;
                 case "NumberLiteral":
                     //TODO: resolve type post-factum in this case
-                    if(Number.isInteger(Number(argument.token))) {
+                    if (Number.isInteger(Number(argument.token))) {
                         typeList.push("int");
                     } else {
                         typeList.push("number"); // Maybe this should be double?
@@ -266,6 +266,12 @@
                 case "SimpleName":
                     const declaration = this.findDeclaration(argument, fullScopeStack, codeFile);
                     typeList.push(declaration.typeName);
+                    break;
+                case "QualifiedName":
+                    if (argument.qualifier.node === "SimpleName") {
+                        typeList.push(argument.qualifier.identifier);
+                    }
+                    break;
             }
         }
         return typeList.join(", ");

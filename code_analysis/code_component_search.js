@@ -228,9 +228,11 @@
                 const argumentTypeListString = this.getArgumentTypeListString(astNode, fullScopeStack, codeFile);
                 const name = this.composeUnqualifiedTypeName(typeName, typeArguments) + "(" + argumentTypeListString + ")";
                 //__DEBUG
-                if (name.includes("Video")){
+                if (name.includes("Video") && codeFile.filename.includes("StudentTests")){
                     console.log(name);
                     logNodeCode(astNode, codeFile);
+                    console.log(astNode)
+                    console.log("Start line: ", astNode.location.start.line);
                 }
                 const methodCall = new MethodCall(name,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.CONSTRUCTOR, typeName, typeName);

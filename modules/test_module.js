@@ -198,7 +198,7 @@ let test_module = {};
                 } else {
                     message += "onstructors `" +
                         UntestedMethod.#constructorNames.slice(0, UntestedMethod.#constructorNames.length - 2).join("`, `")
-                        + "`, and " + UntestedMethod.#constructorNames[UntestedMethod.#constructorNames.length - 1]
+                        + "`, and `" + UntestedMethod.#constructorNames[UntestedMethod.#constructorNames.length - 1]
                         + "` do not appear to be tested.";
                 }
             }
