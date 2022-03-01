@@ -259,7 +259,7 @@
                     typeList.push("[unknown]");
                     break;
                 case "ClassInstanceCreation":
-                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(invocationOrCreationNode.type);
+                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(argument.type);
                     const qualifiedTypeName = this.composeQualifiedTypeName(typeName, typeArguments);
                     typeList.push(qualifiedTypeName);
                     break;
