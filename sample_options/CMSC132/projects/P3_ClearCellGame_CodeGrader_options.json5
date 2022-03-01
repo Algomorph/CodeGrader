@@ -3,25 +3,28 @@
     filesToCheck: [
         'src/model/ClearCellGame.java|ClearCellGame/src/main/java/model/ClearCellGame.java',
         'src/model/Game.java|ClearCellGame/src/main/java/model/Game.java',
+        'src/tests/StudentTests.java|ClearCellGame/src/main/java/tests/StudentTests.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
     lateScoreAdjustment: -12,
     moduleOptions: {
         brace_style_module: {
-            enabled: true,
+            enabled: false,
             markAllBraces: false,
         },
         grade_server_module: {
+            customRubricCategories: [],
             enabled: true,
             gradeServerAssignmentName: 'P3',
             graderName: '',
-            maximumCodeStyleScore: 10,
-            maximumStudentTestsScore: 0,
+            maximumCodeStyleScore: 8,
+            maximumStudentTestsScore: 8,
             minimumScoreAdjustment: 0,
         },
         indentation_module: {
             enabled: true,
+            ignoreMixedTabsAndSpaces: false,
         },
         keyword_and_pattern_module: {
             enabled: false,
@@ -90,17 +93,31 @@
         spacing_module: {
             checkSpacingAroundAssignmentOperators: true,
             checkSpacingAroundBinaryOperators: true,
-            enabled: true,
+            enabled: false,
         },
         test_module: {
-            enabled: false,
-            methodsExpectedToBeTested: [],
+            enabled: true,
+            methodsExpectedToBeTested: [
+                'Game(int, int)',
+                '$Game$.getMaxRows',
+                '$Game$.getMaxCols',
+                '$Game$.setBoardCell',
+                '$Game$.getBoardCell',
+                '$Game$.setRowWithColor',
+                '$Game$.setColWithColor',
+                '$Game$.setBoardWithColor',
+                'ClearCellGame(int, int, Random, int)',
+                '$ClearCellGame$.isGameOver',
+                '$ClearCellGame$.getScore',
+                '$ClearCellGame$.nextAnimationStep',
+                '$ClearCellGame$.processCell',
+            ],
         },
         unused_code_module: {
             checkMethods: true,
             checkTypes: false,
             checkVariables: true,
-            enabled: true,
+            enabled: false,
             ignoredNames: {
                 ClearCellGame: [
                     'ClearCellGame',
@@ -129,9 +146,9 @@
             markAllUsages: false,
         },
     },
-    submitServerAssignmentName: 'Proj 3',
+    submitServerAssignmentName: 'Project #3',
     usageStatisticsOptions: {
         anonymizeUser: true,
-        enabled: true,
-    }
+        enabled: false,
+    },
 }
