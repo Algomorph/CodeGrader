@@ -48,7 +48,7 @@
      * @param {Array.<[string,[]|Array.<string>]>} typeArguments
      * @return {string} fully-qualified type name.
      */
-    this.composeUnqualifiedTypeName = function(name, typeArguments) {
+    this.composeUnqualifiedTypeName = function (name, typeArguments) {
         if (typeArguments.length > 0) {
             return name + "<>";
         } else {
@@ -226,8 +226,10 @@
     /**
      * From attempts to construct a full argument type list from a MethodInvocationNode or a ClassInstanceCreationNode
      * @param invocationOrCreationNode
+     * @param {Array.<Scope>} fullScopeStack the stack of scopes leading up to the method invocation within the file.
+     * @param {CodeFile} codeFile the code file being examined.
      */
-    this.getArgumentTypeListString = function (invocationOrCreationNode) {
+    this.getArgumentTypeListString = function (invocationOrCreationNode, fullScopeStack, codeFile) {
         const typeList = [];
         for (const argument of invocationOrCreationNode.arguments) {
             switch (argument.node) {
@@ -246,7 +248,7 @@
                     break;
                 case "NumberLiteral":
                     //TODO: resolve type post-factum in this case
-                    if(Number.isInteger(Number(argument.token))) {
+                    if (Number.isInteger(Number(argument.token))) {
                         typeList.push("int");
                     } else {
                         typeList.push("number"); // Maybe this should be double?
@@ -254,14 +256,22 @@
                     break;
                 case "MethodInvocation":
                     //TODO: resolve type post-factum in this case
-                    typeList.push("[unknown]")
+                    typeList.push("[unknown]");
                     break;
                 case "ClassInstanceCreation":
                     const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(invocationOrCreationNode.type);
                     const qualifiedTypeName = this.composeQualifiedTypeName(typeName, typeArguments);
                     typeList.push(qualifiedTypeName);
                     break;
-                //TODO: there are other possibilities here that should be handled, e.g. arrays
+                case "SimpleName":
+                    const declaration = this.findDeclaration(argument, fullScopeStack, codeFile);
+                    typeList.push(declaration.typeName);
+                    break;
+                case "QualifiedName":
+                    if (argument.qualifier.node === "SimpleName") {
+                        typeList.push(argument.qualifier.identifier);
+                    }
+                    break;
             }
         }
         return typeList.join(", ");

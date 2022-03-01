@@ -57,6 +57,7 @@
             allowedSpecialWords: [
                 'min',
                 'max',
+                'curr', // Nelson's personal preference, not very common
                 'playlist',
                 'playlists'
             ],
@@ -87,6 +88,8 @@
         test_module: {
             enabled: true,
             methodsExpectedToBeTested: [
+                'Video(String, String, int, Genre)',
+                'Video(Video)',
                 '$Video$.getTitle',
                 '$Video$.getUrl',
                 '$Video$.getDurationInMinutes',
@@ -95,6 +98,8 @@
                 '$Video$.getComments',
                 '$Video$.compareTo',
                 '$Video$.equals',
+                'Playlist(String)',
+                'Playlist(Playlist)',
                 '$Playlist$.getName',
                 '$Playlist$.addToPlaylist',
                 '$Playlist$.getPlaylistVideosTitles',
