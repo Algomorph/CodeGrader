@@ -62,7 +62,8 @@ class Declaration {
     constructor(name, typeName, typeArguments, astNode, codeFile, trCodeLine) {
 
         this.name = name;
-        this.typeName = typeName; // for methods, the return type
+        this.typeName = typeName; // for methods, the return type; for variables, the declared variable type.
+        this.valueTypeName = null;
         this.typeArguments = typeArguments;
         this.declarationType = DeclarationTypeByNode[astNode.node];
         this.astNode = astNode;

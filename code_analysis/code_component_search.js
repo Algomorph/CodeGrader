@@ -12,8 +12,9 @@
      * @param {Scope} scope of the current AST node
      * @param {CodeFile} codeFile information about the current code file
      * @param {TypeInformation} enclosingTypeInformation
+     * @param {Map.<string, TypeInformation>} globalTypeMap
      */
-    this.findCodeComponentsInAstNode = function (astNode, scope, codeFile, enclosingTypeInformation) {
+    this.findCodeComponentsInAstNode = function (astNode, scope, codeFile, enclosingTypeInformation, globalTypeMap) {
         let branchScopes = [];
         let branchScopeDeclarations = [];
         let currentScopeFullyProcessed = true;
@@ -185,6 +186,7 @@
             case "Assignment":
                 scope.setNextBatchOfChildAstNodes([astNode.leftHandSide, astNode.rightHandSide]);
                 enclosingTypeInformation.assignments.push(astNode);
+                this.setVariableValueType(astNode, fullScopeStack, codeFile);
                 continueProcessingCurrentScope();
                 break;
             case "ArrayCreation":
@@ -236,17 +238,23 @@
                 scope.setNextBatchOfChildAstNodes(astNode.arguments);
                 continueProcessingCurrentScope();
                 break;
-            case "MethodInvocation":
-            {
-                const [methodCallIdentifier, calledType] = this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile);
+            case "MethodInvocation": {
+                const [methodCallIdentifier, calledType, baseMethodCallIdentifier, baseCalledType] =
+                    this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile, globalTypeMap);
                 const methodCall = new MethodCall(methodCallIdentifier,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
                 enclosingTypeInformation.methodCalls.push(methodCall);
+                this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                if(baseMethodCallIdentifier !== null){
+                    const baseMethodCall = new MethodCall(baseMethodCallIdentifier,
+                        codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, baseCalledType)
+                    enclosingTypeInformation.methodCalls.push(baseMethodCall);
+                    this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(baseMethodCall);
+                }
                 const unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
                     unprocessedChildAstNodes.push(astNode.expression);
                 }
-                this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
                 scope.setNextBatchOfChildAstNodes(unprocessedChildAstNodes);
                 continueProcessingCurrentScope();
             }
@@ -267,6 +275,7 @@
             case "VariableDeclarationFragment":
                 if (astNode.initializer !== null) {
                     enclosingTypeInformation.assignments.push(astNode);
+                    this.setVariableValueType(astNode, fullScopeStack, codeFile);
                     scope.setNextBatchOfChildAstNodes([astNode.initializer]);
                     continueProcessingCurrentScope();
                 }
@@ -318,14 +327,14 @@
         if (!currentScopeFullyProcessed) {
             let unprocessedBranchNodes = [...scope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                this.findCodeComponentsInAstNode(childAstNode, scope, codeFile, enclosingTypeInformation);
+                this.findCodeComponentsInAstNode(childAstNode, scope, codeFile, enclosingTypeInformation, globalTypeMap);
             }
         }
 
         for (const branchScope of branchScopes) {
             let unprocessedBranchNodes = [...branchScope.unprocessedChildAstNodes];
             for (const childAstNode of unprocessedBranchNodes) {
-                this.findCodeComponentsInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation);
+                this.findCodeComponentsInAstNode(childAstNode, branchScope, codeFile, enclosingTypeInformation, globalTypeMap);
             }
         }
         enclosingTypeInformation.scopes.push(...branchScopes);
@@ -333,8 +342,9 @@
     /**
      * Finds code entities (declarations, method calls, etc.) from the AST of a code file.
      * @param {CodeFile} codeFile Information about a code file
+     * @param {Map.<string, TypeInformation>} globalTypeMap Cumulative info about all types discovered so far
      */
-    this.findComponentsInCodeFileAst = function (codeFile) {
+    this.findComponentsInCodeFileAst = function (codeFile, globalTypeMap) {
         if (codeFile.abstractSyntaxTree !== null) {
             const syntaxTree = codeFile.abstractSyntaxTree;
 
@@ -343,7 +353,7 @@
                 let typeInformation = new TypeInformation();
                 const fileScope = new Scope(syntaxTree, [], [], []);
                 typeInformation.scopes.push(fileScope);
-                this.findCodeComponentsInAstNode(typeNode, fileScope, codeFile, typeInformation);
+                this.findCodeComponentsInAstNode(typeNode, fileScope, codeFile, typeInformation, globalTypeMap);
                 for (const scope of typeInformation.scopes) {
                     typeInformation.declarations.push(...scope.declarations.values());
                 }
@@ -362,6 +372,7 @@
                 }
 
                 codeFile.types.set(typeNode.name.identifier, typeInformation);
+                globalTypeMap.set(typeNode.name.identifier, typeInformation);
             }
         }
     }
