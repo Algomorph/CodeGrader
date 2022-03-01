@@ -62,6 +62,7 @@
         "SecurityManager", "Short", "StackTraceElement", "StrictMath", "String", "StringBuffer", "StringBuilder",
         "System", "Thread", "ThreadGroup", "Throwable", "Void"]);
 
+
 //TODO: we're not able to access the full Java standard library API, so determine out what the type is are for some
 // common methods. A collection like this or similar might be handy...
     const commonApiMethodReturnTypes = new Map([
@@ -80,6 +81,7 @@
         }
         return false;
     }
+
 
     /**
      * Search backwards through the scope stack for a declaration with matching name.
@@ -148,18 +150,95 @@
 
 
     /**
+     * Attempts to determine the type of the expression
+     * @param {Object} expressionNode the given expression node
+     * @param {Array.<Scope>} fullScopeStack the stack of scopes leading up to the method invocation within the file.
+     * @param {CodeFile} codeFile the code file being examined.
+     * @return {string} a string signifying the type (qualified, if generics are used)
+     */
+    this.getExpressionTypeName = function (expressionNode, fullScopeStack, codeFile) {
+        switch (expressionNode.node) {
+            case "StringLiteral":
+                return "String";
+            case "CharacterLiteral":
+                return "char";
+            case "BooleanLiteral":
+                return "bool";
+            case "NullLiteral":
+                //TODO: resolve type post-factum in this case
+                return "Object";
+            case "NumberLiteral":
+                //TODO: resolve type post-factum in this case
+                if (Number.isInteger(Number(expressionNode.token))) {
+                    return "int";
+                } else {
+                    return "double";
+                }
+            case "MethodInvocation":
+                //TODO: resolve type post-factum in this case
+                return "[unknown]";
+            case "ClassInstanceCreation":
+                const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(expressionNode.type);
+                return this.composeQualifiedTypeName(typeName, typeArguments);
+            case "SimpleName":
+                const declaration = this.findDeclaration(expressionNode, fullScopeStack, codeFile);
+                return declaration.typeName;
+            case "QualifiedName":
+                if (expressionNode.qualifier.node === "SimpleName") {
+                    return expressionNode.qualifier.identifier;
+                }
+                break;
+        }
+        return "[unknown]";
+    }
+
+    /**
+     * Try to determine the value type being assigned to the declaration.
+     * @param {Object} astNode
+     * @param {Array.<Scope>} fullScopeStack
+     * @param {CodeFile} codeFile
+     */
+    this.setVariableValueType = function (astNode, fullScopeStack, codeFile) {
+        let declaration;
+        let initializer;
+
+        switch (astNode.node) {
+            case "VariableDeclarationFragment":
+                declaration = this.findDeclaration(astNode.name, fullScopeStack, codeFile);
+                initializer = astNode.initializer;
+                break;
+            case "Assignment":
+                declaration = this.findDeclaration(astNode.leftHandSide, fullScopeStack, codeFile);
+                initializer = astNode.rightHandSide;
+                break;
+        }
+
+        if (declaration !== null && initializer !== null) {
+            const valueTypeName = this.getExpressionTypeName(initializer, fullScopeStack, codeFile);
+            if (valueTypeName !== "[unknown]") {
+                declaration.valueTypeName = valueTypeName;
+            }
+        }
+    }
+
+    /**
      * For a method call, determines the class the method belongs to, and whether it's an instance or static method.
      * @param {{node: string, location : {start: {offset, line, column}, end : {offset, line, column}}, name: {identifier: string}}} methodInvocationNode
      * @param {Array.<Scope>} fullScopeStack
      * @param {CodeFile} codeFile
-     * @return {[string, null|string]}
+     * @param {Map.<string, TypeInformation>} globalTypeMap
+     * @return {[string, null|string, null|string, null|string]}
      */
-    this.determineMethodCallIdentifierAndCalledType = function (methodInvocationNode, fullScopeStack, codeFile) {
+    this.determineMethodCallIdentifierAndCalledType = function (methodInvocationNode, fullScopeStack, codeFile,
+                                                                globalTypeMap) {
         let name = "";
         let calledType = null;
+        let baseCallName = null;
+        let baseCalledType = null;
 
         if (methodInvocationNode.hasOwnProperty("expression") && methodInvocationNode.expression != null) {
             const calledDeclaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
+
             if (calledDeclaration == null) {
                 if (methodInvocationNode.expression.node === "SimpleName") {
                     name = methodInvocationNode.expression.identifier + "." + methodInvocationNode.name.identifier;
@@ -180,15 +259,61 @@
                     }
                 }
             } else {
-                calledType = calledDeclaration.typeName;
-                name = this.generateMethodStringIdentifier(calledDeclaration.typeName,
-                    methodInvocationNode.name.identifier,
-                    calledDeclaration.declarationType === DeclarationType.TYPE);
+                if (calledDeclaration.valueTypeName === null) {
+                    calledType = calledDeclaration.typeName;
+                    name = this.generateMethodStringIdentifier(calledType,
+                        methodInvocationNode.name.identifier,
+                        calledDeclaration.declarationType === DeclarationType.TYPE);
+                } else {
+                    calledType = calledDeclaration.valueTypeName;
+                    name = this.generateMethodStringIdentifier(calledType,
+                        methodInvocationNode.name.identifier,
+                        calledDeclaration.declarationType === DeclarationType.TYPE);
+                    if (calledDeclaration.typeName === 'var') {
+                        let currentType = calledType;
+                        let inspectNextLevel = true;
+                        let suspectBaseCallType = null;
+
+                        // Look through the class hierarchy to uncover base method call
+                        do {
+                            if (globalTypeMap.has(currentType)) {
+                                const typeInformation = globalTypeMap.get(currentType);
+                                const typeDeclarationAstNode = typeInformation.typeScope.astNode;
+                                // need to check whether the type actually has that method defined
+                                const discovered = typeInformation.declarations.filter((declaration) => {
+                                    return declaration.declarationType === DeclarationType.METHOD &&
+                                        declaration.name === methodInvocationNode.name.identifier;
+                                });
+                                if (discovered.length !== 0) {
+                                    inspectNextLevel = false;
+                                    suspectBaseCallType = currentType;
+                                } else if (typeDeclarationAstNode.superclassType !== undefined) {
+                                    currentType = typeDeclarationAstNode.superclassType.name.identifier;
+                                } else {
+                                    inspectNextLevel = false;
+                                }
+                            } else {
+                                inspectNextLevel = false;
+                            }
+                        } while (inspectNextLevel);
+                        if(suspectBaseCallType !== null && suspectBaseCallType !== calledType){
+                            baseCalledType = suspectBaseCallType;
+                            baseCallName = this.generateMethodStringIdentifier(baseCalledType,
+                                methodInvocationNode.name.identifier,
+                                calledDeclaration.declarationType === DeclarationType.TYPE);
+                        }
+                    } else {
+                        baseCalledType = calledDeclaration.typeName;
+                        baseCallName = this.generateMethodStringIdentifier(baseCalledType,
+                            methodInvocationNode.name.identifier,
+                            calledDeclaration.declarationType === DeclarationType.TYPE);
+                    }
+                }
             }
         } else {
             name = "this." + methodInvocationNode.name.identifier;
         }
-        return [name, calledType];
+        return [name, calledType, baseCallName, baseCalledType];
     }
 
 
@@ -223,6 +348,7 @@
         return ["", typeArguments];
     }
 
+
     /**
      * From attempts to construct a full argument type list from a MethodInvocationNode or a ClassInstanceCreationNode
      * @param invocationOrCreationNode
@@ -232,47 +358,7 @@
     this.getArgumentTypeListString = function (invocationOrCreationNode, fullScopeStack, codeFile) {
         const typeList = [];
         for (const argument of invocationOrCreationNode.arguments) {
-            switch (argument.node) {
-                case "StringLiteral":
-                    typeList.push("String");
-                    break;
-                case "CharacterLiteral":
-                    typeList.push("char");
-                    break;
-                case "BooleanLiteral":
-                    typeList.push("bool");
-                    break;
-                case "NullLiteral":
-                    //TODO: resolve type post-factum in this case
-                    typeList.push("Object");
-                    break;
-                case "NumberLiteral":
-                    //TODO: resolve type post-factum in this case
-                    if (Number.isInteger(Number(argument.token))) {
-                        typeList.push("int");
-                    } else {
-                        typeList.push("number"); // Maybe this should be double?
-                    }
-                    break;
-                case "MethodInvocation":
-                    //TODO: resolve type post-factum in this case
-                    typeList.push("[unknown]");
-                    break;
-                case "ClassInstanceCreation":
-                    const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(invocationOrCreationNode.type);
-                    const qualifiedTypeName = this.composeQualifiedTypeName(typeName, typeArguments);
-                    typeList.push(qualifiedTypeName);
-                    break;
-                case "SimpleName":
-                    const declaration = this.findDeclaration(argument, fullScopeStack, codeFile);
-                    typeList.push(declaration.typeName);
-                    break;
-                case "QualifiedName":
-                    if (argument.qualifier.node === "SimpleName") {
-                        typeList.push(argument.qualifier.identifier);
-                    }
-                    break;
-            }
+            typeList.push(this.getExpressionTypeName(argument, fullScopeStack, codeFile));
         }
         return typeList.join(", ");
     }

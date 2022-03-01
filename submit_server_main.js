@@ -112,8 +112,9 @@ function constructUiPanel(options, filePaths) {
             "plugin options, continuing with review modules disabled."));
     } else {
         const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filePaths);
+        const globalTypeMap = new Map();
         for (const codeFile of codeFileDictionary.values()) {
-            code_analysis.findComponentsInCodeFileAst(codeFile);
+            code_analysis.findComponentsInCodeFileAst(codeFile, globalTypeMap);
         }
         for (const [fileName, codeFile] of codeFileDictionary.entries()) {
             if (codeFile.parseError !== null) {
@@ -128,7 +129,7 @@ function constructUiPanel(options, filePaths) {
             unused_code_module, test_module, indentation_module, line_length_module, loop_module
         ]
 
-        for(const module of inspectionModules){
+        for (const module of inspectionModules) {
             module.initialize(options);
             module.processCode(codeFileDictionary);
             module.addInfoToUiPanel(uiPanel);
