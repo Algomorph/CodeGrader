@@ -231,17 +231,15 @@
      */
     this.determineMethodCallIdentifierAndCalledType = function (methodInvocationNode, fullScopeStack, codeFile,
                                                                 globalTypeMap) {
-        let name = "";
+        let callIdentifier = "";
         let calledType = null;
-        let baseCallName = null;
-        let baseCalledType = null;
 
         if (methodInvocationNode.hasOwnProperty("expression") && methodInvocationNode.expression != null) {
             const calledDeclaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
 
             if (calledDeclaration == null) {
                 if (methodInvocationNode.expression.node === "SimpleName") {
-                    name = methodInvocationNode.expression.identifier + "." + methodInvocationNode.name.identifier;
+                    callIdentifier = methodInvocationNode.expression.identifier + "." + methodInvocationNode.name.identifier;
                     //TODO: also check against imported types
                     if (!javaDotLangPackageClasses.has(methodInvocationNode.expression.identifier) && this.logMethodOwnershipWarnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
@@ -251,7 +249,7 @@
                 } else {
                     const callSourceCode = codeFile.sourceCode.substring(methodInvocationNode.location.start.offset, methodInvocationNode.location.end.offset);
                     const callExpressionSourceCode = callSourceCode.split(methodInvocationNode.name.identifier)[0];
-                    name = callExpressionSourceCode + methodInvocationNode.name.identifier;
+                    callIdentifier = callExpressionSourceCode + methodInvocationNode.name.identifier;
                     if (this.logMethodOwnershipWarnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
                             + methodInvocationNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
@@ -259,61 +257,46 @@
                     }
                 }
             } else {
+                let currentType;
+                // latest-in-code value type hasn't been accurately determined => try using the variable type
                 if (calledDeclaration.valueTypeName === null) {
-                    calledType = calledDeclaration.typeName;
-                    name = this.generateMethodStringIdentifier(calledType,
-                        methodInvocationNode.name.identifier,
-                        calledDeclaration.declarationType === DeclarationType.TYPE);
+                    currentType = calledDeclaration.typeName;
                 } else {
-                    calledType = calledDeclaration.valueTypeName;
-                    name = this.generateMethodStringIdentifier(calledType,
-                        methodInvocationNode.name.identifier,
-                        calledDeclaration.declarationType === DeclarationType.TYPE);
-                    if (calledDeclaration.typeName === 'var') {
-                        let currentType = calledType;
-                        let inspectNextLevel = true;
-                        let suspectBaseCallType = null;
-
-                        // Look through the class hierarchy to uncover base method call
-                        do {
-                            if (globalTypeMap.has(currentType)) {
-                                const typeInformation = globalTypeMap.get(currentType);
-                                const typeDeclarationAstNode = typeInformation.typeScope.astNode;
-                                // need to check whether the type actually has that method defined
-                                const discovered = typeInformation.declarations.filter((declaration) => {
-                                    return declaration.declarationType === DeclarationType.METHOD &&
-                                        declaration.name === methodInvocationNode.name.identifier;
-                                });
-                                if (discovered.length !== 0) {
-                                    inspectNextLevel = false;
-                                    suspectBaseCallType = currentType;
-                                } else if (typeDeclarationAstNode.superclassType !== undefined) {
-                                    currentType = typeDeclarationAstNode.superclassType.name.identifier;
-                                } else {
-                                    inspectNextLevel = false;
-                                }
-                            } else {
-                                inspectNextLevel = false;
-                            }
-                        } while (inspectNextLevel);
-                        if(suspectBaseCallType !== null && suspectBaseCallType !== calledType){
-                            baseCalledType = suspectBaseCallType;
-                            baseCallName = this.generateMethodStringIdentifier(baseCalledType,
-                                methodInvocationNode.name.identifier,
-                                calledDeclaration.declarationType === DeclarationType.TYPE);
+                    currentType = calledDeclaration.valueTypeName;
+                }
+                calledType = currentType;
+                let inspectNextLevel = true;
+                // Look through the class hierarchy to uncover base method call
+                do {
+                    if (globalTypeMap.has(currentType)) {
+                        const typeInformation = globalTypeMap.get(currentType);
+                        const typeDeclarationAstNode = typeInformation.typeScope.astNode;
+                        // need to check whether the type actually has that method defined
+                        if (typeInformation.methodDeclarationMap.has(methodInvocationNode.name.identifier)) {
+                            //TODO: also check that overload corresponds (call arguments match declared parameters)
+                            inspectNextLevel = false;
+                            calledType = currentType;
+                        } else if (typeDeclarationAstNode.superclassType !== undefined) {
+                            currentType = typeDeclarationAstNode.superclassType.name.identifier;
+                        } else {
+                            inspectNextLevel = false;
                         }
                     } else {
-                        baseCalledType = calledDeclaration.typeName;
-                        baseCallName = this.generateMethodStringIdentifier(baseCalledType,
-                            methodInvocationNode.name.identifier,
-                            calledDeclaration.declarationType === DeclarationType.TYPE);
+                        inspectNextLevel = false;
                     }
+                } while (inspectNextLevel);
+                callIdentifier = this.generateMethodStringIdentifier(calledType,
+                    methodInvocationNode.name.identifier,
+                    calledDeclaration.declarationType === DeclarationType.TYPE);
+                //__DEBUG
+                if(codeFile.filename.includes("StudentTests") && methodInvocationNode.location.start.line === 37){
+                    console.log(callIdentifier);
                 }
             }
         } else {
-            name = "this." + methodInvocationNode.name.identifier;
+            callIdentifier = "this." + methodInvocationNode.name.identifier;
         }
-        return [name, calledType, baseCallName, baseCalledType];
+        return [callIdentifier, calledType];
     }
 
 

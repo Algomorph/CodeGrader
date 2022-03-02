@@ -11,6 +11,8 @@ class TypeInformation {
         this.methodCalls = [];
         /** @type {Array.<Declaration>}*/
         this.declarations = [];
+        this.methodDeclarationMap = new Map();
+        this.constructorDeclarationMap = new Map();
         /** @type {Array.<Loop>}*/
         this.loops = [];
         /** @type {Array.<Scope>}*/

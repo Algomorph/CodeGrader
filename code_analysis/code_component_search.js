@@ -27,12 +27,17 @@
         // noinspection FallThroughInSwitchStatementJS
         switch (astNode.node) {
             case "TypeDeclaration": {
+
                 const typeScope = new Scope(astNode,
                     [new Declaration("this", astNode.name.identifier, [], {"node": "This"}, codeFile),
                         new Declaration(astNode.name.identifier, astNode.name.identifier, [], astNode, codeFile)],
                     astNode.bodyDeclarations, scope.scopeStack.concat([scope]));
                 branchScopes.push(typeScope);
-                enclosingTypeInformation.typeScope = typeScope;
+                //TODO: account for the possibility of having inner classes declared inside a type scope
+                //TODO: account for the possibility of having multiple private classes in addition to the one public class in each file.
+                if (enclosingTypeInformation.typeScope === null) {
+                    enclosingTypeInformation.typeScope = typeScope;
+                }
             }
                 break;
             case "MethodDeclaration": {
@@ -44,14 +49,31 @@
                             const [parameterTypeName, parameterTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(parameter.type);
                             parameterTypes.push(this.composeQualifiedTypeName(parameterTypeName, parameterTypeArguments));
                         }
-
                     }
                     // for constructors, we now do care about parameters
                     parameterTypeString = parameterTypes.join(', ')
                 }
                 const [methodReturnTypeName, methodReturnTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.returnType2);
-                scope.declarations.set(astNode.name.identifier + "(" + parameterTypeString + ")",
-                    new Declaration(astNode.name.identifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile));
+                const basicIdentifier = astNode.name.identifier;
+                const declaration = new Declaration(basicIdentifier, methodReturnTypeName, methodReturnTypeArguments, astNode, codeFile);
+                // TODO: first, look into changing this to the "legacy notation" for method identifiers first,
+                //  i.e. $ClassName$.methodName, and see if anything breaks after the unit tests are implemented. One thing
+                //  that will have to change is determineMethodCallIdentifierAndCalledType for analyzing method calls.
+                // Eventually, legacy method notation will be eliminated in favor of new notation, i.e. the java-standard
+                // ClassName::methodName, or ClassName::methodName ([paramType]...) if it requires overload qualification.
+                // Whether constructors are better represented by ClassName::new ([paramType]...) or ClassName([paramType]...) is up for debate
+                const parameterizedIdentifier = basicIdentifier + "(" + parameterTypeString + ")";
+                scope.declarations.set(parameterizedIdentifier, declaration);
+                if (astNode.constructor) {
+                    enclosingTypeInformation.constructorDeclarationMap.set(parameterizedIdentifier, declaration)
+                } else {
+                    if (enclosingTypeInformation.methodDeclarationMap.has(basicIdentifier)) {
+                        const allOverloads = enclosingTypeInformation.methodDeclarationMap.get(basicIdentifier);
+                        allOverloads.push(basicIdentifier);
+                    } else {
+                        enclosingTypeInformation.methodDeclarationMap.set(astNode.name.identifier, [declaration])
+                    }
+                }
             }
                 for (const parameter of astNode.parameters) {
                     if (parameter.node === "SingleVariableDeclaration") {
@@ -67,6 +89,8 @@
                     }, false);
                     branchScopes.push(new Scope(astNode, branchScopeDeclarations, astNode.body.statements, scope.scopeStack.concat([scope]), isTest));
                 }
+
+
                 break;
             case "Block":
                 scope.setNextBatchOfChildAstNodes(astNode.statements);
@@ -96,20 +120,20 @@
                         }
                     }
                 }
-                {
-                    let children;
-                    if (astNode.expression === null){
-                        children = astNode.updaters.concat(astNode.initializers, [astNode.body])
-                    }else{
-                        children = astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body])
-                    }
-                    branchScopes.push(
-                        new Scope(
-                            astNode, branchScopeDeclarations, children,
-                            scope.scopeStack.concat([scope])
-                        )
-                    );
+            {
+                let children;
+                if (astNode.expression === null) {
+                    children = astNode.updaters.concat(astNode.initializers, [astNode.body])
+                } else {
+                    children = astNode.updaters.concat([astNode.expression], astNode.initializers, [astNode.body])
                 }
+                branchScopes.push(
+                    new Scope(
+                        astNode, branchScopeDeclarations, children,
+                        scope.scopeStack.concat([scope])
+                    )
+                );
+            }
                 break;
             case "EnhancedForStatement": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
@@ -218,7 +242,7 @@
             }
                 // I'm not sure if there's an issue with calling the method twice in one scope
                 // So I'm playing it safe with concat
-                if(astNode.expression != null) {
+                if (astNode.expression != null) {
                     scope.setNextBatchOfChildAstNodes(astNode.arguments.concat(astNode.expression));
                 } else {
                     scope.setNextBatchOfChildAstNodes(astNode.arguments);
@@ -239,18 +263,12 @@
                 continueProcessingCurrentScope();
                 break;
             case "MethodInvocation": {
-                const [methodCallIdentifier, calledType, baseMethodCallIdentifier, baseCalledType] =
+                const [methodCallIdentifier, calledType] =
                     this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile, globalTypeMap);
                 const methodCall = new MethodCall(methodCallIdentifier,
                     codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, calledType)
                 enclosingTypeInformation.methodCalls.push(methodCall);
                 this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
-                if(baseMethodCallIdentifier !== null){
-                    const baseMethodCall = new MethodCall(baseMethodCallIdentifier,
-                        codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, astNode.name.identifier, baseCalledType)
-                    enclosingTypeInformation.methodCalls.push(baseMethodCall);
-                    this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(baseMethodCall);
-                }
                 const unprocessedChildAstNodes = astNode.arguments;
                 if (astNode.hasOwnProperty("expression") && astNode.expression != null) {
                     unprocessedChildAstNodes.push(astNode.expression);
