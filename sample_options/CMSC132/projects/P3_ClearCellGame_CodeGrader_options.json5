@@ -24,7 +24,7 @@
         },
         indentation_module: {
             enabled: true,
-            ignoreMixedTabsAndSpaces: false,
+            ignoreMixedTabsAndSpaces: true,
         },
         keyword_and_pattern_module: {
             enabled: false,
@@ -149,6 +149,6 @@
     submitServerAssignmentName: 'Project #3',
     usageStatisticsOptions: {
         anonymizeUser: true,
-        enabled: false,
+        enabled: true,
     },
 }
