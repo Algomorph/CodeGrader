@@ -127,7 +127,7 @@ function constructUiPanel(options, filePaths) {
         const inspectionModules = [
             keyword_and_pattern_module, naming_module, method_call_module, spacing_module, brace_style_module,
             unused_code_module, test_module, indentation_module, line_length_module, loop_module
-        ]
+        ];
 
         for (const module of inspectionModules) {
             module.initialize(options);

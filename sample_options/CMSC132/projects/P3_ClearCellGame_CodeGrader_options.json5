@@ -98,7 +98,6 @@
         test_module: {
             enabled: true,
             methodsExpectedToBeTested: [
-                'Game(int, int)',
                 '$Game$.getMaxRows',
                 '$Game$.getMaxCols',
                 '$Game$.setBoardCell',
