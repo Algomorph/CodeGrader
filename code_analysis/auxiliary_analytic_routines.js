@@ -182,7 +182,10 @@
                 return this.composeQualifiedTypeName(typeName, typeArguments);
             case "SimpleName":
                 const declaration = this.findDeclaration(expressionNode, fullScopeStack, codeFile);
-                return declaration.typeName;
+                if (declaration !== null) {
+                    return declaration.typeName;
+                }
+                break;
             case "QualifiedName":
                 if (expressionNode.qualifier.node === "SimpleName") {
                     return expressionNode.qualifier.identifier;
