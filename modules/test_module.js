@@ -176,13 +176,13 @@ let test_module = {};
                 } else if (UntestedMethod.#methodNames.length === 2) {
                     message += "Methods `" + UntestedMethod.#methodNames.join("` and `") + "` do not appear to be tested.";
                 } else {
-                    message += "Methods `" + UntestedMethod.#methodNames.slice(0, UntestedMethod.#methodNames.length - 2).join("`, `")
-                        + "`, and " + UntestedMethod.#methodNames[UntestedMethod.#methodNames.length - 1]
+                    message += "Methods `" + UntestedMethod.#methodNames.slice(0, UntestedMethod.#methodNames.length - 1).join("`, `")
+                        + "`, and `" + UntestedMethod.#methodNames[UntestedMethod.#methodNames.length - 1]
                         + "` do not appear to be tested.";
                 }
                 if (UntestedMethod.#constructorNames.length > 0) {
                     message += " Also, ";
-                    capitalizeConstructors = true;
+                    capitalizeConstructors = false;
                 }
             }
             if (UntestedMethod.#constructorNames.length > 0) {
@@ -192,12 +192,12 @@ let test_module = {};
                     message += "c";
                 }
                 if (UntestedMethod.#constructorNames.length === 1) {
-                    message += "onstructor `" + UntestedMethod.#constructorNames[1] + "` does not appear to be tested.";
+                    message += "onstructor `" + UntestedMethod.#constructorNames[0] + "` does not appear to be tested.";
                 } else if (UntestedMethod.#constructorNames.length === 2) {
                     message += "onstructors `" + UntestedMethod.#constructorNames.join("` and `") + "` do not appear to be tested.";
                 } else {
                     message += "onstructors `" +
-                        UntestedMethod.#constructorNames.slice(0, UntestedMethod.#constructorNames.length - 2).join("`, `")
+                        UntestedMethod.#constructorNames.slice(0, UntestedMethod.#constructorNames.length - 1).join("`, `")
                         + "`, and `" + UntestedMethod.#constructorNames[UntestedMethod.#constructorNames.length - 1]
                         + "` do not appear to be tested.";
                 }

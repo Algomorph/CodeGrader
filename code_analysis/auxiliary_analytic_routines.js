@@ -289,9 +289,9 @@
                     methodInvocationNode.name.identifier,
                     calledDeclaration.declarationType === DeclarationType.TYPE);
                 //__DEBUG
-                if(codeFile.filename.includes("StudentTests") && methodInvocationNode.location.start.line === 37){
-                    console.log(callIdentifier);
-                }
+                // if(codeFile.filename.includes("StudentTests") && methodInvocationNode.location.start.line === 37){
+                //     console.log(callIdentifier);
+                // }
             }
         } else {
             callIdentifier = "this." + methodInvocationNode.name.identifier;
