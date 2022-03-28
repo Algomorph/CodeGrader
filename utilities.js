@@ -29,8 +29,8 @@ function readCodeFilesFromServer(fileDescriptors, callback) {
             function (data) {
                 const currentDescriptor = fileDescriptors[processedCount];
                 // relies on https://github.com/Algomorph/jsjavaparser
-                const abstractSyntaxTree = parseJavaCode(data);
-                codeFiles.set(currentDescriptor.name, new CodeFile(currentDescriptor.name, data, null, abstractSyntaxTree, 0, 0));
+                const [abstractSyntaxTree, parseError] = parseJavaCode(data);
+                codeFiles.set(currentDescriptor.name, new CodeFile(currentDescriptor.name, data, null, abstractSyntaxTree, parseError));
                 processedCount++;
                 if (processedCount === fileCount) {
                     callback(codeFiles);
@@ -41,20 +41,20 @@ function readCodeFilesFromServer(fileDescriptors, callback) {
 }
 
 /**
+ * Handles the Marmoset Submit Server code display, converts it into CodeFile objects for each file and stores these
+ * into a map, keyed by each file's path in the submission folder
  *
- * @param {Array.<string>}filesToCheck
- * @returns {[Map<string, CodeFile>,Array.<Element>]}
+ * @param {Array.<string>} filesToCheck
+ * @returns {Map<string, CodeFile>}
  */
 function getCheckedFileCode(filesToCheck) {
     let fileDictionary = new Map();
-    let trCodeLines = [];
     let iLine = 0;
     $.each(
         filesToCheck,
         function (fileIndex, filename) {
             const trCodeLinesForFile = getTrCodesForCodeFile(filename);
             let fileCodeLines = [];
-            const iStartLine = iLine;
 
             $.each(
                 trCodeLinesForFile,
@@ -65,7 +65,6 @@ function getCheckedFileCode(filesToCheck) {
                 }
             );
 
-            const iEndLine = iLine;
             if (fileCodeLines.length > 0) {
                 // parser doesn't like comments after closing brace at the end of the last line of file for whatever reason
                 fileCodeLines[fileCodeLines.length - 1] = trimRightWhitespaceAndComments(fileCodeLines[fileCodeLines.length - 1]);
@@ -74,11 +73,10 @@ function getCheckedFileCode(filesToCheck) {
 
             const [abstractSyntaxTree, parseError] = parseJavaCode(fileCode);
 
-            fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError, iStartLine, iEndLine));
-            trCodeLines.push(...trCodeLinesForFile);
+            fileDictionary.set(filename, new CodeFile(filename, fileCode, trCodeLinesForFile, abstractSyntaxTree, parseError));
         }
     );
-    return [fileDictionary, trCodeLines];
+    return fileDictionary;
 }
 
 /**

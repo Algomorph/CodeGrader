@@ -1,6 +1,24 @@
 /*
 * Copyright 2021 Gregory Kramida
 * */
+// allow usage in node.js modules; process dependencies
+try {
+
+    if (require !== undefined) {
+        code_analysis = require("../code_analysis/module.js");
+        TypeInformation = require("../code_analysis/type_information.js");
+        const code_components = require("../code_analysis/code_components.js");
+        DeclarationType = code_components.DeclarationType;
+        Scope = code_components.Scope;
+        Declaration = code_components.Declaration;
+        LoopTypeByNode = code_components.LoopTypeByNode;
+
+
+    }
+} catch (error) {
+    // keep silent
+}
+
 (function () {
 
 
@@ -444,3 +462,12 @@
     }
 
 }).apply(code_analysis);
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = code_analysis;
+    }
+} catch (error) {
+    // keep silent
+}

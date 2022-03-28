@@ -26,3 +26,12 @@ class TypeInformation {
         this.typeScope = null;
     }
 }
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = TypeInformation;
+    }
+} catch (error) {
+    // keep silent
+}

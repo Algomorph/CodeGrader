@@ -200,3 +200,24 @@ class Loop {
         }
     }
 }
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = {
+            MethodCallType,
+            DeclarationType,
+            DeclarationTypeByNode,
+            LoopType,
+            LoopDescriptionByType,
+            LoopTypeByNode,
+            Scope,
+            Declaration,
+            MethodCall,
+            Usage,
+            Loop
+        };
+    }
+} catch (error) {
+    // keep silent
+}

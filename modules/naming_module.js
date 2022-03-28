@@ -4,6 +4,19 @@
 
 let naming_module = {};
 
+// allow usage in node.js modules; process dependencies
+try {
+
+    if (require !== undefined) {
+        CodeEntity = require("../code_analysis/code_entity.js");
+        const code_components = require("../code_analysis/code_components.js");
+        DeclarationType = code_components.DeclarationType;
+
+    }
+} catch (error) {
+    // keep silent
+}
+
 (function () {
 
     const TagAndSectionColorByNameType = {
@@ -409,7 +422,7 @@ let naming_module = {};
          * */
         processDeclarations() {
             const allowedSpecialWordsSet = new Set(this.#options.allowedSpecialWords);
-            this.#markedDeclarations.push(...Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
+            this.#markedDeclarations.push(...Section.checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
                 this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically));
         }
 
@@ -423,7 +436,7 @@ let naming_module = {};
          * @param {boolean} sortAlphabetically
          * @return {Array.<MarkedDeclaration>}
          */
-        static #checkDeclarationArray(declarations, allowedSpecialWords,
+        static checkDeclarationArray(declarations, allowedSpecialWords,
                                       numbersAllowedInNames = true, uniqueOnly = false,
                                       sortAlphabetically = false) {
             const markedDeclarations = [];
@@ -576,3 +589,12 @@ let naming_module = {};
     }
 
 }).apply(naming_module);
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = naming_module
+    }
+} catch (error) {
+    // keep silent
+}

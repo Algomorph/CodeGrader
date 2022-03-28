@@ -85,3 +85,12 @@ class CodeEntity {
     }
 
 }
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = CodeEntity
+    }
+} catch (error) {
+    // keep silent
+}

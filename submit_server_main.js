@@ -111,7 +111,7 @@ function constructUiPanel(options, filePaths) {
         $(uiPanel).append(makeWarning("Note: no files found matching to the entries provided in \"filesToCheck\" in " +
             "plugin options, continuing with review modules disabled."));
     } else {
-        const [codeFileDictionary, trCodeLines] = getCheckedFileCode(filePaths);
+        const codeFileDictionary = getCheckedFileCode(filePaths);
         const globalTypeMap = new Map();
         for (const codeFile of codeFileDictionary.values()) {
             code_analysis.findComponentsInCodeFileAst(codeFile, globalTypeMap);

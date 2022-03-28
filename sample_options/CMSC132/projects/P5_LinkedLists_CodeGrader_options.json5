@@ -1,0 +1,118 @@
+{
+    course: 'CMSC132',
+    filesToCheck: [
+        'src/listClasses/BasicLinkedList.java|LinkedLists/src/main/java/listClasses/BasicLinkedList.java',
+        'src/listClasses/SortedLinkedList.java|LinkedLists/src/main/java/listClasses/SortedLinkedList.java',
+        'src/tests/StudentTests.java|LinkedLists/src/main/java/tests/StudentTests.java',
+    ],
+    firstStudent: 'a',
+    lastStudent: '{',
+    lateScoreAdjustment: -12,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: true,
+            markAllBraces: false,
+        },
+        grade_server_module: {
+            enabled: true,
+            gradeServerAssignmentName: 'P5',
+            graderName: '',
+            maximumCodeStyleScore: 12,
+            maximumStudentTestsScore: 15,
+            minimumScoreAdjustment: -73,
+        },
+        indentation_module: {
+            enabled: true,
+        },
+        keyword_and_pattern_module: {
+            enabled: true,
+            keywords: [
+                'ArrayList',
+            ],
+            patterns: [],
+        },
+        line_length_module: {
+            enabled: true,
+            lineLengthLimit: 100,
+            tabCharacterWidth: 4,
+        },
+        loop_module: {
+            enabled: false,
+            methodList: [],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: false,
+            ignoredMethods: {
+                global: [],
+            },
+            ignoredTypes: [],
+            showUniqueOnly: false,
+        },
+        naming_module: {
+            allowedSpecialWords: [
+                'min',
+                'max',
+            ],
+            checkConstants: true,
+            checkMethods: true,
+            checkTypes: true,
+            checkVariablesAndFields: true,
+            enabled: true,
+            ignoredNames: {
+                BasicLinkedList: [],
+                SortedLinkedList: [],
+                global: [],
+            },
+            numbersAllowedInNames: false,
+            showUniqueOnly: false,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: true,
+        },
+        test_module: {
+            enabled: true,
+            methodsExpectedToBeTested: [
+                '$BasicLinkedList$.addToFront',
+                '$BasicLinkedList$.addToEnd',
+                '$BasicLinkedList$.getFirst',
+                '$BasicLinkedList$.getLast',
+                '$BasicLinkedList$.getReverseArrayList',
+                '$BasicLinkedList$.getReverseList',
+                '$BasicLinkedList$.getSize',
+                '$BasicLinkedList$.remove',
+                '$BasicLinkedList$.retrieveFirstElement',
+                '$BasicLinkedList$.retrieveLastElement',
+                '$BasicLinkedList$.iterator',
+                '$SortedLinkedList$.add',
+                '$SortedLinkedList$.remove',
+                '$SortedLinkedList$.addToFront',
+                '$SortedLinkedList$.addToEnd',
+            ],
+        },
+        unused_code_module: {
+            checkMethods: false,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: true,
+            ignoredNames: {
+                BasicLinkedList: [],
+                SortedLinkedList: [
+                    'data',
+                ],
+                global: [],
+            },
+            markAllUsages: false,
+        },
+    },
+    submitServerAssignmentName: 'Project #5',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    }
+}
