@@ -19,6 +19,7 @@ function generateTrCodeLines(fileCode){
 }
 
 test("NamingModuleClassNames", () => {
+    /** @type {Map<string,CodeFile>} */
     const codeFileDictionary = new Map();
 
     const javaSourceFile1 = multiline(() => {/*
@@ -44,7 +45,8 @@ test("NamingModuleClassNames", () => {
         code_analysis.findComponentsInCodeFileAst(codeFile, globalTypeMap);
     }
 
-
+    naming_module.processCode(codeFileDictionary);
+    const codeEntities = naming_module.getCodeEntities();
 
 
 })

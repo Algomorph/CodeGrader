@@ -5,7 +5,7 @@
 try {
 
     if (require !== undefined) {
-        code_analysis = require("../code_analysis/module.js");
+        code_analysis = require("../code_analysis/auxiliary_analytic_routines.js");
         TypeInformation = require("../code_analysis/type_information.js");
         const code_components = require("../code_analysis/code_components.js");
         DeclarationType = code_components.DeclarationType;
