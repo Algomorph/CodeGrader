@@ -84,7 +84,7 @@ class CodeEntity {
         );
     }
 
-    toPlainJs() {
+    toPlainObject() {
         const plainObject = {
             codeEntityType: this.constructor.name,
             isIssue: this.isIssue,

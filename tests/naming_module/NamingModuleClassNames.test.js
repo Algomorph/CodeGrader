@@ -56,7 +56,7 @@ test("NamingModuleClassNames_Simple", () => {
     };
     naming_module.initialize(global_options);
     naming_module.processCode(codeFileDictionary);
-    const codeEntitiesPlain = naming_module.getCodeEntities().map( entity => entity.toPlainJs());
+    const codeEntitiesPlain = naming_module.getCodeEntities().map( entity => entity.toPlainObject());
     const testSpecificGroundTruth = groundTruth.NamingModuleClassNames_Simple;
     expect(codeEntitiesPlain).toEqual(testSpecificGroundTruth);
 })
