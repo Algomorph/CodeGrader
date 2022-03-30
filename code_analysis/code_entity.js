@@ -84,6 +84,23 @@ class CodeEntity {
         );
     }
 
+    toPlainJs() {
+        const plainObject = {
+            codeEntityType: this.constructor.name,
+            isIssue: this.isIssue,
+            label: this._labelName,
+            label_style_class: this._labelStyleClass,
+            tooltip: this._toolTip,
+            tag_name: this._tagName,
+            tag_color: this._tagColor,
+            defaultMessageText: this._defaultMessageText,
+        }
+        if (this.isIssue) {
+            plainObject.points = this.points;
+        }
+        return plainObject
+    }
+
 }
 
 // allow usage in node.js modules

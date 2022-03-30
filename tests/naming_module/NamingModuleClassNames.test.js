@@ -1,9 +1,10 @@
 require('jest');
+const groundTruth = require('./NamingModuleClassNames.ground_truth.json5')
+const JavaParser = require("../../third_party/javaparser15_node");
 
-const JavaParser = require("../third_party/javaparser15_node");
-const naming_module = require("../modules/naming_module")
-const code_analysis = require("../code_analysis/code_component_search")
-CodeFile = require("../code_analysis/code_file")
+const naming_module = require("../../modules/naming_module")
+const code_analysis = require("../../code_analysis/code_component_search")
+CodeFile = require("../../code_analysis/code_file")
 const multiline = require("multiline");
 
 function generateTrCodeLines(fileCode){
@@ -18,7 +19,7 @@ function generateTrCodeLines(fileCode){
 
 }
 
-test("NamingModuleClassNames", () => {
+test("NamingModuleClassNames_Simple", () => {
     /** @type {Map<string,CodeFile>} */
     const codeFileDictionary = new Map();
 
@@ -45,8 +46,17 @@ test("NamingModuleClassNames", () => {
         code_analysis.findComponentsInCodeFileAst(codeFile, globalTypeMap);
     }
 
+    const module_options = naming_module.getDefaultOptions();
+    module_options.enabled = true;
+
+    const global_options = {
+      moduleOptions: {
+          naming_module : module_options
+      }
+    };
+    naming_module.initialize(global_options);
     naming_module.processCode(codeFileDictionary);
-    const codeEntities = naming_module.getCodeEntities();
-
-
+    const codeEntitiesPlain = naming_module.getCodeEntities().map( entity => entity.toPlainJs());
+    const testSpecificGroundTruth = groundTruth.NamingModuleClassNames_Simple;
+    expect(codeEntitiesPlain).toEqual(testSpecificGroundTruth);
 })

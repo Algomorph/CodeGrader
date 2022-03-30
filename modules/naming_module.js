@@ -11,7 +11,10 @@ try {
         CodeEntity = require("../code_analysis/code_entity.js");
         const code_components = require("../code_analysis/code_components.js");
         DeclarationType = code_components.DeclarationType;
-
+        utilities = require("../utilities.js");
+        uniqueNames = utilities.uniqueNames;
+        capitalize = utilities.capitalize;
+        usEnglishWordList = require("../modules/us_english_dictionary.js");
     }
 } catch (error) {
     // keep silent
@@ -110,6 +113,8 @@ try {
         get _tagColor() {
             return "#cf821f";
         }
+
+
     }
 
     class NonDictionaryWordIssue extends NamingIssue {
@@ -585,7 +590,7 @@ try {
         if (!initialized){
             throw ("Module not initialized. Please call the initialize function first.");
         }
-        return this.sections.reduce((accumulator, section) => { accumulator.push(...section.markedDeclarations)}, [])
+        return this.sections.reduce((accumulator, section) => accumulator.concat(section.markedDeclarations), [])
     }
 
 }).apply(naming_module);

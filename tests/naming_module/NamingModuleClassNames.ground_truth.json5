@@ -1,0 +1,37 @@
+{
+  NamingModuleClassNames_Simple: [
+    {
+      codeEntityType: 'NonDictionaryWordIssue',
+      isIssue: true,
+      label: 'PascalCaseName',
+      label_style_class: 'naming-non-dictionary-word-problem',
+      tooltip: 'Type "PascalCaseName" has part "pascal" that appears to be a non-dictionary word or an abbreviation. The former are not descriptive and the latter are ambiguous.',
+      tag_name: 'Type PascalCaseName',
+      tag_color: '#9e9711',
+      defaultMessageText: 'Type "PascalCaseName" has part "pascal" that appears to be a non-dictionary word or an abbreviation. The former are not descriptive and the latter are ambiguous.',
+      points: -1
+    },
+    {
+      codeEntityType: 'NamingConventionIssue',
+      isIssue: true,
+      label: 'camelCaseName',
+      label_style_class: 'naming-convention-problem',
+      tooltip: 'Type "camelCaseName" doesn&#39;t seem to follow the PascalCase convention.',
+      tag_name: 'Type camelCaseName',
+      tag_color: '#cf821f',
+      defaultMessageText: 'Type "camelCaseName" doesn&#39;t seem to follow the PascalCase convention.',
+      points: -1
+    },
+    {
+      codeEntityType: 'NamingConventionIssue',
+      isIssue: true,
+      label: 'UPPER_SNAKE_CASE_NAME',
+      label_style_class: 'naming-convention-problem',
+      tooltip: 'Type "UPPER_SNAKE_CASE_NAME" doesn&#39;t seem to follow the PascalCase convention.',
+      tag_name: 'Type UPPER_SNAKE_CASE_NAME',
+      tag_color: '#cf821f',
+      defaultMessageText: 'Type "UPPER_SNAKE_CASE_NAME" doesn&#39;t seem to follow the PascalCase convention.',
+      points: -1
+    }
+  ]
+}

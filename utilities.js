@@ -405,3 +405,15 @@ function getMonospaceCharacterWidth(element) {
     const metrics = context.measureText("1234567890ABCDEFGHIJKLMNOPQURSTUVWXYZ~!@#$%^&*()_+/abcdefghijklmnopqrstuvwxyz :;\",.?{}[]|");
     return metrics.width / sampleText.length;
 }
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = {
+            uniqueNames,
+            capitalize
+        };
+    }
+} catch (error) {
+    // keep silent
+}
