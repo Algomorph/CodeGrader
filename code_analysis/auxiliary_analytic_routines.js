@@ -4,6 +4,18 @@
 
 // Defines auxiliary routines used in entity search
 
+try {
+    if (require !== undefined) {
+        code_analysis = require("../code_analysis/module.js");
+        TypeInformation = require("../code_analysis/type_information.js");
+        const code_components = require("../code_analysis/code_components.js");
+        Scope = code_components.Scope;
+    }
+} catch (error) {
+    // keep silent
+}
+
+
 (function () {
 
     /**
@@ -366,3 +378,12 @@
     }
 
 }).apply(code_analysis);
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = code_analysis;
+    }
+} catch (error) {
+    // keep silent
+}

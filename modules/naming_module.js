@@ -4,6 +4,22 @@
 
 let naming_module = {};
 
+// allow usage in node.js modules; process dependencies
+try {
+
+    if (require !== undefined) {
+        CodeEntity = require("../code_analysis/code_entity.js");
+        const code_components = require("../code_analysis/code_components.js");
+        DeclarationType = code_components.DeclarationType;
+        utilities = require("../utilities.js");
+        uniqueNames = utilities.uniqueNames;
+        capitalize = utilities.capitalize;
+        usEnglishWordList = require("../modules/us_english_dictionary.js");
+    }
+} catch (error) {
+    // keep silent
+}
+
 (function () {
 
     const TagAndSectionColorByNameType = {
@@ -97,6 +113,8 @@ let naming_module = {};
         get _tagColor() {
             return "#cf821f";
         }
+
+
     }
 
     class NonDictionaryWordIssue extends NamingIssue {
@@ -409,7 +427,7 @@ let naming_module = {};
          * */
         processDeclarations() {
             const allowedSpecialWordsSet = new Set(this.#options.allowedSpecialWords);
-            this.#markedDeclarations.push(...Section.#checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
+            this.#markedDeclarations.push(...Section.checkDeclarationArray(this.declarations, allowedSpecialWordsSet,
                 this.#options.numbersAllowedInNames, this.#options.showUniqueOnly, this.#options.sortAlphabetically));
         }
 
@@ -423,7 +441,7 @@ let naming_module = {};
          * @param {boolean} sortAlphabetically
          * @return {Array.<MarkedDeclaration>}
          */
-        static #checkDeclarationArray(declarations, allowedSpecialWords,
+        static checkDeclarationArray(declarations, allowedSpecialWords,
                                       numbersAllowedInNames = true, uniqueOnly = false,
                                       sortAlphabetically = false) {
             const markedDeclarations = [];
@@ -572,7 +590,16 @@ let naming_module = {};
         if (!initialized){
             throw ("Module not initialized. Please call the initialize function first.");
         }
-        return this.sections.reduce((accumulator, section) => { accumulator.push(...section.markedDeclarations)}, [])
+        return this.sections.reduce((accumulator, section) => accumulator.concat(section.markedDeclarations), [])
     }
 
 }).apply(naming_module);
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = naming_module
+    }
+} catch (error) {
+    // keep silent
+}

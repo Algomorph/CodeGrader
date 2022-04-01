@@ -6,7 +6,7 @@
  * Represents a file containing code.
  */
 class CodeFile {
-    constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError, fromLineIndex, toLineIndex) {
+    constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError) {
         this.filename = filename;
         this.sourceCode = sourceCode;
         this.codeLines = sourceCode.split("\n");
@@ -16,7 +16,7 @@ class CodeFile {
         this.lineStartOffsets = [];
         /** @type {Array.<Number>}*/
         this.lineEndOffsets = [];
-        $.each(this.codeLineLengths, (iLine, length) => {
+        this.codeLineLengths.forEach(length => {
             this.lineStartOffsets.push(offset);
             offset += length;
             this.lineEndOffsets.push(offset);
@@ -24,10 +24,17 @@ class CodeFile {
         this.trCodeLines = trCodeLines;
         this.abstractSyntaxTree = abstractSyntaxTree;
         this.parseError = parseError;
-        this.fromLineIndex = fromLineIndex;
-        this.toLineIndex = toLineIndex;
 
         /**@type {Map.<string, TypeInformation>}*/
         this.types = new Map();
     }
+}
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = CodeFile;
+    }
+} catch (error) {
+    // keep silent
 }

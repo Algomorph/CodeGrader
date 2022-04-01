@@ -19,6 +19,7 @@
     "William Siew"
   ],
   "maintainers": [
+    "Gregory Kramida",
     "Matthew Simmons",
     "Andrej Rasevic"
   ],
@@ -29,6 +30,10 @@
   "jest": {
     "verbose": true,
     "collectCoverage": true,
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.json5?$": "json5-jest"
+    },
     "collectCoverageFrom": [
       "modules/*.js",
       "code_analysis/*.js"
@@ -42,7 +47,10 @@
     "browserify": "^17.0.0",
     "include": "^1.1.0",
     "jest": "^27.0.6",
-    "js-beautify": "^1.14.0"
+    "js-beautify": "^1.14.0",
+    "json5": "^2.2.1",
+    "multiline": "^2.0.0",
+    "json5-jest": "^1.0.1"
   },
   "devDependencies": {},
   "scripts": {
