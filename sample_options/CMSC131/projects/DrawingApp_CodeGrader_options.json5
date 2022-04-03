@@ -1,0 +1,101 @@
+{
+    course: 'CMSC131',
+    filesToCheck: [
+        'DrawingApp/src/main/java/app/DrawingApp.java|src/app/DrawingApp.java|app/DrawingApp.java',
+    ],
+    firstStudent: 'a',
+    lastStudent: '{',
+    lateScoreAdjustment: -12,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: true,
+            markAllBraces: false,
+        },
+        grade_server_module: {
+            customRubricCategories: [],
+            enabled: true,
+            gradeServerAssignmentName: 'P3',
+            graderName: '',
+            maximumCodeStyleScore: 8,
+            maximumStudentTestsScore: 0,
+            minimumScoreAdjustment: 0,
+        },
+        indentation_module: {
+            enabled: true,
+            ignoreMixedTabsAndSpaces: true,
+        },
+        keyword_and_pattern_module: {
+            enabled: false,
+            keywords: [],
+            patterns: [],
+        },
+        line_length_module: {
+            enabled: false,
+            lineLengthLimit: 80,
+            tabCharacterWidth: 4,
+        },
+        loop_module: {
+            enabled: false,
+            methodList: [],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: false,
+            ignoredMethods: {
+                global: [],
+            },
+            ignoredTypes: [],
+            showUniqueOnly: false,
+        },
+        naming_module: {
+            allowedSpecialWords: [
+                'min',
+                'max',
+            ],
+            checkConstants: true,
+            checkMethods: true,
+            checkTypes: true,
+            checkVariablesAndFields: true,
+            enabled: true,
+            ignoredNames: {
+                global: [
+                    'args',
+                    'main',
+                ],
+            },
+            numbersAllowedInNames: true,
+            showUniqueOnly: true,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: true,
+        },
+        test_module: {
+            enabled: false,
+            methodsExpectedToBeTested: [],
+        },
+        unused_code_module: {
+            checkMethods: false,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: true,
+            ignoredNames: {
+                global: [
+                    'args',
+                ],
+            },
+            markAllUsages: false,
+        },
+    },
+    semesterSeason: 'spring',
+    submitServerAssignmentName: 'Proj 3',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    },
+    year: '2022',
+}
