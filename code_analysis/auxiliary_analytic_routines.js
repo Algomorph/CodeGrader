@@ -249,25 +249,33 @@ try {
         let callIdentifier = "";
         let calledType = null;
 
+        let methodName;
+        if (methodInvocationNode.node === "EnhancedForStatement") {
+            methodName = "iterator";
+        } else {
+            // assume "MethodInvocation" node
+            methodName = methodInvocationNode.name.identifier;
+        }
+
         if (methodInvocationNode.hasOwnProperty("expression") && methodInvocationNode.expression != null) {
             const calledDeclaration = this.findDeclaration(methodInvocationNode.expression, fullScopeStack, codeFile);
 
             if (calledDeclaration == null) {
                 if (methodInvocationNode.expression.node === "SimpleName") {
-                    callIdentifier = methodInvocationNode.expression.identifier + "." + methodInvocationNode.name.identifier;
+                    callIdentifier = methodInvocationNode.expression.identifier + "." + methodName;
                     //TODO: also check against imported types
                     if (!javaDotLangPackageClasses.has(methodInvocationNode.expression.identifier) && this.logMethodOwnershipWarnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
-                            + methodInvocationNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
+                            + methodName + "` in file '" + codeFile.filename + "' on line "
                             + methodInvocationNode.location.start.line + ". Ast node:", methodInvocationNode);
                     }
                 } else {
                     const callSourceCode = codeFile.sourceCode.substring(methodInvocationNode.location.start.offset, methodInvocationNode.location.end.offset);
                     const callExpressionSourceCode = callSourceCode.split(methodInvocationNode.name.identifier)[0];
-                    callIdentifier = callExpressionSourceCode + methodInvocationNode.name.identifier;
+                    callIdentifier = callExpressionSourceCode + methodName;
                     if (this.logMethodOwnershipWarnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
-                            + methodInvocationNode.name.identifier + "` in file '" + codeFile.filename + "' on line "
+                            + methodName + "` in file '" + codeFile.filename + "' on line "
                             + methodInvocationNode.location.start.line + ". Ast node:", methodInvocationNode);
                     }
                 }
@@ -305,11 +313,10 @@ try {
                     }
                 } while (inspectNextLevel);
                 callIdentifier = this.generateMethodStringIdentifier(calledType,
-                    methodInvocationNode.name.identifier,
-                    calledDeclaration.declarationType === DeclarationType.TYPE);
+                    methodName,calledDeclaration.declarationType === DeclarationType.TYPE);
             }
         } else {
-            callIdentifier = "this." + methodInvocationNode.name.identifier;
+            callIdentifier = "this." + methodName;
         }
         return [callIdentifier, calledType];
     }

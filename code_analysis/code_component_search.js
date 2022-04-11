@@ -156,6 +156,14 @@ try {
             case "EnhancedForStatement": {
                 const [typeName, typeArguments] = this.getTypeNameAndArgumentsFromTypeNode(astNode.parameter.type);
                 branchScopeDeclarations.push(new Declaration(astNode.parameter.name.identifier, typeName, typeArguments, astNode.parameter, codeFile));
+                // handle the .iterator implicit method call
+                const [methodCallIdentifier, calledType] =
+                    this.determineMethodCallIdentifierAndCalledType(astNode, fullScopeStack, codeFile, globalTypeMap);
+                const methodCall = new MethodCall(methodCallIdentifier,
+                    codeFile.trCodeLines[astNode.location.start.line - 1], astNode, MethodCallType.METHOD, "iterator", calledType);
+                enclosingTypeInformation.methodCalls.push(methodCall);
+                this.getEnclosingMethodFromScopeStack(fullScopeStack).methodCalls.push(methodCall);
+                scope.setNextBatchOfChildAstNodes([astNode.expression]);
             }
                 branchScopes.push(new Scope(astNode, branchScopeDeclarations,
                     [astNode.body, astNode.expression],
