@@ -292,7 +292,11 @@ try {
                             inspectNextLevel = false;
                             calledType = currentType;
                         } else if (typeDeclarationAstNode.superclassType !== undefined) {
-                            currentType = typeDeclarationAstNode.superclassType.name.identifier;
+                            if (typeDeclarationAstNode.superclassType.node === "ParameterizedType") {
+                                currentType = typeDeclarationAstNode.superclassType.type.name.identifier;
+                            } else {
+                                currentType = typeDeclarationAstNode.superclassType.name.identifier;
+                            }
                         } else {
                             inspectNextLevel = false;
                         }
