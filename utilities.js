@@ -195,7 +195,7 @@ function getHelperMethodsUsedInCodeBlock(trCodeLines, helperMethods) {
  * @return {string} resulting method reference (as a string).
  */
 function legacyNotationToMethodReference(legacyNotationMethodName) {
-    const legacyPattern = /\$?(\w+)\$?[.](\w+)/;
+    const legacyPattern = /\$?(\w+(?:\s*<[^>]*>)?)\$?[.](\w+)/;
     const match = legacyNotationMethodName.match(legacyPattern);
     return match[1] + "::" + match[2];
 }
