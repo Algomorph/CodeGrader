@@ -271,7 +271,7 @@ try {
                     }
                 } else {
                     const callSourceCode = codeFile.sourceCode.substring(methodInvocationNode.location.start.offset, methodInvocationNode.location.end.offset);
-                    const callExpressionSourceCode = callSourceCode.split(methodInvocationNode.name.identifier)[0];
+                    const callExpressionSourceCode = callSourceCode.split(methodName)[0];
                     callIdentifier = callExpressionSourceCode + methodName;
                     if (this.logMethodOwnershipWarnings) {
                         console.log("Method-owning class/variable declaration not found for method `"
@@ -295,7 +295,7 @@ try {
                         const typeInformation = globalTypeMap.get(currentType);
                         const typeDeclarationAstNode = typeInformation.typeScope.astNode;
                         // need to check whether the type actually has that method defined
-                        if (typeInformation.methodDeclarationMap.has(methodInvocationNode.name.identifier)) {
+                        if (typeInformation.methodDeclarationMap.has(methodName)) {
                             //TODO: also check that overload corresponds (call arguments match declared parameters)
                             inspectNextLevel = false;
                             calledType = currentType;
