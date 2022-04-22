@@ -152,7 +152,7 @@ try {
                 let appear = "appear";
                 let abbreviations = "non-dictionary words and/or abbreviations.";
                 if (this.#nonDictionaryWords.length > 2) {
-                    concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords.slice(-1).join("\", \"") +
+                    concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords.slice(0, this.#nonDictionaryWords.length - 1).join("\", \"") +
                         ", and \"" + this.#nonDictionaryWords.slice(-1) + "\"";
                 } else if (this.#nonDictionaryWords.length === 2) {
                     concatenatedNonDictionaryWords = "\"" + this.#nonDictionaryWords.join("\" and \"") + "\"";
