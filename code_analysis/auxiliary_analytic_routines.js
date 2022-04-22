@@ -299,7 +299,7 @@ try {
                             //TODO: also check that overload corresponds (call arguments match declared parameters)
                             inspectNextLevel = false;
                             calledType = currentType;
-                        } else if (typeDeclarationAstNode.superclassType !== undefined) {
+                        } else if (typeDeclarationAstNode.superclassType !== undefined && typeDeclarationAstNode.superclassType !== null) {
                             if (typeDeclarationAstNode.superclassType.node === "ParameterizedType") {
                                 currentType = typeDeclarationAstNode.superclassType.type.name.identifier;
                             } else {
