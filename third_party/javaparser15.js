@@ -14654,13 +14654,13 @@
               }
             );
           }
-          return {
+          return addLocation({
             node:          'ArrayType',
             elementType:   elementType,
             dimensions:    dimensionObjects
-          };  
+          }, options);  
         } else {
-          return elementType;
+          return addLocation(elementType, options);
         }
       }
 
