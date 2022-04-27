@@ -3,8 +3,8 @@
     filesToCheck: [
         'src/implementation/BinarySearchTree.java',
     ],
-    firstStudent: 'apanda19',
-    lastStudent: 'bglobb',
+    firstStudent: 'a',
+    lastStudent: '{',
     lateScoreAdjustment: -12,
     moduleOptions: {
         brace_style_module: {
@@ -12,14 +12,10 @@
             markAllBraces: false,
         },
         grade_server_module: {
-            customRubricCategories: [{
-                defaultScore: 0,
-                maximumScore: 44,
-                name: 'Design',
-            }, ],
+            customRubricCategories: [],
             enabled: false,
             gradeServerAssignmentName: 'P7',
-            graderName: 'Greg K',
+            graderName: '',
             maximumCodeStyleScore: 0,
             maximumStudentTestsScore: 0,
             minimumScoreAdjustment: 0,
@@ -104,11 +100,9 @@
             markAllUsages: false,
         },
     },
-    semesterSeason: 'spring',
     submitServerAssignmentName: 'Project #7',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
-    year: '2022',
 }
