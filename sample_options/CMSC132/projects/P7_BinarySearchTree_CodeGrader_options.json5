@@ -1,0 +1,114 @@
+{
+    course: 'CMSC132',
+    filesToCheck: [
+        'src/implementation/BinarySearchTree.java',
+    ],
+    firstStudent: 'apanda19',
+    lastStudent: 'bglobb',
+    lateScoreAdjustment: -12,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: false,
+            markAllBraces: false,
+        },
+        grade_server_module: {
+            customRubricCategories: [{
+                defaultScore: 0,
+                maximumScore: 44,
+                name: 'Design',
+            }, ],
+            enabled: false,
+            gradeServerAssignmentName: 'P7',
+            graderName: 'Greg K',
+            maximumCodeStyleScore: 0,
+            maximumStudentTestsScore: 0,
+            minimumScoreAdjustment: 0,
+        },
+        indentation_module: {
+            enabled: false,
+            ignoreMixedTabsAndSpaces: true,
+        },
+        keyword_and_pattern_module: {
+            enabled: true,
+            keywords: [
+                'ArrayList',
+                'HashSet',
+                'TreeSet',
+                'LinkedList',
+                'Stack<',
+                'Queue',
+                'Vector',
+                'ArrayDeque',
+                'LinkedBlockingQueue',
+                'ConcurrentLinkedDeque',
+                'LinkedHashSet',
+                'ConcurrentSkipListSet',
+                'HashMap',
+                'TreeMap',
+                'Hashtable',
+                'LinkedHashMap', 'ConcurrentHashMap'
+            ],
+            patterns: [],
+        },
+        line_length_module: {
+            enabled: false,
+            lineLengthLimit: 80,
+            tabCharacterWidth: 4,
+        },
+        loop_module: {
+            enabled: false,
+            methodList: [],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: false,
+            ignoredMethods: {
+                global: [],
+            },
+            ignoredTypes: [],
+            showUniqueOnly: false,
+        },
+        naming_module: {
+            allowedSpecialWords: [],
+            checkConstants: false,
+            checkMethods: true,
+            checkTypes: false,
+            checkVariablesAndFields: false,
+            enabled: true,
+            ignoredNames: {
+                global: [],
+            },
+            numbersAllowedInNames: true,
+            showUniqueOnly: true,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: false,
+        },
+        test_module: {
+            enabled: false,
+            methodsExpectedToBeTested: [],
+        },
+        unused_code_module: {
+            checkMethods: true,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: false,
+            ignoredNames: {
+                global: [],
+            },
+            markAllUsages: false,
+        },
+    },
+    semesterSeason: 'spring',
+    submitServerAssignmentName: 'Project #7',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    },
+    year: '2022',
+}
