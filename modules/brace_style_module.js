@@ -691,7 +691,7 @@ let brace_style_module = {};
                 this.#defaultMessageText = "Inconsistent brace style. " + this.#toolTip;
             } else {
                 this.#toolTip = "Brace pair doesn't follow any of the allowed styles.";
-                this.#defaultMessageText = this.#toolTip;
+                this.#defaultMessageText = "Brace pair doesn&#39t follow any of the allowed styles.";
             }
         }
 

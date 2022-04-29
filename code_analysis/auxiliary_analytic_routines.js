@@ -347,6 +347,9 @@ try {
             case "ArrayType":
                 const [subName, subTypeArguments] = this.getTypeNameAndArgumentsFromTypeNode(typeNode.componentType);
                 return [subName + "[]", subTypeArguments];
+            case "UnionType":
+                //FIXME provide some more adequate handling for UnionTypes
+                return [typeNode.types[0].name.identifier, typeArguments];
         }
         console.log("Warning! Could not parse type. ");
         console.log(typeNode);
