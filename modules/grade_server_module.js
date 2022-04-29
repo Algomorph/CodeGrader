@@ -57,7 +57,7 @@ let grade_server_module = {};
         }
 
         get inputId(){
-            return this.name.toLowerCase().replaceAll(" ","-") + "-score";
+            return this.name.toLowerCase().replaceAll(/[()\[\]<> ]/g, "-") + "-score";
         }
 
         /**
