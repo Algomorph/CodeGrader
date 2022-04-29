@@ -350,9 +350,10 @@ try {
             case "UnionType":
                 //FIXME provide some more adequate handling for UnionTypes
                 return [typeNode.types[0].name.identifier, typeArguments];
+            case "WildcardType":
+                return this.getTypeNameAndArgumentsFromTypeNode(typeNode.bound);
         }
-        console.log("Warning! Could not parse type. ");
-        console.log(typeNode);
+        console.log("Warning! Could not parse type. ", typeNode);
         return ["", typeArguments];
     }
 
