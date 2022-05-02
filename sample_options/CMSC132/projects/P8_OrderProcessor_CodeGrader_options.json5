@@ -15,21 +15,21 @@
             customRubricCategories: [
                 {
                     defaultScore: 0,
-                    maximumScore: 45,
+                    maximumScore: 10,
                     name: 'Synchronization Requirement',
                 },
                 {
                     defaultScore: 0,
-                    maximumScore: 45,
+                    maximumScore: 10,
                     name: 'Report',
                 },
             ],
             enabled: true,
-            gradeServerAssignmentName: 'P7',
+            gradeServerAssignmentName: 'P8',
             graderName: '',
-            maximumCodeStyleScore: 10,
+            maximumCodeStyleScore: 6,
             maximumStudentTestsScore: 0,
-            minimumScoreAdjustment: -50,
+            minimumScoreAdjustment: -43,
         },
         indentation_module: {
             enabled: true,
@@ -47,7 +47,7 @@
         },
         line_length_module: {
             enabled: false,
-            lineLengthLimit: 80,
+            lineLengthLimit: 100,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -104,9 +104,11 @@
             markAllUsages: false,
         },
     },
-    submitServerAssignmentName: 'Proj 7',
+    semesterSeason: 'spring',
+    submitServerAssignmentName: 'Project #8',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
+    year: '2022',
 }
