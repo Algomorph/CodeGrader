@@ -2,6 +2,8 @@
 //  Copyright (c) 2021 Gregory Kramida
 //  Based on: https://chrome.google.com/webstore/detail/time-tracker/mokmnbikneoaenmckfmgjgjimphfojkd
 
+import {usage_statistics, TabType} from "./usage_statistics.js";
+
 let tabTimeTracker = {};
 
 (function () {
@@ -200,3 +202,5 @@ let tabTimeTracker = {};
 
 
 }).apply(tabTimeTracker);
+
+export { tabTimeTracker }

@@ -159,3 +159,5 @@ const TabType = {
 
 
 }).apply(usage_statistics);
+
+export {usage_statistics, TabType}

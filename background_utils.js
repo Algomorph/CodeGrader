@@ -1,4 +1,4 @@
-function sendPostXHTTPRequest(request, callback = null) {
+export function sendPostXHTTPRequest(request, callback = null) {
     let xhttpRequest = new XMLHttpRequest();
 
     let method = request.method ? request.method.toUpperCase() : 'GET';
