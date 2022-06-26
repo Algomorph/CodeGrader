@@ -1,0 +1,37 @@
+{
+  TestModule_Interfaces: [
+    {
+      codeEntityType: 'TestMethodUsage',
+      isIssue: true,
+      label: 'Rectangle::getArea',
+      label_style_class: '',
+      tooltip: 'The method `Rectangle::getArea` appears in test code (click to scroll).',
+      tag_name: 'Method call from test: Rectangle::getArea',
+      tag_color: '#7c9318',
+      defaultMessageText: 'The method `Rectangle::getArea` is not tested correctly.',
+      points: -1
+    },
+    {
+      codeEntityType: 'TestMethodUsage',
+      isIssue: true,
+      label: 'Square::getArea',
+      label_style_class: '',
+      tooltip: 'The method `Square::getArea` appears in test code (click to scroll).',
+      tag_name: 'Method call from test: Square::getArea',
+      tag_color: '#7c9318',
+      defaultMessageText: 'The method `Square::getArea` is not tested correctly.',
+      points: -1
+    },
+    {
+      codeEntityType: 'UntestedMethod',
+      isIssue: true,
+      label: 'Square::getSideLength',
+      label_style_class: 'untested-method-problem',
+      tooltip: "The method 'getSideLength' has not been tested.",
+      tag_name: 'Untested Method',
+      tag_color: '',
+      defaultMessageText: '',
+      points: -1
+    }
+  ]
+}

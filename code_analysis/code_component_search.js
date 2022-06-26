@@ -12,7 +12,8 @@ try {
         Scope = code_components.Scope;
         Declaration = code_components.Declaration;
         LoopTypeByNode = code_components.LoopTypeByNode;
-
+        Usage = code_components.Usage;
+        MethodCall = code_components.MethodCall;
 
     }
 } catch (error) {
