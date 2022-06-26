@@ -4,6 +4,22 @@
 
 let test_module = {};
 
+// allow usage in node.js modules; process dependencies
+try {
+
+    if (require !== undefined) {
+        CodeEntity = require("../code_analysis/code_entity.js");
+        const code_components = require("../code_analysis/code_components.js");
+        DeclarationType = code_components.DeclarationType;
+        utilities = require("../utilities.js");
+        capitalize = utilities.capitalize;
+        isConstructor = utilities.isConstructor;
+        legacyNotationToMethodReference = utilities.legacyNotationToMethodReference;
+    }
+} catch (error) {
+    // keep silent
+}
+
 (function () {
 
     class Options {
@@ -158,6 +174,10 @@ let test_module = {};
 
         get _toolTip() {
             return "The " + this.#methodOrConstructor + " '" + this.#shortName + "' has not been tested.";
+        }
+
+        get _tagName() {
+            return "Untested Method"
         }
 
         /**
@@ -359,8 +379,8 @@ let test_module = {};
                     testedMethods.add(call);
                     untestedMethods.delete(name);
                 }
-                // If a static method is called from a non-static reference, it appears as
-                // $ClassName$.methodName when we look for ClassName.methodName.
+                    // If a static method is called from a non-static reference, it appears as
+                    // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
                 else if (untestedMethods.has(name.replaceAll("$", ""))) {
                     testedMethods.add(call);
@@ -373,3 +393,13 @@ let test_module = {};
 
 
 }).apply(test_module);
+
+
+// allow usage in node.js modules
+try {
+    if (module !== undefined) {
+        module.exports = test_module
+    }
+} catch (error) {
+    // keep silent
+}

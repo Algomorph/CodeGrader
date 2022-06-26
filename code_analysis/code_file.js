@@ -6,6 +6,14 @@
  * Represents a file containing code.
  */
 class CodeFile {
+    /**
+     *
+     * @param {string} filename name of the file, without full path
+     * @param {string} sourceCode source code within the file, as a single string
+     * @param {[HTMLTableRowElement]} trCodeLines
+     * @param {Object} abstractSyntaxTree
+     * @param {Object} parseError
+     */
     constructor(filename, sourceCode, trCodeLines, abstractSyntaxTree, parseError) {
         this.filename = filename;
         this.sourceCode = sourceCode;

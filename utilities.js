@@ -411,7 +411,9 @@ try {
     if (module !== undefined) {
         module.exports = {
             uniqueNames,
-            capitalize
+            capitalize,
+            isConstructor,
+            legacyNotationToMethodReference
         };
     }
 } catch (error) {
