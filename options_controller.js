@@ -77,12 +77,26 @@ function onOptionPageLoaded() {
     optionsTextArea.addEventListener('keydown', function (event) {
         if (event.key === 'Tab') {
             event.preventDefault();
-
+            const tabWidth = 4;
+            const tabString = " ".repeat(tabWidth);
             const start = this.selectionStart;
             const end = this.selectionEnd;
-
-            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
-            this.selectionStart = this.selectionEnd = start + 1;
+            if (event.shiftKey === true ) {
+                const beforeCaret = this.value.substring(0, start);
+                const precedingTabStart = start-tabWidth;
+                if(beforeCaret.length > tabWidth && beforeCaret.substring(precedingTabStart) === tabString){
+                    this.value = beforeCaret.substring(0, precedingTabStart) + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = precedingTabStart;
+                }
+            } else {
+                // set textarea value to: text before caret + tab + text after caret
+                this.value = this.value.substring(0, start) + tabString + this.value.substring(end);
+                // put caret at correct position again
+                this.selectionStart = this.selectionEnd = start + tabWidth;
+            }
+        } else if (event.key === 's' && event.ctrlKey === true) {
+            event.preventDefault();
+            saveOptions();
         }
         return false;
     });
