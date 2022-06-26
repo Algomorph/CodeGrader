@@ -72,6 +72,24 @@ function restoreOptionsLocal() {
     );
 }
 
+function onOptionPageLoaded() {
+    const optionsTextArea = document.getElementById('optionsTextArea');
+    optionsTextArea.addEventListener('keydown', function (event) {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+        return false;
+    });
+    restoreOptionsLocal();
+
+}
+
 function restoreDefaults() {
     const optionsInstance = new options.Options();
     document.getElementById('optionsTextArea').value = JSON5.stringify(optionsInstance, null, 4);
@@ -97,7 +115,7 @@ function loadFromDisk() {
     reader.readAsText(optionsFile);
 }
 
-document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
+document.addEventListener('DOMContentLoaded', onOptionPageLoaded);
 document.getElementById('save').addEventListener('click', saveOptions);
 document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
 document.getElementById('saveToDisk').addEventListener('click', saveToDisk);
