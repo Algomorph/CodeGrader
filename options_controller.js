@@ -3,16 +3,26 @@
 * */
 const beautify = require("js-beautify").js;
 const options = require("./options.js");
+const json5Writer = require("json5-writer")
 
+
+function displayFormattedOptions(optionsWriter){
+    document.getElementById('optionsTextArea').value =  beautify(optionsWriter.toSource(), {
+        indent_size: 4,
+        space_in_empty_paren: true
+    });
+}
 
 // Save options to chrome.storage
 function saveOptions() {
     try {
-        const optionsStr = document.getElementById("optionsTextArea").value;
-        let options = JSON5.parse(optionsStr);
+        const optionsString = document.getElementById("optionsTextArea").value;
+        let optionsWriter = json5Writer.load(optionsString);
+        let options = JSON5.parse(optionsString);
         if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
+            optionsWriter.write({"lateScoreAdjustment": options.lateScoreAdjustment})
         }
 
         // If firstStudent isn't a valid field, trim will produce undefined (falsey)
@@ -27,9 +37,14 @@ function saveOptions() {
             options.firstStudent = options.lastStudent;
             options.lastStudent = tmp;
         }
+        optionsWriter.write({"firstStudent": options.firstStudent});
+        optionsWriter.write({"lastStudent": options.lastStudent});
 
         chrome.storage.sync.set(
-            options,
+            {
+                "options": options,
+                "optionsWriter": optionsWriter
+            },
             function () {
                 // Update status to let user know options were saved.
                 let status = document.getElementById('status');
@@ -38,10 +53,11 @@ function saveOptions() {
                     status.textContent = '';
                 }, 750);
             });
-        document.getElementById('optionsTextArea').value = beautify(optionsStr, {
-            indent_size: 4,
-            space_in_empty_paren: true
-        });
+        // document.getElementById('optionsTextArea').value = beautify(optionsString, {
+        //     indent_size: 4,
+        //     space_in_empty_paren: true
+        // });
+        displayFormattedOptions(optionsWriter);
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
@@ -66,13 +82,17 @@ function saveOptions() {
 // Restore options based on values stored in chrome.storage and show them in local text panel.
 function restoreOptionsLocal() {
     options.restoreOptions(
-        function (options) {
-            document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+        function (options, optionsWriter) {
+            if(optionsWriter !== null){
+                displayFormattedOptions(optionsWriter);
+            }else{
+                document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+            }
         }
     );
 }
 
-function onOptionPageLoaded() {
+function addOptionsTextAreaKeyHandlers() {
     const optionsTextArea = document.getElementById('optionsTextArea');
     optionsTextArea.addEventListener('keydown', function (event) {
         if (event.key === 'Tab') {
@@ -81,10 +101,10 @@ function onOptionPageLoaded() {
             const tabString = " ".repeat(tabWidth);
             const start = this.selectionStart;
             const end = this.selectionEnd;
-            if (event.shiftKey === true ) {
+            if (event.shiftKey === true) {
                 const beforeCaret = this.value.substring(0, start);
-                const precedingTabStart = start-tabWidth;
-                if(beforeCaret.length > tabWidth && beforeCaret.substring(precedingTabStart) === tabString){
+                const precedingTabStart = start - tabWidth;
+                if (beforeCaret.length > tabWidth && beforeCaret.substring(precedingTabStart) === tabString) {
                     this.value = beforeCaret.substring(0, precedingTabStart) + this.value.substring(end);
                     this.selectionStart = this.selectionEnd = precedingTabStart;
                 }
@@ -100,8 +120,11 @@ function onOptionPageLoaded() {
         }
         return false;
     });
-    restoreOptionsLocal();
+}
 
+function onOptionPageLoaded() {
+    addOptionsTextAreaKeyHandlers();
+    restoreOptionsLocal();
 }
 
 function restoreDefaults() {

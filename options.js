@@ -67,12 +67,13 @@ class Options {
 // Restores options based on values stored in chrome.storage.
 function restoreOptions(callback) {
     let options = new Options();
-    chrome.storage.sync.get(options, function (options) {
+    let optionSet = { "options" : options, "optionWriter" : null};
+    chrome.storage.sync.get(optionSet, function (optionSet) {
         chrome.runtime.sendMessage({
             action: "optionsChanged",
-            options: options
+            options: optionSet.options
         });
-        callback(options);
+        callback(optionSet.options, optionSet.optionWriter);
     });
 }
 
