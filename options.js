@@ -72,7 +72,7 @@ function restoreOptions(callback) {
         chrome.runtime.sendMessage({
             action: "optionsChanged",
             options: optionSet.options
-        });
+        }).then(response => {});
         callback(optionSet.options, optionSet.optionsText);
     });
 }
@@ -80,8 +80,9 @@ function restoreOptions(callback) {
 try {
     if (module !== undefined) {
         module.exports = {
-            restoreOptions: restoreOptions,
-            Options: Options
+            restoreOptions,
+            Options,
+            getCurrentSemesterSeasonString
         }
     }
 } catch (error) {

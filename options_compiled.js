@@ -75861,7 +75861,7 @@ function restoreOptions(callback) {
         chrome.runtime.sendMessage({
             action: "optionsChanged",
             options: optionSet.options
-        });
+        }).then(response => {});
         callback(optionSet.options, optionSet.optionsText);
     });
 }
@@ -75869,8 +75869,9 @@ function restoreOptions(callback) {
 try {
     if (module !== undefined) {
         module.exports = {
-            restoreOptions: restoreOptions,
-            Options: Options
+            restoreOptions,
+            Options,
+            getCurrentSemesterSeasonString
         }
     }
 } catch (error) {
@@ -75881,7 +75882,7 @@ try {
 * Copyright 2020-2021 Gregory Kramida
 * */
 const beautify = require("js-beautify").js;
-const options = require("./options.js");
+const options_module = require("./options.js");
 const json5Writer = require("json5-writer")
 
 
@@ -75903,6 +75904,14 @@ function saveOptions() {
         if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
+        }
+
+        // Fill in semester & year if that wasn't specified by the user or in the loaded file
+        if (!options.hasOwnProperty("semesterSeason")){
+            options.semesterSeason = options_module.getCurrentSemesterSeasonString();
+        }
+        if (!options.hasOwnProperty("year")){
+            options.year = (new Date()).getFullYear().toString();
         }
 
         // If firstStudent isn't a valid field, trim will produce undefined (falsey)
@@ -75957,7 +75966,7 @@ function saveOptions() {
 
 // Restore options based on values stored in chrome.storage and show them in local text panel.
 function restoreOptionsLocal() {
-    options.restoreOptions(
+    options_module.restoreOptions(
         function (options, optionsText) {
             if (optionsText !== null) {
                 document.getElementById('optionsTextArea').value = optionsText;
@@ -76004,7 +76013,7 @@ function onOptionPageLoaded() {
 }
 
 function restoreDefaults() {
-    const optionsInstance = new options.Options();
+    const optionsInstance = new options_module.Options();
     document.getElementById('optionsTextArea').value = JSON5.stringify(optionsInstance, null, 4);
     saveOptions();
 }

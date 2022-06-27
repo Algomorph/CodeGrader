@@ -60,7 +60,7 @@ function main(options, optionsText) {
                 action: "timeTab",
                 sessionUrl: location.href,
                 studentName: studentName
-            });
+            }).then(response => {});
 
             recolorCheckedFileLinks(filePaths);
             scrollToFirstFile(filePaths);
