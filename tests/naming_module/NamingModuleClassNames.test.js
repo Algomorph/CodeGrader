@@ -6,7 +6,7 @@ const naming_module = require("../../modules/naming_module");
 const code_analysis = require("../../code_analysis/code_component_search");
 CodeFile = require("../../code_analysis/code_file");
 const multiline = require("multiline");
-testing_utilities = require("../testing_utilities")
+testing_utilities = require("../testing_utilities");
 
 test("NamingModuleClassNames_Simple", () => {
     /** @type {Map<string,CodeFile>} */

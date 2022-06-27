@@ -6,8 +6,8 @@ const options = require("./options.js");
 const json5Writer = require("json5-writer")
 
 
-function displayFormattedOptions(optionsWriter){
-    document.getElementById('optionsTextArea').value =  beautify(optionsWriter.toSource(), {
+function displayFormattedOptions(optionsWriter) {
+    document.getElementById('optionsTextArea').value = beautify(optionsWriter.toSource(), {
         indent_size: 4,
         space_in_empty_paren: true
     });
@@ -17,12 +17,13 @@ function displayFormattedOptions(optionsWriter){
 function saveOptions() {
     try {
         const optionsString = document.getElementById("optionsTextArea").value;
-        let optionsWriter = json5Writer.load(optionsString);
+
         let options = JSON5.parse(optionsString);
+        let optionsWriter = json5Writer.load(optionsString);
+
         if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
-            optionsWriter.write({"lateScoreAdjustment": options.lateScoreAdjustment})
         }
 
         // If firstStudent isn't a valid field, trim will produce undefined (falsey)
@@ -37,13 +38,14 @@ function saveOptions() {
             options.firstStudent = options.lastStudent;
             options.lastStudent = tmp;
         }
-        optionsWriter.write({"firstStudent": options.firstStudent});
-        optionsWriter.write({"lastStudent": options.lastStudent});
+
+        optionsWriter.write(options);
+        displayFormattedOptions(optionsWriter);
 
         chrome.storage.sync.set(
             {
                 "options": options,
-                "optionsWriter": optionsWriter
+                "optionsText": document.getElementById('optionsTextArea').value
             },
             function () {
                 // Update status to let user know options were saved.
@@ -52,12 +54,8 @@ function saveOptions() {
                 setTimeout(function () {
                     status.textContent = '';
                 }, 750);
-            });
-        // document.getElementById('optionsTextArea').value = beautify(optionsString, {
-        //     indent_size: 4,
-        //     space_in_empty_paren: true
-        // });
-        displayFormattedOptions(optionsWriter);
+            }
+        );
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
@@ -76,16 +74,15 @@ function saveOptions() {
         }
 
     }
-
 }
 
 // Restore options based on values stored in chrome.storage and show them in local text panel.
 function restoreOptionsLocal() {
     options.restoreOptions(
-        function (options, optionsWriter) {
-            if(optionsWriter !== null){
-                displayFormattedOptions(optionsWriter);
-            }else{
+        function (options, optionsText) {
+            if (optionsText !== null) {
+                document.getElementById('optionsTextArea').value = optionsText;
+            } else {
                 document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
             }
         }
