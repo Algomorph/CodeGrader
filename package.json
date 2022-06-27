@@ -49,8 +49,8 @@
     "jest": "^27.0.6",
     "js-beautify": "^1.14.0",
     "json5": "^2.2.1",
-    "multiline": "^2.0.0",
-    "json5-jest": "^1.0.1"
+    "json5-jest": "^1.0.1",
+    "multiline": "^2.0.0"
   },
   "devDependencies": {},
   "scripts": {

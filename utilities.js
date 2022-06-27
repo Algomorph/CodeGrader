@@ -88,8 +88,21 @@ function getCheckedFileCode(filesToCheck) {
 let indentationRegEx = /^(?:.*\*\/|\s*\/\*.*\*\/)?\s*/;
 
 function getIndentationWidth(codeLine, tabWidth = 4) {
-    const tabReplacement = " ".repeat(tabWidth);
-    return codeLine.match(indentationRegEx)[0].replaceAll("\t", tabReplacement).length;
+    const indent = codeLine.match(indentationRegEx)[0];
+    let size = 0;
+
+    for(let i = 0; i < indent.length; i++) {
+        if(indent.charAt(i) === '\t') {
+            size += tabWidth - (size % tabWidth);
+        } else {
+            size++;
+        }
+    }
+
+    // const tabReplacement = " ".repeat(tabWidth);
+    // return codeLine.match(indentationRegEx)[0].replaceAll("\t", tabReplacement).length;
+    return size;
+
 }
 
 /**

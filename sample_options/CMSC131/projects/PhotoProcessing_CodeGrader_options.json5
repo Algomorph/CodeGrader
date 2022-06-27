@@ -1,8 +1,9 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'ArrayUtilities/src/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
-        'ArrayUtilities/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java',
+        'PhotoProcessing/src/main/java/sysutilities/Address.java|src/sysutilities/Address.java|sysutilities/Address.java',
+        'PhotoProcessing/src/main/java/sysutilities/PhotoProcessingSys.java|src/sysutilities/PhotoProcessingSys.java|sysutilities/PhotoProcessingSys.java',
+        'PhotoProcessing/src/main/java/tests/StudentTests.java|src/tests/Address.java|tests/StudentTests.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
@@ -15,15 +16,15 @@
         grade_server_module: {
             customRubricCategories: [],
             enabled: true,
-            gradeServerAssignmentName: 'P6',
+            gradeServerAssignmentName: 'P5',
             graderName: '',
-            maximumCodeStyleScore: 8,
-            maximumStudentTestsScore: 16,
+            maximumCodeStyleScore: 10,
+            maximumStudentTestsScore: 10,
             minimumScoreAdjustment: 0,
         },
         indentation_module: {
             enabled: true,
-            ignoreMixedTabsAndSpaces: true,
+            ignoreMixedTabsAndSpaces: false,
         },
         keyword_and_pattern_module: {
             enabled: false,
@@ -32,7 +33,7 @@
         },
         line_length_module: {
             enabled: true,
-            lineLengthLimit: 100,
+            lineLengthLimit: 80,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -79,18 +80,22 @@
         test_module: {
             enabled: true,
             methodsExpectedToBeTested: [
-                'Utilities.filter',
-                'Utilities.getArrayString',
-                'Utilities.getArrayStringsLongerThan',
-                'Utilities.getInstances',
-                'Utilities.rotate',
+                'Address(String, String, String, String)',
+                'Address()',
+                'Address(Address)',
+                'Address(String)',
+                '$Address$.getCity',
+                '$Address$.getStreet',
+                '$Address$.getState',
+                '$Address$.getZipCode',
+                '$Address$.equals',
             ],
         },
         unused_code_module: {
             checkMethods: false,
             checkTypes: false,
             checkVariables: true,
-            enabled: false,
+            enabled: true,
             ignoredNames: {
                 global: [
                     'args',
@@ -100,7 +105,7 @@
         },
     },
     semesterSeason: 'spring',
-    submitServerAssignmentName: 'Proj 6',
+    submitServerAssignmentName: 'Proj 5',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,

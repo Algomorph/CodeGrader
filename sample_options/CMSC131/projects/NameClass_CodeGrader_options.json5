@@ -1,8 +1,8 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'ArrayUtilities/src/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
-        'ArrayUtilities/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java',
+        'NameClassProj/src/main/java/sysutilities/Name.java|src/sysutilities/Name.java|sysutilities/Name.java',
+        'NameClassProj/src/main/java/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
@@ -15,7 +15,7 @@
         grade_server_module: {
             customRubricCategories: [],
             enabled: true,
-            gradeServerAssignmentName: 'P6',
+            gradeServerAssignmentName: 'P4',
             graderName: '',
             maximumCodeStyleScore: 8,
             maximumStudentTestsScore: 16,
@@ -32,7 +32,7 @@
         },
         line_length_module: {
             enabled: true,
-            lineLengthLimit: 100,
+            lineLengthLimit: 90,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -79,18 +79,29 @@
         test_module: {
             enabled: true,
             methodsExpectedToBeTested: [
-                'Utilities.filter',
-                'Utilities.getArrayString',
-                'Utilities.getArrayStringsLongerThan',
-                'Utilities.getInstances',
-                'Utilities.rotate',
+                '$Name$.getFirstname',
+                '$Name$.getLastname',
+                '$Name$.getMiddlename',
+                '$Name$.setNickname',
+                '$Name$.getNickname',
+                '$Name$.setSeparator',
+                '$Name$.getSeparator',
+                'Name()',
+                'Name(String, String)',
+                'Name(String, String, String)',
+                'Name(String, String, String, char)',
+                '$Name$.equals',
+                '$Name$.toString',
+                '$Name$.compareTo',
+                'Name.getNumberOfNameObjects',
+                'Name.normalize',
             ],
         },
         unused_code_module: {
             checkMethods: false,
             checkTypes: false,
             checkVariables: true,
-            enabled: false,
+            enabled: true,
             ignoredNames: {
                 global: [
                     'args',
@@ -100,7 +111,7 @@
         },
     },
     semesterSeason: 'spring',
-    submitServerAssignmentName: 'Proj 6',
+    submitServerAssignmentName: 'Proj 4',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
