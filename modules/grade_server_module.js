@@ -156,7 +156,7 @@ let grade_server_module = {};
                 const directoryId = $("h1").text().split(",")[1].split("(")[1].split(")")[0]
                 let finalComment = ""
                 // add graders name
-                const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible)");
+                const classes = $("div.GMYHEHOCMK:has(tr.modified-code-row div.gwt-HTML.comment-text:visible, tr.modified-code-row div.comment-text:visible)");
                 
                 finalComment += "Grader: " + options.graderName + "\n\n"
                 // add REVIEW link
@@ -166,11 +166,11 @@ let grade_server_module = {};
                 classes.each(function () {
                     const className = $(this).find("div.GMYHEHOCNK").text().split('/').slice(-1)[0]
                     finalComment += className + "\n";
-                    const rowsWithComments = $(this).find("tr.modified-code-row:has(div.gwt-HTML.comment-text:visible)");
+                    const rowsWithComments = $(this).find("tr.modified-code-row:has(div.gwt-HTML.comment-text:visible, div.comment-text:visible)");
                     rowsWithComments.each(function () {
                         //line numbers end with colons, eg 15:
                         const lineNumber = $(this).find("td.line-number").text();
-                        const comments = $(this).find(".gwt-HTML.comment-text");
+                        const comments = $(this).find(".gwt-HTML.comment-text:visible, div.comment-box div.comment-text:not(.comment-header)");
                         //Although unlikely, one row can have multiple comments
                         comments.each(function () {
                             let commentText = this.textContent;
