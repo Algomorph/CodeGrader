@@ -16,7 +16,7 @@ function addListenerForGradingResult() {
                     action: "timeTab",
                     sessionUrl: report.sessionUrl,
                     studentName: null
-                });
+                }).then(response => {});
 
                 $("textarea[name='block_comment']").val(report.comments);
 
@@ -62,7 +62,7 @@ function addListenerForGradingResult() {
                     chrome.runtime.sendMessage({
                         action: "saveGradeButtonClicked",
                         sessionUrl: report.sessionUrl //log for usage statistics
-                    }, function (response) {})
+                    }).then(response => {});
                 })
                
             }

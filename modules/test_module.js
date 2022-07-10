@@ -382,9 +382,9 @@ try {
                     // If a static method is called from a non-static reference, it appears as
                     // $ClassName$.methodName when we look for ClassName.methodName.
                 // However, the $'s stay if it is tested, so this is not a perfect solution.
-                else if (untestedMethods.has(name.replaceAll("$", ""))) {
+                else if (untestedMethods.has(name.replace(/$/g, ""))) {
                     testedMethods.add(call);
-                    untestedMethods.delete(name.replaceAll("$", ""));
+                    untestedMethods.delete(name.replace(/$/g, ""));
                 }
             }
         }

@@ -1,7 +1,7 @@
 {
   "name": "code-grader",
   "version": "1.0.3",
-  "description": "code style grading aid",
+  "description": "Chrome browser plug-in to assist grading coding assignment submissions on the Marmoset Submit Server",
   "keywords": [
     "java",
     "js",
@@ -20,8 +20,7 @@
   ],
   "maintainers": [
     "Gregory Kramida",
-    "Matthew Simmons",
-    "Andrej Rasevic"
+    "Matthew Simmons"
   ],
   "repository": {
     "type": "git",
@@ -50,9 +49,9 @@
     "js-beautify": "^1.14.0",
     "json5": "^2.2.1",
     "json5-jest": "^1.0.1",
+    "json5-writer": "^0.2.0",
     "multiline": "^2.0.0"
   },
-  "devDependencies": {},
   "scripts": {
     "build": "browserify options.js options_controller.js -o options_compiled.js"
   }

@@ -2,17 +2,36 @@
 * Copyright 2020-2021 Gregory Kramida
 * */
 const beautify = require("js-beautify").js;
-const options = require("./options.js");
+const options_module = require("./options.js");
+const json5Writer = require("json5-writer")
 
+
+function displayFormattedOptions(optionsWriter) {
+    document.getElementById('optionsTextArea').value = beautify(optionsWriter.toSource(), {
+        indent_size: 4,
+        space_in_empty_paren: true
+    });
+}
 
 // Save options to chrome.storage
 function saveOptions() {
     try {
-        const optionsStr = document.getElementById("optionsTextArea").value;
-        let options = JSON5.parse(optionsStr);
+        const optionsString = document.getElementById("optionsTextArea").value;
+
+        let options = JSON5.parse(optionsString);
+        let optionsWriter = json5Writer.load(optionsString);
+
         if (options.lateScoreAdjustment > 0) {
             alert("Late score adjustment has to be negative. Defaulting the value to 0.");
             options.lateScoreAdjustment = 0;
+        }
+
+        // Fill in semester & year if that wasn't specified by the user or in the loaded file
+        if (!options.hasOwnProperty("semesterSeason")){
+            options.semesterSeason = options_module.getCurrentSemesterSeasonString();
+        }
+        if (!options.hasOwnProperty("year")){
+            options.year = (new Date()).getFullYear().toString();
         }
 
         // If firstStudent isn't a valid field, trim will produce undefined (falsey)
@@ -28,8 +47,14 @@ function saveOptions() {
             options.lastStudent = tmp;
         }
 
+        optionsWriter.write(options);
+        displayFormattedOptions(optionsWriter);
+
         chrome.storage.sync.set(
-            options,
+            {
+                "options": options,
+                "optionsText": document.getElementById('optionsTextArea').value
+            },
             function () {
                 // Update status to let user know options were saved.
                 let status = document.getElementById('status');
@@ -37,11 +62,8 @@ function saveOptions() {
                 setTimeout(function () {
                     status.textContent = '';
                 }, 750);
-            });
-        document.getElementById('optionsTextArea').value = beautify(optionsStr, {
-            indent_size: 4,
-            space_in_empty_paren: true
-        });
+            }
+        );
     } catch (error) {
         if (error instanceof SyntaxError) {
             let status = document.getElementById('status');
@@ -60,20 +82,58 @@ function saveOptions() {
         }
 
     }
-
 }
 
 // Restore options based on values stored in chrome.storage and show them in local text panel.
 function restoreOptionsLocal() {
-    options.restoreOptions(
-        function (options) {
-            document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+    options_module.restoreOptions(
+        function (options, optionsText) {
+            if (optionsText !== null) {
+                document.getElementById('optionsTextArea').value = optionsText;
+            } else {
+                document.getElementById('optionsTextArea').value = JSON5.stringify(options, null, 4);
+            }
         }
     );
 }
 
+function addOptionsTextAreaKeyHandlers() {
+    const optionsTextArea = document.getElementById('optionsTextArea');
+    optionsTextArea.addEventListener('keydown', function (event) {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            const tabWidth = 4;
+            const tabString = " ".repeat(tabWidth);
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            if (event.shiftKey === true) {
+                const beforeCaret = this.value.substring(0, start);
+                const precedingTabStart = start - tabWidth;
+                if (beforeCaret.length > tabWidth && beforeCaret.substring(precedingTabStart) === tabString) {
+                    this.value = beforeCaret.substring(0, precedingTabStart) + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = precedingTabStart;
+                }
+            } else {
+                // set textarea value to: text before caret + tab + text after caret
+                this.value = this.value.substring(0, start) + tabString + this.value.substring(end);
+                // put caret at correct position again
+                this.selectionStart = this.selectionEnd = start + tabWidth;
+            }
+        } else if (event.key === 's' && event.ctrlKey === true) {
+            event.preventDefault();
+            saveOptions();
+        }
+        return false;
+    });
+}
+
+function onOptionPageLoaded() {
+    addOptionsTextAreaKeyHandlers();
+    restoreOptionsLocal();
+}
+
 function restoreDefaults() {
-    const optionsInstance = new options.Options();
+    const optionsInstance = new options_module.Options();
     document.getElementById('optionsTextArea').value = JSON5.stringify(optionsInstance, null, 4);
     saveOptions();
 }
@@ -97,7 +157,7 @@ function loadFromDisk() {
     reader.readAsText(optionsFile);
 }
 
-document.addEventListener('DOMContentLoaded', restoreOptionsLocal);
+document.addEventListener('DOMContentLoaded', onOptionPageLoaded);
 document.getElementById('save').addEventListener('click', saveOptions);
 document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
 document.getElementById('saveToDisk').addEventListener('click', saveToDisk);

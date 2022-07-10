@@ -6,8 +6,9 @@
 /**
  * Checks the URL or other property of the current web page and runs the allowed functions
  * @param {Options} options
+ * @param {string} optionsText
  */
-function main(options) {
+function main(options, optionsText) {
 
     // condition: URL contains 'instructor' keyword
     // add 'review' buttons next to last submission date for directly going to review page
@@ -59,7 +60,7 @@ function main(options) {
                 action: "timeTab",
                 sessionUrl: location.href,
                 studentName: studentName
-            });
+            }).then(response => {});
 
             recolorCheckedFileLinks(filePaths);
             scrollToFirstFile(filePaths);
