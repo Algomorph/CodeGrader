@@ -1,7 +1,8 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'DrawingApp/src/main/java/app/DrawingApp.java|src/app/DrawingApp.java|app/DrawingApp.java',
+        'ArrayUtilities/src/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
+        'ArrayUtilities/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
@@ -14,10 +15,10 @@
         grade_server_module: {
             customRubricCategories: [],
             enabled: true,
-            gradeServerAssignmentName: 'P3',
+            gradeServerAssignmentName: 'P6',
             graderName: '',
             maximumCodeStyleScore: 8,
-            maximumStudentTestsScore: 0,
+            maximumStudentTestsScore: 16,
             minimumScoreAdjustment: 0,
         },
         indentation_module: {
@@ -30,8 +31,8 @@
             patterns: [],
         },
         line_length_module: {
-            enabled: false,
-            lineLengthLimit: 80,
+            enabled: true,
+            lineLengthLimit: 100,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -52,6 +53,7 @@
             allowedSpecialWords: [
                 'min',
                 'max',
+                'args',
             ],
             checkConstants: true,
             checkMethods: true,
@@ -75,14 +77,20 @@
             enabled: true,
         },
         test_module: {
-            enabled: false,
-            methodsExpectedToBeTested: [],
+            enabled: true,
+            methodsExpectedToBeTested: [
+                'Utilities.filter',
+                'Utilities.getArrayString',
+                'Utilities.getArrayStringsLongerThan',
+                'Utilities.getInstances',
+                'Utilities.rotate',
+            ],
         },
         unused_code_module: {
             checkMethods: false,
             checkTypes: false,
             checkVariables: true,
-            enabled: true,
+            enabled: false,
             ignoredNames: {
                 global: [
                     'args',
@@ -91,11 +99,9 @@
             markAllUsages: false,
         },
     },
-    semesterSeason: 'spring',
-    submitServerAssignmentName: 'Proj 3',
+    submitServerAssignmentName: 'Proj 6',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
-    year: '2022',
 }

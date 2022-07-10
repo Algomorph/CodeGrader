@@ -94,11 +94,9 @@
             markAllUsages: false,
         },
     },
-    semesterSeason: 'spring',
     submitServerAssignmentName: 'Proj 9',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
-    year: '2022',
 }

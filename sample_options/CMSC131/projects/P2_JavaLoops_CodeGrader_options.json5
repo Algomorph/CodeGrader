@@ -1,8 +1,9 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'ArrayUtilities/src/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
-        'ArrayUtilities/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java',
+        'JavaLoops/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java',
+        'JavaLoops/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java',
+        'JavaLoops/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
@@ -15,15 +16,15 @@
         grade_server_module: {
             customRubricCategories: [],
             enabled: true,
-            gradeServerAssignmentName: 'P6',
+            gradeServerAssignmentName: 'P2',
             graderName: '',
             maximumCodeStyleScore: 8,
-            maximumStudentTestsScore: 16,
+            maximumStudentTestsScore: 0,
             minimumScoreAdjustment: 0,
         },
         indentation_module: {
             enabled: true,
-            ignoreMixedTabsAndSpaces: true,
+            ignoreMixedTabsAndSpaces: false,
         },
         keyword_and_pattern_module: {
             enabled: false,
@@ -31,8 +32,8 @@
             patterns: [],
         },
         line_length_module: {
-            enabled: true,
-            lineLengthLimit: 100,
+            enabled: false,
+            lineLengthLimit: 80,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -77,20 +78,14 @@
             enabled: true,
         },
         test_module: {
-            enabled: true,
-            methodsExpectedToBeTested: [
-                'Utilities.filter',
-                'Utilities.getArrayString',
-                'Utilities.getArrayStringsLongerThan',
-                'Utilities.getInstances',
-                'Utilities.rotate',
-            ],
+            enabled: false,
+            methodsExpectedToBeTested: [],
         },
         unused_code_module: {
             checkMethods: false,
             checkTypes: false,
             checkVariables: true,
-            enabled: false,
+            enabled: true,
             ignoredNames: {
                 global: [
                     'args',
@@ -99,11 +94,9 @@
             markAllUsages: false,
         },
     },
-    semesterSeason: 'spring',
-    submitServerAssignmentName: 'Proj 6',
+    submitServerAssignmentName: 'Proj 2',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
-    year: '2022',
 }

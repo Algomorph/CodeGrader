@@ -1,8 +1,7 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'NameClassProj/src/main/java/sysutilities/Name.java|src/sysutilities/Name.java|sysutilities/Name.java',
-        'NameClassProj/src/main/java/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
+        'DrawingApp/src/main/java/app/DrawingApp.java|src/app/DrawingApp.java|app/DrawingApp.java',
     ],
     firstStudent: 'a',
     lastStudent: '{',
@@ -15,10 +14,10 @@
         grade_server_module: {
             customRubricCategories: [],
             enabled: true,
-            gradeServerAssignmentName: 'P4',
+            gradeServerAssignmentName: 'P3',
             graderName: '',
             maximumCodeStyleScore: 8,
-            maximumStudentTestsScore: 16,
+            maximumStudentTestsScore: 0,
             minimumScoreAdjustment: 0,
         },
         indentation_module: {
@@ -31,8 +30,8 @@
             patterns: [],
         },
         line_length_module: {
-            enabled: true,
-            lineLengthLimit: 90,
+            enabled: false,
+            lineLengthLimit: 80,
             tabCharacterWidth: 4,
         },
         loop_module: {
@@ -53,7 +52,6 @@
             allowedSpecialWords: [
                 'min',
                 'max',
-                'args',
             ],
             checkConstants: true,
             checkMethods: true,
@@ -77,25 +75,8 @@
             enabled: true,
         },
         test_module: {
-            enabled: true,
-            methodsExpectedToBeTested: [
-                '$Name$.getFirstname',
-                '$Name$.getLastname',
-                '$Name$.getMiddlename',
-                '$Name$.setNickname',
-                '$Name$.getNickname',
-                '$Name$.setSeparator',
-                '$Name$.getSeparator',
-                'Name()',
-                'Name(String, String)',
-                'Name(String, String, String)',
-                'Name(String, String, String, char)',
-                '$Name$.equals',
-                '$Name$.toString',
-                '$Name$.compareTo',
-                'Name.getNumberOfNameObjects',
-                'Name.normalize',
-            ],
+            enabled: false,
+            methodsExpectedToBeTested: [],
         },
         unused_code_module: {
             checkMethods: false,
@@ -110,11 +91,9 @@
             markAllUsages: false,
         },
     },
-    semesterSeason: 'spring',
-    submitServerAssignmentName: 'Proj 4',
+    submitServerAssignmentName: 'Proj 3',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
     },
-    year: '2022',
 }
