@@ -1,27 +1,88 @@
 {
+    // Name of the course as specified on the Submit Server (important!)
     course: 'CMSC131',
+
+    /**
+     * Paths to submission files on the Marmoset Submit Server for CodeGrader to run code analysis features on.
+     * 
+     * These are displayed in the left-hand panel of the Submit Server if you start a code review on any submission. 
+     * Note: CodeGrader is not required to start a code review.
+     * Because the Submit Server allows for some variations in the paths of submitted archives (to ease submissions) and 
+     * doesn't normalize the paths afterward, you have to provide all possible versions of the paths in each entry, separated
+     * by the pipe ("|") character. The wildcard "*" at the end of a path will ensure CodeGrader inspects all files whose paths
+     * begin with whatever precedes the wildcard.
+     */
     filesToCheck: [
         'JavaLoops/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java',
         'JavaLoops/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java',
         'JavaLoops/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java',
     ],
+
+    // Directory ID of the first student to grade. Enter the first (alphabetically) directory id you wish to grade here.
     firstStudent: 'a',
+
+    // Directory ID of the last student to grade. Enter the last (alphabetically) directory id you wish to grade here.
     lastStudent: '{',
+
+    /** 
+     * Late score adjustment for the assignment. If you are unaware of the late score adjustment value or need to confirm it, 
+     * check the Grades Server and try to find a student who submitted late.
+     */
     lateScoreAdjustment: -12,
+
+    // Configuration of the code-analysis features and Grades Server settings
     moduleOptions: {
+
+        // Detection of brace style errors
         brace_style_module: {
+            // Disable to hide the module from the CodeGrader UI panel on the right. Each module has this setting.
             enabled: true,
+            // Tag all braces in the Submit Server code viewer.
             markAllBraces: false,
         },
+
+        // Grades Server settings. This needs to be configured correctly in order for the "REPORT..." button to work.
         grade_server_module: {
+            /**
+             * Aside from the more-or-less 'standard' "Style", "Adjustment", and "Tests" grade rubric categories on the
+             * grades server, there may be custom ones, like "Interpreter" or "Synchronization Requirement".
+             * This setting allows to configure CodeGrader for reporting the grades directly from the CodeGrader UI panel,
+             * just like the "Style" and "Adjustment" scores. Enter the custom rubric values as an array of values like so:
+             * customRubricCategories: [
+             *     {
+             *         defaultScore: 0,
+             *         maximumScore: 10,
+             *         name: 'SampleCustomRubric1',
+             *     },
+             *     {
+             *         defaultScore: 0,
+             *         maximumScore: 15,
+             *         name: 'SampleCustomRubric2',
+             *     },
+             * ],
+             * Make sure that names correspond *exactly* to the names of the rubric categories on the Grades Server 
+             * and that maximum score values also correspond to the Grades Server maximum scores for those rubric
+             * categories.
+             */
             customRubricCategories: [],
+
             enabled: true,
+
+            // Needs to correspond to the "short" name of the project in the top row of the course overview table on 
+            // the GradesServer, i.e. "P2" instead of "Project 2"
             gradeServerAssignmentName: 'P2',
+
+            // CRITICAL: needs to be modified *by each grader*, usually first name and last initial, so that any student
+            // can identify their grader from the auto-generated comments they received on the project. Module won't work
+            // otherwise.
             graderName: '',
+
             maximumCodeStyleScore: 8,
+
             maximumStudentTestsScore: 0,
             minimumScoreAdjustment: 0,
         },
+
         indentation_module: {
             enabled: true,
             ignoreMixedTabsAndSpaces: false,
@@ -94,7 +155,9 @@
             markAllUsages: false,
         },
     },
+
     submitServerAssignmentName: 'Proj 2',
+
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
