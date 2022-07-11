@@ -52,13 +52,18 @@ from disk and/or modify the options.
    are starting from a sample file from the `sample_options` folder. Otherwise, you'll have to 
    edit the defaults and hit "Save" at the top.
    
-Example options are already available for most CMSC132 projects and some of the quizzes/exams
-via the [sample_options/CMSC132](https://github.com/Algomorph/CodeGrader/tree/master/sample_options/CMSC132) folder. 
-These only need to be modified slightly for each new Semester.
+Example options are already available for most CMSC131 and CMSC132 projects and some of the quizzes/exams
+via the [sample_options](https://github.com/Algomorph/CodeGrader/tree/master/sample_options) folder. 
+These usually only need to be modified slightly for each new Semester. For new assignments and modifications, 
+please review the detailed comments above each setting in the [Java Loops Project options file](https://github.com/Algomorph/CodeGrader/blob/master/sample_options/CMSC131/projects/P2_JavaLoops_CodeGrader_options.json5).
+These are comprehensive and cover all available features. Please consider forking this repository, adding or 
+updating the options file you've modified, and submitting a pull request, for the benefit of other graders. 
 
 If you are a lead TA distributing the options to others, or if you want to retain a copy of
 the options fine-tuned to your specific needs for use at a later time, you can use the "Save to disk..." 
-button to retain a copy of the current options on your hard drive. 
+button to retain a copy of the current options on your hard drive.
+
+
 
 Note: By design, option files saved from older versions of CodeGrader are most often compatible with
 newer versions.
@@ -70,7 +75,7 @@ Note: the link will start the video from 6:31, which is when the tutorial itself
 
 We provide some guidance below as well.
 
-#### Loading students code
+#### Loading students' code
 1) Make sure you have CodeGrader configured for the assignment you are grading (see instructions 
    above on how to do this.)
 2) On the Submit Server, hit "Overview" next to the desired project / exam / assignment. 
@@ -79,7 +84,7 @@ We provide some guidance below as well.
 3) Click on the REVIEW links as necessary. Each one will open an new Chrome tab where you can review 
    the corresponding student's code and submit a grade.
 
-#### Reviewing the students code and providing feedback
+#### Reviewing the student's code and providing feedback
 1) Survey the CodeGrader output in the right-hand UI panel. Clicking on links will scroll your view down
    to the auto-detected entity in the code.
 2) To auto-generate a comment about a problem or item in the code, you can click on one of the tags generated 
@@ -103,17 +108,7 @@ We provide some guidance below as well.
 3) Review the feedback and submit the form by clicking "Save Changes". The content will be saved, and
    the student's Grade Server tab will close automatically.
 
-### Upcoming Features 
 
-1) A more thorough options reference documentation.
-2) Tons of bugfixes in existing modules.
-3) A code replication module.
-4) Syntax highlighting on the Submit Server.
-5) Inner class resolution.
-6) Full method call chain resolution.
-7) Custom auto-generated message templates for specific code issues.
-
-And much more...
    
    
 

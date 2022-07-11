@@ -234,7 +234,7 @@ try {
          * @param {boolean} showUniqueOnly whether to show only unique code name occurrences.
          * @param {boolean} numbersAllowedInNames whether arbitrary integral numbers are considered fair-game for variable names
          * @param {boolean} sortAlphabetically sort the UI buttons for code names alphabetically instead of by line they
-         * were were encountered in
+         * were encountered in
          * @param {boolean} checkVariablesAndFields check variables and non-constant fields in the code
          * @param {boolean} checkMethods check methods in the code
          * @param {boolean} checkConstants check constants and constant fields in the code
