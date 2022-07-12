@@ -228,6 +228,13 @@ let indentation_module = {};
                     }
                 }
 
+                if(!isPrev && codeText.trim().indexOf("throws") === 0) { // Check if "throws" is the next line
+                    isPrev = true;                                       // After method declaration
+                    stack.push(isNotAllman);
+                    isNotAllman = 0;
+                    expectedIndent = currentIndentationWidth;
+                }
+
                 // Handle opening and closing braces updating indent size
                 if (codeText.trim().indexOf("}") === 0) {
                     if (isSwitch && currentIndentationWidth - 2 * singleIndentWidth <= switchIndent) {
