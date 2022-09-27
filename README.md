@@ -19,7 +19,7 @@ It also keeps the human grader in the loop to exercise judgement and customize f
 
 ### Installation from the Chrome Web Store
 The latest release of the plugin is available in the Chrome Web Store.
-Simply navigate to this [link](https://chrome.google.com/webstore/detail/codegrader/pbpjjhcjbinhnhehhhmflhpmgciaccco), 
+Simply navigate to this [link](https://chrome.google.com/webstore/detail/codegrader/apfmnhgmjijhimfpmdabfbohpmelaaik), 
 and click the "Add to Chrome" button. 
 
 
