@@ -1,0 +1,370 @@
+{
+    // Name of the course as specified on the Submit Server (important!)
+    course: 'CMSC131',
+
+    /**
+     * Paths to submission files on the Marmoset Submit Server for CodeGrader to run code analysis features on.
+     *
+     * These are displayed in the left-hand panel of the Submit Server if you start a code review on any submission.
+     * Note: CodeGrader is not required to start a code review.
+     * Because the Submit Server allows for some variations in the paths of submitted archives (to ease submissions) and
+     * doesn't normalize the paths afterward, you have to provide all possible versions of the paths in each entry, separated
+     * by the pipe ("|") character. The wildcard "*" at the end of a path will ensure CodeGrader inspects all files whose paths
+     * begin with whatever precedes the wildcard.
+     * Important: due to the nature of code discovery, student test code (usually, something like StudentTests.java)
+     * needs to appear as the *very last entry* in this array. Otherwise, student tests won't be detected properly by
+     * the Test Module.
+     */
+    filesToCheck: [
+        'JavaLoops/src/main/java/programs/Access.java|src/programs/Access.java|programs/Access.java',
+        'JavaLoops/src/main/java/programs/Convert.java|src/programs/Convert.java|programs/Convert.java',
+        'JavaLoops/src/main/java/programs/ThrowDie.java|src/programs/ThrowDie.java|programs/ThrowDie.java',
+    ],
+
+    // Directory ID of the first student to grade. Enter the first (alphabetically) directory id you wish to grade here.
+    firstStudent: 'a',
+
+    // Directory ID of the last student to grade. Enter the last (alphabetically) directory id you wish to grade here.
+    lastStudent: '{',
+
+    /**
+     * Late score adjustment for the assignment. If you are unaware of the late score adjustment value or need to confirm it,
+     * check the Grades Server and try to find a student who submitted late.
+     */
+    lateScoreAdjustment: -12,
+
+    // Configuration of the code-analysis features and Grades Server settings
+    moduleOptions: {
+
+        // Detection of brace style errors
+        brace_style_module: {
+            // Disable to hide the module from the CodeGrader UI panel on the right. Each module has this setting.
+            enabled: true,
+            // Tag all braces in the Submit Server code viewer.
+            markAllBraces: false,
+        },
+
+        // Grades Server settings. This needs to be configured correctly in order for the "REPORT..." button to work.
+        grade_server_module: {
+            /**
+             * Aside from the more-or-less 'standard' "Style", "Adjustment", and "Tests" grade rubric categories on the
+             * grades server, there may be custom ones, like "Interpreter" or "Synchronization Requirement".
+             * This setting allows to configure CodeGrader for reporting the grades directly from the CodeGrader UI panel,
+             * just like the "Style" and "Adjustment" scores. Enter the custom rubric values as an array of values like so:
+             * customRubricCategories: [
+             *     {
+             *         defaultScore: 0,
+             *         maximumScore: 10,
+             *         name: 'SampleCustomRubric1',
+             *     },
+             *     {
+             *         defaultScore: 0,
+             *         maximumScore: 15,
+             *         name: 'SampleCustomRubric2',
+             *     },
+             * ],
+             * Make sure that names correspond *exactly* to the names of the rubric categories on the Grades Server
+             * and that maximum score values also correspond to the Grades Server maximum scores for those rubric
+             * categories.
+             */
+            customRubricCategories: [],
+
+            enabled: true,
+
+            // Needs to correspond to the "short" name of the project in the top row of the course overview table on
+            // the GradesServer, i.e. "P2" instead of "Project 2"
+            gradeServerAssignmentName: 'P2',
+
+            /**
+             * CRITICAL: needs to be modified *by each grader*, usually first name and last initial, so that any student
+             * can identify their grader from the auto-generated comments they received on the project. Module won't work
+             * otherwise.
+             */
+            graderName: '',
+
+            // Maximum assignable scores for style and tests. Needs to correspond to the Grades Server settings for the
+            // assignment.
+            maximumCodeStyleScore: 8,
+            maximumStudentTestsScore: 0,
+
+            // Entered as a negative integer value, this setting controls how many points the grader can take off an
+            // assignment using the "Adjustment" field. Obviously, the magnitude of this setting should never exceed
+            // the total possible number of points.
+            minimumScoreAdjustment: 0,
+        },
+
+        // Detection of indentation code style violations
+        indentation_module: {
+            enabled: true,
+            // When set to true, CodeGrader will ignore mixed tabs and spaces used to indent code. The default behaivor
+            // is to report this as a potential violation.
+            ignoreMixedTabsAndSpaces: false,
+        },
+
+        /**
+         * Detection of keywords or complex patters within the submitted code.
+         * This is particularly useful when, for instance, certain classes or language features are disallowed for a
+         * project, like "ArrayList", or "Arrays.sort". Likewise, this can be used to detect whether a
+         * student followed instructions and added certain required elements into the code, e.g.
+         * ".start()" and ".end()", as well as the "synchronized" keyword for assignments that require multi-threading.
+         * Patterns are matched using regular expressions and can detect more sophisticated patterns with arbitrary
+         * expected variations. For instance, 'instanceof\\s+(:?Non)?EmptyTree' can be used to detect
+         */
+        keyword_and_pattern_module: {
+            enabled: false,
+
+            // Keywords should be entered as an array of strings, i.e.
+            // keywords: ["ArrayList", "LinkedList"],
+            keywords: [],
+
+            /*
+             * Patterns should be entered as an array of regular expressions, i.e.
+             * patterns: [
+             *  '==\\s*EmptyTree\\s*\\.\\s*getInstance\\([^)]*\\)',
+             *  'instanceof\\s+(:?Non)?EmptyTree',
+             *  'getClass\\s*\\(\\s*\\)',
+             *  '(:?tree|(:?left|right)(:?Child|Subtree|Side)?)\\s*\\.\\s*size\\s*\\(\\s*\\)\\s*(:?==|(:?<|>)=?)\\s*\\d+',
+             *  'boolean\\s*(:?isEmpty|empty)\\s*\\(\\s*\\)',
+             * ],
+            */
+            patterns: [],
+        },
+
+        // Detection of potentially overlong lines
+        line_length_module: {
+            enabled: false,
+            // All lines longer than the specified limit will be picked up and reported to the grader
+            lineLengthLimit: 80,
+            // currently, has no effect
+            tabCharacterWidth: 4,
+        },
+
+        // Detection of loops in code
+        loop_module: {
+            enabled: false,
+
+            /**
+             * List of methods to either include or exclude in the loop analysis (see methodListUsage).
+             * Method list should be composed of unique method name identifiers, e.g. "$ClassName$.methodName" for
+             * instance methods and "ClassName.methodName" for static methods.
+             */
+            methodList: [],
+
+            /**
+             * Must be set to "disallowed" or "allowed", dictates how to use the method list.
+             * With "allowed", method list is used as a list of methods where loops are allowed, and other loops will be
+             * marked as potential errors. With "disallowed", the method list is used as a list of methods where loops
+             * are prohibited.
+             */
+            methodListUsage: 'disallowed',
+
+            // Whether to tag the loops not considered as potential errors (see methodList and methodListUsage).
+            showAll: true,
+        },
+
+        // Detection of specific method invocations in the submitted code or specified locations within the code
+        method_call_module: {
+            enabled: false,
+
+            /**
+             * Dictionary of lists of methods whose calls to ignore.
+             * The dictionary is keyed by class names inside whose implementations to ignore said calls,
+             * globally-ignored methods should be entered in the array under the key 'global'.
+             * Use '$ClassName$.someInstanceMethod' for instance method 'someInstanceMethod' of class 'ClassName'.
+             * Use 'ClassName.someStaticMethod' for static method 'someStaticMethod' of class 'ClassName'.
+             * Use 'ClassName()' for the default constructor and 'ClassName(int, String)' for a constructor with
+             * an `int` and a `String` parameter.
+             *
+             * Example:
+             * ignoredMethods: {
+             *  global: ["$Book$.getPageCount", "Utilities.getSpaces"],
+             *  Library: ["Utilities.parseIsbnCode"]
+             * },
+             * Using the above example options, the invocations of (calls to) the instance method `getPageCount` of
+             * class `Book` will get ignored in the entire code, as will be the static method `getSpaces` of
+             * class `Utilities`. The static method `parseIsbnCode` of `Utilities`, however, will only be ignored
+             * when it's called from within the body of the `Library` class.
+             */
+            ignoredMethods: {
+                global: [],
+            },
+
+            // List of types (classes/enums/interfaces) that will be completely ignored by the module. This means
+            // no method invocations made from within the implementations of those types will be marked or tagged.
+            // Entered as an array of strings, i.e.
+            // ignoredTypes: ["Utilities", "StudentTests"]
+            ignoredTypes: [],
+
+            showUniqueOnly: false,
+        },
+
+        // Detection of declarations and potential naming style violations.
+        // Violations include the use of non-dictionary words or failure to adhere to the common naming conventions.
+        naming_module: {
+
+            /**
+             * When these (potentially, non-dictionary) words are detected as wholes or parts of declarations within
+             * code, the module won't mark this as a potential naming style violation.
+             **/
+            allowedSpecialWords: [
+                'min',
+                'max',
+                'args',
+            ],
+
+            // Check constant naming in code. Constants commonly expected to adhere to the SNAKE_CASE convention.
+            // For details on what is treated as a constant and what isn't, please refer to the
+            // 'treatInstanceFinalFieldsAsConstants' option.
+            checkConstants: true,
+
+            // Check method naming in code.
+            checkMethods: true,
+
+            // Check type (class/interface/enum) naming throughout code.
+            checkTypes: true,
+
+            // Check local and member variable names
+            checkVariablesAndFields: true,
+
+            enabled: true,
+
+            /**
+             * Dictionary of lists of code names to ignore.
+             * The dictionary is keyed by class names inside whose implementations to ignore said names,
+             * and globally-ignored names should be under the key 'global'.
+             * Example:
+             *
+             * ignoredNames: {
+             *  global: [
+             *      'args',
+             *      'main',
+             *      'genHTML'
+             *  ],
+             *  TableElement: [ 'rowHTMLElement' ]
+             * },
+             * With the example above, declarations `args`, `main`, and `genHTML` will be ignored everywhere.
+             * However, `rowHTMLElement` will only be ignored when it appears in the TableElement class implementation.
+             */
+            ignoredNames: {
+                global: [
+                    'args',
+                    'main',
+                ],
+            },
+
+            // Whether arbitrary integral numbers are considered fair-game for variable names.
+            numbersAllowedInNames: true,
+
+            // Whether to show only unique code name occurrences. Note that this doesn't transfer across
+            // different types of declarations, i.e. if a variable `offset` and method `offset` both exist somewhere
+            // in the code, they will still both be listed under their respective categories even if this option is
+            // set to "true".
+            showUniqueOnly: true,
+
+            // Sort the UI buttons for code names alphabetically instead of by line they were encountered in.
+            sortAlphabetically: false,
+
+            // When set to false, instance final member variables are not treated as constants, i.e. they have to
+            // adhere to the same convention as non-final fields and variables. Otherwise, they are expected to
+            // adhere to the constant convention.
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+
+        // Detect style violations related to spacing of elements within the code
+        spacing_module: {
+
+            // Checks if there are single spaces around assignment operators ("=", "+=", "*=", etc.)
+            checkSpacingAroundAssignmentOperators: true,
+
+            // Checks if there are single spaces around binary operators ("+", "-", "*", etc.)
+            checkSpacingAroundBinaryOperators: true,
+
+            enabled: true,
+        },
+
+        // Detection of student tests written for appropriate methods in the code.
+        test_module: {
+            enabled: false,
+
+            /**
+             * An array of string identifiers for methods that expected to
+             * be tested with a JUnit test somewhere in the code.
+             * Use '$ClassName$.someInstanceMethod' for instance method 'someInstanceMethod' of class 'ClassName'.
+             * Use 'ClassName.someStaticMethod' for static method 'someStaticMethod' of class 'ClassName'.
+             * Use 'ClassName()' for the default constructor and 'ClassName(int, String)' for a constructor with
+             * an `int` and a `String` parameter.
+             * Example:
+             *
+             * methodsExpectedToBeTested: [
+             *  '$Game$.setBoardWithColor',
+             *  'ClearCellGame(int, int, Random, int)',
+             *  '$ClearCellGame$.isGameOver',
+             * ],
+             *
+             * With these example options, CodeGrader will attempt to detect whether the instance method
+             * `setBoardWithColor` of class `Game` is tested. It will also check if the `isGameOver` method of class
+             * `ClearCellGame` is tested, as well as the `ClearCellGame` constructor accepting an `int`, another `int`,
+             * a `Random`, and a third `int`. Note that inheritance hierarchies are taken into account by the module,
+             * i.e. if `ClearCellGame` inherits from `Game`, and the student constructs a `ClearCellGame` instance
+             * and then tests its' setBoardWithColor method, this will be detected as the testing of the
+             * '$Game$.setBoardWithColor' method.
+             */
+            methodsExpectedToBeTested: [],
+        },
+
+        // Detection of unused declared elements in code.
+        unused_code_module: {
+            // Check for unused methods.
+            checkMethods: false,
+            // Check for unused types (classes/interfaces/enums). Has limited utility, since CodeGrader is usually
+            // only set up to check student code, which is often used externally by pre-supplied driver applications.
+            checkTypes: false,
+            // Check for unused variables
+            checkVariables: true,
+            enabled: true,
+            /**
+             * Dictionary of arrays of names/identifiers of variables, methods, and types to ignore.
+             * The dictionary is a regular javascript Object, keyed by class names inside whose implementations to ignore
+             * said names (represented as string arrays); globally-ignored names should be under the key 'global'.
+             * Example:
+             *
+             * ignoredNames: {
+             *  global: [
+             *      'args',
+             *      'cucumber'
+             *  ],
+             *  Garden: [
+             *      'tomato',
+             *      'handGrenade'
+             *  ]
+             * },
+             * With the above example options, the declarations `args` and `cucumber` will be ignored globally,
+             * while `tomato` and `handGrenade` will only be ignored if they are declared and appear to be unused
+             * in the `Garden` class.
+             */
+            ignoredNames: {
+                global: [
+                    'args',
+                ],
+            },
+            // Whether to tag all detected usages of variables, types, and methods in the code view.
+            markAllUsages: false,
+        },
+    },
+
+    // Extremely important! Has to match 100% to the exact name of the project (not title!) on the Marmoset Submit Server.
+    // I.e. if the name in the first column of "Projects" table is listed as "Project #2", this has to be
+    // changed to "Project #2", not "Proj 2", and certainly not "Java Loops"
+    submitServerAssignmentName: 'Proj 2',
+
+    // These are the options that control the collection of usage data, as outlined at http://codegrader.net/privacy
+    // Feel free to disable it at any time by setting `enabled` to False. Please note that no personal data is collected,
+    // only session occurrences and grading durations (i.e. how long it takes for the grader to click "REPORT.." and
+    // "Save".)
+    usageStatisticsOptions: {
+        // Setting this to "false" will save grader's name (as listed in the grade_server_module options) instead of
+        // an anonymous hash. Set to "false" if you want to show your personal support to the developers of CodeGrader.
+        anonymizeUser: true,
+        enabled: true,
+    },
+}
