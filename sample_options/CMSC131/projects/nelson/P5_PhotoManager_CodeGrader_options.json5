@@ -1,8 +1,8 @@
 {
     course: 'CMSC131',
     filesToCheck: [
-        'PhotoProcessing/src/main/java/sysutilities/Address.java|src/sysutilities/Address.java|sysutilities/Address.java',
-        'PhotoProcessing/src/main/java/sysutilities/PhotoProcessingSys.java|src/sysutilities/PhotoProcessingSys.java|sysutilities/PhotoProcessingSys.java',
+        'PhotoProcessing/src/main/java/photomanager/Photo.java|src/photomanager/Photo.java|photomanager/Photo.java',
+        'PhotoProcessing/src/main/java/photomanager/PhotoManager.java|src/photomanager/PhotoManager.java|photomanager/PhotoManager.java',
         'PhotoProcessing/src/main/java/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
     ],
     firstStudent: 'a',
@@ -10,7 +10,7 @@
     lateScoreAdjustment: -12,
     moduleOptions: {
         brace_style_module: {
-            enabled: true,
+            enabled: false,
             markAllBraces: false,
         },
         grade_server_module: {
@@ -18,7 +18,7 @@
             enabled: true,
             gradeServerAssignmentName: 'P5',
             graderName: '',
-            maximumCodeStyleScore: 10,
+            maximumCodeStyleScore: 8,
             maximumStudentTestsScore: 10,
             minimumScoreAdjustment: 0,
         },
@@ -32,7 +32,7 @@
             patterns: [],
         },
         line_length_module: {
-            enabled: true,
+            enabled: false,
             lineLengthLimit: 80,
             tabCharacterWidth: 4,
         },
@@ -80,15 +80,26 @@
         test_module: {
             enabled: true,
             methodsExpectedToBeTested: [
-                'Address(String, String, String, String)',
-                'Address()',
-                'Address(Address)',
-                'Address(String)',
-                '$Address$.getCity',
-                '$Address$.getStreet',
-                '$Address$.getState',
-                '$Address$.getZipCode',
-                '$Address$.equals',
+                'Photo(String, int, int, String)',
+                'Photo(Photo)',
+                '$Photo$.toString',
+                '$Photo$.getPhotoSource',
+                '$Photo$.getWidth',
+                '$Photo$.getHeight',
+                '$Photo$.getDate',
+                '$Photo$.addComments',
+                '$Photo$.getComments',
+                '$Photo$.compareTo',
+                'PhotoManager(String, int, int, String)',
+                '$PhotoManager$.addPhoto',
+                '$PhotoManager$.toString',
+                '$PhotoManager$.findPhoto',
+                '$PhotoManager$.addComment',
+                '$PhotoManager$.getComments',
+                '$PhotoManager$.removeAllPhotos',
+                '$PhotoManager$.removePhoto',
+                '$PhotoManager$.loadPhotos',
+                '$PhotoManager$.sortPhotosByDate'
             ],
         },
         unused_code_module: {
@@ -104,7 +115,7 @@
             markAllUsages: false,
         },
     },
-    submitServerAssignmentName: 'Proj 5',
+    submitServerAssignmentName: 'Project #5',
     usageStatisticsOptions: {
         anonymizeUser: true,
         enabled: true,
