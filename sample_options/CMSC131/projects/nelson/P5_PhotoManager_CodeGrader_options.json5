@@ -90,7 +90,7 @@
                 '$Photo$.addComments',
                 '$Photo$.getComments',
                 '$Photo$.compareTo',
-                'PhotoManager(String, int, int, String)',
+                'PhotoManager()',
                 '$PhotoManager$.addPhoto',
                 '$PhotoManager$.toString',
                 '$PhotoManager$.findPhoto',
