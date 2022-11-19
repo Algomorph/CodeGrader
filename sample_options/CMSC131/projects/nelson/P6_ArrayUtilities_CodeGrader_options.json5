@@ -1,0 +1,107 @@
+{
+    course: 'CMSC131',
+    filesToCheck: [
+        'ArrayUtilities/src/tests/StudentTests.java|src/tests/StudentTests.java|tests/StudentTests.java',
+        'ArrayUtilities/src/sysImplementation/Utilities.java|src/sysImplementation/Utilities.java|sysImplementation/Utilities.java',
+    ],
+    firstStudent: 'a',
+    lastStudent: '{',
+    lateScoreAdjustment: -12,
+    moduleOptions: {
+        brace_style_module: {
+            enabled: true,
+            markAllBraces: false,
+        },
+        grade_server_module: {
+            customRubricCategories: [],
+            enabled: true,
+            gradeServerAssignmentName: 'P6',
+            graderName: '',
+            maximumCodeStyleScore: 4,
+            maximumStudentTestsScore: 10,
+            minimumScoreAdjustment: 0,
+        },
+        indentation_module: {
+            enabled: true,
+            ignoreMixedTabsAndSpaces: true,
+        },
+        keyword_and_pattern_module: {
+            enabled: false,
+            keywords: [],
+            patterns: [],
+        },
+        line_length_module: {
+            enabled: true,
+            lineLengthLimit: 100,
+            tabCharacterWidth: 4,
+        },
+        loop_module: {
+            enabled: false,
+            methodList: [],
+            methodListUsage: 'disallowed',
+            showAll: true,
+        },
+        method_call_module: {
+            enabled: false,
+            ignoredMethods: {
+                global: [],
+            },
+            ignoredTypes: [],
+            showUniqueOnly: false,
+        },
+        naming_module: {
+            allowedSpecialWords: [
+                'min',
+                'max',
+                'args',
+            ],
+            checkConstants: true,
+            checkMethods: true,
+            checkTypes: true,
+            checkVariablesAndFields: true,
+            enabled: true,
+            ignoredNames: {
+                global: [
+                    'args',
+                    'main',
+                ],
+            },
+            numbersAllowedInNames: true,
+            showUniqueOnly: true,
+            sortAlphabetically: false,
+            treatInstanceFinalFieldsAsConstants: false,
+        },
+        spacing_module: {
+            checkSpacingAroundAssignmentOperators: true,
+            checkSpacingAroundBinaryOperators: true,
+            enabled: true,
+        },
+        test_module: {
+            enabled: true,
+            methodsExpectedToBeTested: [
+                'Utilities.filter',
+                'Utilities.getArrayString',
+                'Utilities.getArrayStringsLongerThan',
+                'Utilities.getInstances',
+                'Utilities.rotate',
+            ],
+        },
+        unused_code_module: {
+            checkMethods: false,
+            checkTypes: false,
+            checkVariables: true,
+            enabled: false,
+            ignoredNames: {
+                global: [
+                    'args',
+                ],
+            },
+            markAllUsages: false,
+        },
+    },
+    submitServerAssignmentName: 'Project #6',
+    usageStatisticsOptions: {
+        anonymizeUser: true,
+        enabled: true,
+    },
+}
