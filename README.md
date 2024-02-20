@@ -12,8 +12,8 @@ It also keeps the human grader in the loop to exercise judgement and customize f
 
 #### (seeing is believing)
 
-![Screenshot 1](https://raw.githubusercontent.com/Algomorph/CodeStyleGradingAid/master/screenshots/GraidingAidScreenshot1.png)
-![Screenshot 2](https://raw.githubusercontent.com/Algomorph/CodeStyleGradingAid/master/screenshots/GraidingAidScreenshot2.png)
+![Screenshot 1](https://github.com/Algomorph/CodeGrader/blob/master/media/screenshots/GraidingAidScreenshot1.png?raw=true)
+![Screenshot 2](https://github.com/Algomorph/CodeGrader/blob/master/media/screenshots/GraidingAidScreenshot2.png?raw=true)
 
 ## Installation
 
